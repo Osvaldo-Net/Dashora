@@ -603,8 +603,11 @@
             svg.appendChild(path); wrapper.innerHTML=''; wrapper.appendChild(svg);
         }
         function previewIcon() {
-            const url=document.getElementById('icon').value.trim(), prev=document.getElementById('iconPreview'), img=document.getElementById('iconPreviewImg');
-            if (url) { img.src=url; prev.style.display='flex'; } else prev.style.display='none';
+            const url=document.getElementById('icon').value.trim();
+            const prev=document.getElementById('iconPreview');
+            const img=document.getElementById('iconPreviewImg');
+            if(!prev||!img)return;
+            if(url){img.src=url;prev.style.display='flex';}else prev.style.display='none';
         }
 
         /* DATA */
@@ -724,9 +727,9 @@
             document.getElementById('serviceSubmitBtn').textContent='Guardar Cambios';
             updateGroupSelect();
             document.getElementById('service-group').value=s.group||'';
-            previewIcon();
             document.getElementById('mainModal').classList.add('active');
             switchTab('service');
+            previewIcon(); // después de que el panel esté visible
         }
         function openEditGroup(gn) {
             modalMode='edit';
