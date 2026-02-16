@@ -7,6 +7,7 @@ let modalMode = 'add';
 let draggedService = null;
 let collapsedGroups = JSON.parse(localStorage.getItem('collapsedGroups') || '[]');
 let searchQuery = '';
+let uploadedIconData = null;
 
 /* SEARCH FUNCTIONALITY */
 function initSearch() {
@@ -156,7 +157,7 @@ function showNoResultsMessage() {
     noResults.id = 'noSearchResults';
     noResults.className = 'empty-state';
     noResults.innerHTML = `
-        <div class="empty-state-icon">\uD83D\uDD0D</div>
+        <div class="empty-state-icon">🔍</div>
         <div class="empty-state-text">No se encontraron resultados</div>
         <p class="empty-state-description">No hay servicios que coincidan con "${escapeHtml(searchQuery)}"</p>
         <button class="btn btn-secondary" onclick="clearSearch()" style="margin-top:20px;max-width:200px;">
@@ -173,7 +174,7 @@ function removeNoResultsMessage() {
     }
 }
 
-/* TOAST - CORREGIDO */
+/* TOAST */
 function showToast(msg, duration = 2500) {
     const t = document.getElementById('toast');
     if (!t) return;
@@ -325,29 +326,29 @@ async function loadWeather() {
             const country = geo.address.country || '';
             
             const codes = {
-                0: {i:'\u2600\uFE0F', d:'Despejado'},
-                1: {i:'\uD83C\uDF24\uFE0F', d:'Mayormente despejado'},
-                2: {i:'\u26C5', d:'Parcialmente nublado'},
-                3: {i:'\u2601\uFE0F', d:'Nublado'},
-                45: {i:'\uD83C\uDF2B\uFE0F', d:'Neblina'},
-                48: {i:'\uD83C\uDF2B\uFE0F', d:'Niebla'},
-                51: {i:'\uD83C\uDF26\uFE0F', d:'Llovizna ligera'},
-                53: {i:'\uD83C\uDF26\uFE0F', d:'Llovizna moderada'},
-                55: {i:'\uD83C\uDF27\uFE0F', d:'Llovizna densa'},
-                61: {i:'\uD83C\uDF27\uFE0F', d:'Lluvia ligera'},
-                63: {i:'\uD83C\uDF27\uFE0F', d:'Lluvia moderada'},
-                65: {i:'\uD83C\uDF27\uFE0F', d:'Lluvia fuerte'},
-                71: {i:'\uD83C\uDF28\uFE0F', d:'Nevada ligera'},
-                73: {i:'\uD83C\uDF28\uFE0F', d:'Nevada moderada'},
-                75: {i:'\u2744\uFE0F', d:'Nevada fuerte'},
-                80: {i:'\uD83C\uDF26\uFE0F', d:'Chubascos ligeros'},
-                81: {i:'\uD83C\uDF27\uFE0F', d:'Chubascos moderados'},
-                82: {i:'\u26C8\uFE0F', d:'Chubascos fuertes'},
-                95: {i:'\u26C8\uFE0F', d:'Tormenta'},
-                99: {i:'\u26C8\uFE0F', d:'Tormenta severa'}
+                0: {i:'☀️', d:'Despejado'},
+                1: {i:'🌤️', d:'Mayormente despejado'},
+                2: {i:'⛅', d:'Parcialmente nublado'},
+                3: {i:'☁️', d:'Nublado'},
+                45: {i:'🌫️', d:'Neblina'},
+                48: {i:'🌫️', d:'Niebla'},
+                51: {i:'🌦️', d:'Llovizna ligera'},
+                53: {i:'🌦️', d:'Llovizna moderada'},
+                55: {i:'🌧️', d:'Llovizna densa'},
+                61: {i:'🌧️', d:'Lluvia ligera'},
+                63: {i:'🌧️', d:'Lluvia moderada'},
+                65: {i:'🌧️', d:'Lluvia fuerte'},
+                71: {i:'🌨️', d:'Nevada ligera'},
+                73: {i:'🌨️', d:'Nevada moderada'},
+                75: {i:'❄️', d:'Nevada fuerte'},
+                80: {i:'🌦️', d:'Chubascos ligeros'},
+                81: {i:'🌧️', d:'Chubascos moderados'},
+                82: {i:'⛈️', d:'Chubascos fuertes'},
+                95: {i:'⛈️', d:'Tormenta'},
+                99: {i:'⛈️', d:'Tormenta severa'}
             };
             
-            const w = codes[data.current.weather_code] || {i:'\uD83C\uDF21\uFE0F', d:'Clima desconocido'};
+            const w = codes[data.current.weather_code] || {i:'🌡️', d:'Clima desconocido'};
             
             wc.innerHTML = `
                 <div class="weather-main">
@@ -460,7 +461,177 @@ function setFallbackIcon(wrapper) {
     wrapper.appendChild(svg);
 }
 
-function previewIcon() {
+function escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = String(s);
+    return d.innerHTML;
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+
+/* ICON UPLOAD */
+function initIconDragDrop() {
+    const uploadArea = document.getElementById('fileUploadArea');
+    if (!uploadArea) return;
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.add('dragover');
+        }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.remove('dragover');
+        }, false);
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length > 0) {
+            const file = files[0];
+            const event = { target: { files: [file] } };
+            handleIconUpload(event);
+        }
+    }, false);
+}
+
+function handleIconUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+        showToast('⚠️ Solo se permiten archivos de imagen');
+        return;
+    }
+    
+    // Validar tamaño (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('⚠️ La imagen debe ser menor a 2MB');
+        return;
+    }
+    
+    // Leer archivo como base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        uploadedIconData = e.target.result;
+        
+        // Mostrar preview
+        const preview = document.getElementById('iconPreview');
+        const previewImg = document.getElementById('iconPreviewImg');
+        
+        if (previewImg && preview) {
+            previewImg.src = uploadedIconData;
+            preview.style.display = 'flex';
+        }
+        
+        // Actualizar label del área de upload SIN sobrescribir el input
+        const uploadArea = document.getElementById('fileUploadArea');
+        const label = uploadArea ? uploadArea.querySelector('.file-upload-label') : null;
+        if (label) {
+            label.innerHTML = `
+                <img src="${uploadedIconData}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;">
+                <span style="font-weight:500;color:var(--text-primary);">${escapeHtml(file.name)}</span>
+                <small style="font-size:0.75rem;color:var(--text-secondary);">${formatFileSize(file.size)}</small>
+            `;
+        }
+        
+        // Mensaje de éxito
+        showToast('✅ Icono cargado correctamente');
+    };
+    
+    reader.onerror = () => {
+        showToast('❌ Error al cargar la imagen');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+function clearIconUpload() {
+    uploadedIconData = null;
+    
+    const fileInput = document.getElementById('iconFile');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    
+    // Restaurar área de upload
+    const uploadArea = document.getElementById('fileUploadArea');
+    if (uploadArea) {
+        uploadArea.innerHTML = `
+            <input type="file" id="iconFile" accept="image/*" onchange="handleIconUpload(event)" style="display:none;">
+            <label for="iconFile" class="file-upload-label">
+                <svg viewBox="0 0 24 24" width="32" height="32"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+                <span>Click para seleccionar imagen</span>
+                <small>PNG, JPG, SVG, GIF (máx. 2MB)</small>
+            </label>
+        `;
+    }
+    
+    const preview = document.getElementById('iconPreview');
+    if (preview) {
+        preview.style.display = 'none';
+    }
+    
+    // Re-inicializar drag & drop
+    initIconDragDrop();
+}
+
+function switchIconTab(tab) {
+    // Cambiar tabs activas
+    document.querySelectorAll('.icon-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+    });
+    
+    // Cambiar contenido activo
+    document.getElementById('icon-tab-url').classList.toggle('active', tab === 'url');
+    document.getElementById('icon-tab-upload').classList.toggle('active', tab === 'upload');
+    
+    // Limpiar el contenido del tab que NO está activo
+    if (tab === 'url') {
+        // Limpiamos upload pero mantenemos la estructura del input
+        uploadedIconData = null;
+        const uploadArea = document.getElementById('fileUploadArea');
+        const label = uploadArea.querySelector('.file-upload-label');
+        if (label) {
+            label.innerHTML = `
+                <svg viewBox="0 0 24 24" width="32" height="32"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+                <span>Click para seleccionar imagen</span>
+                <small>PNG, JPG, SVG, GIF (máx. 2MB)</small>
+            `;
+        }
+        const fileInput = document.getElementById('iconFile');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    } else {
+        // Limpiamos URL
+        document.getElementById('icon').value = '';
+    }
+    
+    // Si no hay datos cargados, ocultar preview
+    if (!uploadedIconData && !document.getElementById('icon').value) {
+        document.getElementById('iconPreview').style.display = 'none';
+    }
+}
+
+function previewIconUrl() {
     const url = document.getElementById('icon').value.trim();
     const prev = document.getElementById('iconPreview');
     const img = document.getElementById('iconPreviewImg');
@@ -470,9 +641,15 @@ function previewIcon() {
     if (url) {
         img.src = url;
         prev.style.display = 'flex';
+        uploadedIconData = null; // Limpiar upload si usamos URL
     } else {
         prev.style.display = 'none';
     }
+}
+
+// Mantener compatibilidad con código antiguo
+function previewIcon() {
+    previewIconUrl();
 }
 
 /* DATA */
@@ -621,7 +798,7 @@ async function handleDrop(e) {
     
     if (draggedService && draggedService.group !== newGroup) {
         await updateService(draggedService.id, draggedService.title, draggedService.icon, draggedService.url, newGroup);
-        showToast(`\uD83D\uDCE6 "${draggedService.title}" movido a "${newGroup}"`);
+        showToast(`📦 "${draggedService.title}" movido a "${newGroup}"`);
     }
     
     return false;
@@ -692,163 +869,6 @@ function buildServiceCard(s) {
     return card;
 }
 
-function escapeHtml(s) {
-    const d = document.createElement('div');
-    d.textContent = String(s);
-    return d.innerHTML;
-}
-
-/* ICON UPLOAD */
-let uploadedIconData = null;
-
-// Inicializar drag & drop para iconos
-function initIconDragDrop() {
-    const uploadArea = document.getElementById('fileUploadArea');
-    if (!uploadArea) return;
-    
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, preventDefaults, false);
-    });
-    
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    
-    ['dragenter', 'dragover'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, () => {
-            uploadArea.classList.add('dragover');
-        }, false);
-    });
-    
-    ['dragleave', 'drop'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, () => {
-            uploadArea.classList.remove('dragover');
-        }, false);
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        
-        if (files.length > 0) {
-            const file = files[0];
-            // Simular el evento de cambio del input
-            const event = { target: { files: [file] } };
-            handleIconUpload(event);
-        }
-    }, false);
-}
-
-function switchIconTab(tab) {
-    // Cambiar tabs activas
-    document.querySelectorAll('.icon-tab').forEach(t => {
-        t.classList.toggle('active', t.dataset.tab === tab);
-    });
-    
-    // Cambiar contenido activo
-    document.getElementById('icon-tab-url').classList.toggle('active', tab === 'url');
-    document.getElementById('icon-tab-upload').classList.toggle('active', tab === 'upload');
-    
-    // Limpiar preview si cambiamos de tab
-    if (tab === 'url') {
-        uploadedIconData = null;
-    } else {
-        document.getElementById('icon').value = '';
-    }
-}
-
-function handleIconUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    // Validar tipo de archivo
-    if (!file.type.startsWith('image/')) {
-        showToast('\u26A0\uFE0F Solo se permiten archivos de imagen');
-        return;
-    }
-    
-    // Validar tamaño (2MB)
-    if (file.size > 2 * 1024 * 1024) {
-        showToast('\u26A0\uFE0F La imagen debe ser menor a 2MB');
-        return;
-    }
-    
-    // Leer archivo como base64
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        uploadedIconData = e.target.result;
-        
-        // Mostrar preview
-        const preview = document.getElementById('iconPreview');
-        const previewImg = document.getElementById('iconPreviewImg');
-        
-        previewImg.src = uploadedIconData;
-        preview.style.display = 'flex';
-        
-        // Actualizar label del área de upload
-        const uploadArea = document.getElementById('fileUploadArea');
-        uploadArea.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
-                <img src="${uploadedIconData}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;">
-                <div style="text-align:left;">
-                    <div style="font-weight:500;color:var(--text-primary);">${escapeHtml(file.name)}</div>
-                    <div style="font-size:0.75rem;color:var(--text-secondary);">${formatFileSize(file.size)}</div>
-                </div>
-            </div>
-            <button type="button" onclick="clearIconUpload()" style="margin-top:12px;padding:6px 12px;border:1px solid var(--border-color);background:var(--bg-card);border-radius:8px;cursor:pointer;font-size:0.85rem;color:var(--text-secondary);">
-                Cambiar imagen
-            </button>
-        `;
-    };
-    reader.readAsDataURL(file);
-}
-
-function clearIconUpload() {
-    uploadedIconData = null;
-    document.getElementById('iconFile').value = '';
-    
-    // Restaurar área de upload
-    const uploadArea = document.getElementById('fileUploadArea');
-    uploadArea.innerHTML = `
-        <input type="file" id="iconFile" accept="image/*" onchange="handleIconUpload(event)" style="display:none;">
-        <label for="iconFile" class="file-upload-label">
-            <svg viewBox="0 0 24 24" width="32" height="32"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
-            <span>Click para seleccionar imagen</span>
-            <small>PNG, JPG, SVG, GIF (máx. 2MB)</small>
-        </label>
-    `;
-    
-    document.getElementById('iconPreview').style.display = 'none';
-}
-
-function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / 1024 / 1024).toFixed(1) + ' MB';
-}
-
-function previewIconUrl() {
-    const url = document.getElementById('icon').value.trim();
-    const prev = document.getElementById('iconPreview');
-    const img = document.getElementById('iconPreviewImg');
-    
-    if (!prev || !img) return;
-    
-    if (url) {
-        img.src = url;
-        prev.style.display = 'flex';
-        uploadedIconData = null; // Limpiar upload si usamos URL
-    } else {
-        prev.style.display = 'none';
-    }
-}
-
-// Mantener compatibilidad con código antiguo
-function previewIcon() {
-    previewIconUrl();
-}
-
 function updateGroupSelect() {
     const gm = getGroupMap();
     const sel = document.getElementById('service-group');
@@ -882,7 +902,7 @@ async function addService(title, icon, url, group) {
     }
     
     renderAll();
-    showToast(`\u2705 "${title}" agregado`);
+    showToast(`✅ "${title}" agregado`);
 }
 
 async function updateService(id, title, icon, url, group) {
@@ -902,7 +922,7 @@ async function updateService(id, title, icon, url, group) {
     const up = await r.json();
     services = services.map(s => s.id === id ? up : s);
     renderAll();
-    showToast(`\u270F\uFE0F "${title}" actualizado`);
+    showToast(`✏️ "${title}" actualizado`);
 }
 
 async function deleteService(id, name) {
@@ -920,7 +940,7 @@ async function deleteService(id, name) {
             
             services = services.filter(s => s.id !== id);
             renderAll();
-            showToast(`\uD83D\uDDD1\uFE0F "${name}" eliminado`);
+            showToast(`🗑️ "${name}" eliminado`);
         }
     );
 }
@@ -945,7 +965,7 @@ async function deleteGroup(gn) {
             
             localGroups = localGroups.filter(g => g !== gn);
             await loadServices();
-            showToast(`\uD83D\uDDD1\uFE0F Grupo "${gn}" eliminado`);
+            showToast(`🗑️ Grupo "${gn}" eliminado`);
         }
     );
 }
@@ -963,7 +983,7 @@ async function renameGroup(oldName, newName) {
     
     localGroups = localGroups.map(g => g === oldName ? newName : g);
     await loadServices();
-    showToast(`\u270F\uFE0F Grupo renombrado a "${newName}"`);
+    showToast(`✏️ Grupo renombrado a "${newName}"`);
 }
 
 /* MODAL */
@@ -977,6 +997,12 @@ function openModal(tab) {
     document.getElementById('serviceSubmitBtn').textContent = 'Agregar Servicio';
     document.getElementById('groupSubmitBtn').textContent = 'Crear Grupo';
     document.getElementById('iconPreview').style.display = 'none';
+    
+    // Limpiar estados
+    uploadedIconData = null;
+    clearIconUpload();
+    switchIconTab('url');
+    
     document.getElementById('mainModal').classList.add('active');
     switchTab(tab || 'service');
 }
@@ -993,6 +1019,13 @@ function openEditService(s) {
     updateGroupSelect();
     document.getElementById('service-group').value = s.group || '';
     
+    // Limpiar estados previos
+    uploadedIconData = null;
+    document.getElementById('icon').value = '';
+    const preview = document.getElementById('iconPreview');
+    const previewImg = document.getElementById('iconPreviewImg');
+    if (preview) preview.style.display = 'none';
+    
     // Detectar si el icono es base64 (imagen subida) o URL
     if (s.icon) {
         if (s.icon.startsWith('data:image')) {
@@ -1001,31 +1034,31 @@ function openEditService(s) {
             switchIconTab('upload');
             
             // Mostrar preview
-            const preview = document.getElementById('iconPreview');
-            const previewImg = document.getElementById('iconPreviewImg');
-            previewImg.src = s.icon;
-            preview.style.display = 'flex';
+            if (previewImg && preview) {
+                previewImg.src = s.icon;
+                preview.style.display = 'flex';
+            }
             
-            // Actualizar área de upload para mostrar la imagen existente
+            // Actualizar label del área de upload SIN sobrescribir el input
             const uploadArea = document.getElementById('fileUploadArea');
-            uploadArea.innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+            const label = uploadArea.querySelector('.file-upload-label');
+            if (label) {
+                label.innerHTML = `
                     <img src="${s.icon}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;">
-                    <div style="text-align:left;">
-                        <div style="font-weight:500;color:var(--text-primary);">Imagen actual</div>
-                        <div style="font-size:0.75rem;color:var(--text-secondary);">Click abajo para cambiar</div>
-                    </div>
-                </div>
-                <button type="button" onclick="clearIconUpload()" style="margin-top:12px;padding:6px 12px;border:1px solid var(--border-color);background:var(--bg-card);border-radius:8px;cursor:pointer;font-size:0.85rem;color:var(--text-secondary);">
-                    Cambiar imagen
-                </button>
-            `;
+                    <span style="font-weight:500;color:var(--text-primary);">Imagen actual</span>
+                    <small style="font-size:0.75rem;color:var(--text-secondary);">Click para cambiar</small>
+                `;
+            }
         } else {
             // Es una URL
             document.getElementById('icon').value = s.icon;
             switchIconTab('url');
             previewIconUrl();
         }
+    } else {
+        // Sin icono, resetear a tab URL
+        switchIconTab('url');
+        clearIconUpload();
     }
     
     document.getElementById('mainModal').classList.add('active');
@@ -1046,10 +1079,25 @@ function openEditGroup(gn) {
 }
 
 function closeModal() {
-    document.getElementById('mainModal').classList.remove('active');
-    document.getElementById('serviceForm').reset();
-    document.getElementById('groupForm').reset();
-    document.getElementById('iconPreview').style.display = 'none';
+    const modal = document.getElementById('mainModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    
+    const serviceForm = document.getElementById('serviceForm');
+    if (serviceForm) {
+        serviceForm.reset();
+    }
+    
+    const groupForm = document.getElementById('groupForm');
+    if (groupForm) {
+        groupForm.reset();
+    }
+    
+    const preview = document.getElementById('iconPreview');
+    if (preview) {
+        preview.style.display = 'none';
+    }
     
     // Limpiar upload de imagen
     uploadedIconData = null;
@@ -1111,7 +1159,7 @@ document.getElementById('groupForm').addEventListener('submit', async e => {
             localGroups.push(name);
         }
         renderAll();
-        showToast(`\uD83D\uDCC1 Grupo "${name}" creado`);
+        showToast(`📁 Grupo "${name}" creado`);
     }
     
     closeModal();
