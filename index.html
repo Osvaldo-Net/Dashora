@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,1105 +7,260 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-
     <style>
         :root {
-            --bg-primary: #f0f2f0;
-            --bg-secondary: #e8ebe8;
-            --bg-card: #ffffff;
-            --text-primary: #1c2120;
-            --text-secondary: #6b7a6b;
-            --border-color: #dce4dc;
+            --bg-primary: #f0f2f0; --bg-secondary: #e8ebe8; --bg-card: #ffffff;
+            --text-primary: #1c2120; --text-secondary: #6b7a6b; --border-color: #dce4dc;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
             --shadow-lg: 0 10px 30px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.05);
-            --accent: #2d7a4f;
-            --accent-light: #3d9962;
-            --accent-dim: rgba(45, 122, 79, 0.10);
-            --accent-dim2: rgba(45, 122, 79, 0.18);
-            --danger: #c0392b;
-            --danger-dim: rgba(192, 57, 43, 0.08);
-            --success: #2d7a4f;
-            --group-header-bg: #f5f7f5;
-            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --accent: #2d7a4f; --accent-light: #3d9962;
+            --accent-dim: rgba(45,122,79,0.10); --accent-dim2: rgba(45,122,79,0.18);
+            --danger: #c0392b; --danger-dim: rgba(192,57,43,0.08);
+            --group-header-bg: #f5f7f5; --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+            --sidebar-width: 320px;
         }
-
         [data-theme="dark"] {
-            --bg-primary: #212121;
-            --bg-secondary: #2a2a2a;
-            --bg-card: #2f2f2f;
-            --text-primary: #e8e8e3;
-            --text-secondary: #8a8a85;
-            --border-color: #3a3a3a;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+            --bg-primary: #212121; --bg-secondary: #2a2a2a; --bg-card: #2f2f2f;
+            --text-primary: #e8e8e3; --text-secondary: #8a8a85; --border-color: #3a3a3a;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
             --shadow-lg: 0 10px 30px rgba(0,0,0,0.4);
-            --accent: #3d9962;
-            --accent-light: #4db872;
-            --accent-dim: rgba(61, 153, 98, 0.12);
-            --accent-dim2: rgba(61, 153, 98, 0.22);
-            --danger: #e05a4a;
-            --danger-dim: rgba(224, 90, 74, 0.10);
+            --accent: #3d9962; --accent-light: #4db872;
+            --accent-dim: rgba(61,153,98,0.12); --accent-dim2: rgba(61,153,98,0.22);
+            --danger: #e05a4a; --danger-dim: rgba(224,90,74,0.10);
             --group-header-bg: #282828;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); min-height: 100vh; padding: 28px 24px; transition: background var(--transition), color var(--transition); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        body.sidebar-open { padding-right: calc(var(--sidebar-width) + 48px); }
+        .container { max-width: 1320px; margin: 0 auto; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* OVERLAY */
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); backdrop-filter: blur(2px); z-index: 99; opacity: 0; transition: opacity var(--transition); }
+        .sidebar-overlay.visible { opacity: 1; }
 
-        body {
-            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            min-height: 100vh;
-            padding: 28px 24px;
-            padding-top: 28px;
-            transition: background var(--transition), color var(--transition);
-            color: var(--text-primary);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+        /* SIDEBAR */
+        .sidebar { position: fixed; right: 0; top: 28px; width: var(--sidebar-width); height: calc(100vh - 56px); background: transparent; padding: 0 24px 28px 24px; overflow-y: auto; z-index: 100; transition: transform var(--transition); }
+        .sidebar-section { margin-bottom: 32px; }
 
-        body.sidebar-open {
-            padding-right: 344px;
-        }
+        /* CLOCK */
+        .clock-display { text-align: center; margin-bottom: 24px; padding: 24px; background: var(--bg-secondary); border-radius: 14px; border: 1px solid var(--border-color); }
+        .clock-time { font-family: 'DM Serif Display', serif; font-size: 3.5rem; font-weight: 400; color: var(--text-primary); line-height: 1; margin-bottom: 8px; letter-spacing: -0.02em; }
+        .clock-ampm { font-family: 'DM Sans', sans-serif; font-size: 1.4rem; font-weight: 500; color: var(--text-secondary); margin-left: 6px; vertical-align: middle; letter-spacing: 0.02em; }
+        .clock-date { font-size: 1rem; color: var(--text-secondary); font-weight: 500; margin-bottom: 4px; }
+        .clock-timezone { font-size: 0.8rem; color: var(--text-secondary); opacity: 0.7; }
+        .clock-settings-btn { background: transparent; border: 1px solid var(--border-color); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); padding: 0; }
+        .clock-settings-btn:hover { background: var(--accent-dim); border-color: var(--accent); transform: rotate(45deg); }
+        .clock-settings-btn svg { fill: var(--text-secondary); transition: fill var(--transition); }
+        .clock-settings-btn:hover svg { fill: var(--accent); }
+        .clock-settings-panel { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .clock-setting-item { margin-bottom: 12px; }
+        .clock-setting-item:last-child { margin-bottom: 0; }
+        .clock-setting-item label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }
+        .clock-setting-item select { width: 100%; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; transition: all var(--transition); }
+        .clock-setting-item select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
 
-        .container {
-            max-width: 1320px;
-            margin: 0 auto;
-        }
+        /* CALENDAR */
+        .calendar-container { background: var(--bg-secondary); border-radius: 14px; padding: 20px; border: 1px solid var(--border-color); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .calendar-month { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+        .calendar-nav { display: flex; gap: 8px; }
+        .calendar-nav-btn { background: var(--bg-card); border: 1px solid var(--border-color); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); }
+        .calendar-nav-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+        .calendar-nav-btn svg { width: 16px; height: 16px; fill: var(--text-secondary); }
+        .calendar-nav-btn:hover svg { fill: var(--accent); }
+        .calendar-weekdays { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-bottom: 8px; }
+        .calendar-weekday { text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); padding: 8px 0; text-transform: uppercase; }
+        .calendar-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; color: var(--text-primary); border-radius: 8px; cursor: pointer; transition: all var(--transition); font-weight: 500; }
+        .calendar-day:hover { background: var(--accent-dim); }
+        .calendar-day.other-month { color: var(--text-secondary); opacity: 0.4; }
+        .calendar-day.today { background: var(--accent); color: white; font-weight: 600; }
+        .calendar-day.today:hover { background: var(--accent-light); }
 
-        /* ── SIDEBAR ── */
-        .sidebar {
-            position: fixed;
-            right: 0;
-            top: 28px;
-            width: 320px;
-            height: calc(100vh - 56px);
-            background: transparent;
-            padding: 0 24px 28px 24px;
-            overflow-y: auto;
-            z-index: 100;
-            transition: all var(--transition);
-        }
+        /* WEATHER */
+        .weather-container { background: var(--bg-secondary); border-radius: 14px; padding: 20px; border: 1px solid var(--border-color); }
+        .weather-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .weather-refresh-btn { background: var(--bg-card); border: 1px solid var(--border-color); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); }
+        .weather-refresh-btn:hover { background: var(--accent-dim); border-color: var(--accent); transform: rotate(90deg); }
+        .weather-refresh-btn svg { fill: var(--text-secondary); transition: fill var(--transition); }
+        .weather-refresh-btn:hover svg { fill: var(--accent); }
+        .weather-content { display: flex; flex-direction: column; gap: 12px; }
+        .weather-main { display: flex; align-items: center; gap: 16px; padding: 12px; background: var(--bg-card); border-radius: 10px; }
+        .weather-icon { font-size: 3rem; line-height: 1; }
+        .weather-temp { flex: 1; }
+        .weather-temp-value { font-size: 2.2rem; font-weight: 600; color: var(--text-primary); line-height: 1; }
+        .weather-temp-desc { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; text-transform: capitalize; }
+        .weather-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .weather-detail-item { background: var(--bg-card); padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .weather-detail-label { font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.03em; }
+        .weather-detail-value { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
+        .weather-location { font-size: 0.8rem; color: var(--text-secondary); text-align: center; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .weather-location svg { width: 12px; height: 12px; fill: var(--text-secondary); }
 
-        .sidebar-section {
-            margin-bottom: 32px;
-        }
-
-        .clock-display {
-            text-align: center;
-            margin-bottom: 24px;
-            padding: 24px;
-            background: var(--bg-secondary);
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-        }
-
-        .clock-time {
-            font-family: 'DM Serif Display', serif;
-            font-size: 3.5rem;
-            font-weight: 400;
-            color: var(--text-primary);
-            line-height: 1;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
-        }
-
-        .clock-ampm {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-left: 6px;
-            vertical-align: middle;
-            letter-spacing: 0.02em;
-        }
-
-        .clock-date {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .clock-timezone {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            opacity: 0.7;
-        }
-
-        .clock-settings-btn {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-            padding: 0;
-        }
-
-        .clock-settings-btn:hover {
-            background: var(--accent-dim);
-            border-color: var(--accent);
-            transform: rotate(45deg);
-        }
-
-        .clock-settings-btn svg {
-            fill: var(--text-secondary);
-            transition: fill var(--transition);
-        }
-
-        .clock-settings-btn:hover svg {
-            fill: var(--accent);
-        }
-
-        .clock-settings-panel {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-color);
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .clock-setting-item {
-            margin-bottom: 12px;
-        }
-
-        .clock-setting-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .clock-setting-item label {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        .clock-setting-item select {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-
-        .clock-setting-item select:hover {
-            border-color: var(--accent);
-        }
-
-        .clock-setting-item select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-dim);
-        }
-
-        .calendar-container {
-            background: var(--bg-secondary);
-            border-radius: 14px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-        }
-
-        .calendar-month {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .calendar-nav {
-            display: flex;
-            gap: 8px;
-        }
-
-        .calendar-nav-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-        }
-
-        .calendar-nav-btn:hover {
-            background: var(--accent-dim);
-            border-color: var(--accent);
-        }
-
-        .calendar-nav-btn svg {
-            width: 16px;
-            height: 16px;
-            fill: var(--text-secondary);
-        }
-
-        .calendar-nav-btn:hover svg {
-            fill: var(--accent);
-        }
-
-        .calendar-weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            margin-bottom: 8px;
-        }
-
-        .calendar-weekday {
-            text-align: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            padding: 8px 0;
-            text-transform: uppercase;
-        }
-
-        .calendar-days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-        }
-
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.875rem;
-            color: var(--text-primary);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-weight: 500;
-        }
-
-        .calendar-day:hover {
-            background: var(--accent-dim);
-        }
-
-        .calendar-day.other-month {
-            color: var(--text-secondary);
-            opacity: 0.4;
-        }
-
-        .calendar-day.today {
-            background: var(--accent);
-            color: white;
-            font-weight: 600;
-        }
-
-        .calendar-day.today:hover {
-            background: var(--accent-light);
-        }
-
-        .calendar-day.empty {
-            cursor: default;
-        }
-
-        .calendar-day.empty:hover {
-            background: transparent;
-        }
-
-        /* ── WEATHER ── */
-        .weather-container {
-            background: var(--bg-secondary);
-            border-radius: 14px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-        }
-
-        .weather-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .weather-refresh-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-        }
-
-        .weather-refresh-btn:hover {
-            background: var(--accent-dim);
-            border-color: var(--accent);
-            transform: rotate(90deg);
-        }
-
-        .weather-refresh-btn svg {
-            fill: var(--text-secondary);
-            transition: fill var(--transition);
-        }
-
-        .weather-refresh-btn:hover svg {
-            fill: var(--accent);
-        }
-
-        .weather-content {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .weather-main {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px;
-            background: var(--bg-card);
-            border-radius: 10px;
-        }
-
-        .weather-icon {
-            font-size: 3rem;
-            line-height: 1;
-        }
-
-        .weather-temp {
-            flex: 1;
-        }
-
-        .weather-temp-value {
-            font-size: 2.2rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            line-height: 1;
-        }
-
-        .weather-temp-desc {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 4px;
-            text-transform: capitalize;
-        }
-
-        .weather-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .weather-detail-item {
-            background: var(--bg-card);
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .weather-detail-label {
-            font-size: 0.72rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        .weather-detail-value {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .weather-location {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            text-align: center;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .weather-location svg {
-            width: 12px;
-            height: 12px;
-            fill: var(--text-secondary);
-        }
-
+        /* HAMBURGER TOGGLE — fixed, top-right, never overlaps content */
         .sidebar-toggle {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: var(--bg-card);
-            border: 1.5px solid var(--border-color);
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-            z-index: 101;
-        }
-
-        .sidebar-toggle:hover {
-            border-color: var(--accent);
-            background: var(--accent-dim);
-        }
-
-        .sidebar-toggle svg {
-            width: 18px;
-            height: 18px;
-            fill: var(--text-secondary);
-            transition: fill var(--transition);
-        }
-
-        .sidebar-toggle:hover svg {
-            fill: var(--accent);
-        }
-
-        /* ── HEADER ── */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            background: var(--bg-card);
-            padding: 24px 32px;
-            border-radius: 18px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-        }
-
-        .header-content {
-            flex: 1;
-        }
-
-        h1 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 2.2rem;
-            font-weight: 400;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            letter-spacing: -0.02em;
-            line-height: 1.2;
-        }
-
-        .subtitle {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-            letter-spacing: 0.01em;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header-btn {
-            background: var(--accent-dim);
-            border: 1.5px solid var(--accent-dim2);
-            color: var(--accent);
-            padding: 9px 18px;
-            border-radius: 10px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            font-family: 'DM Sans', sans-serif;
-            cursor: pointer;
-            transition: all var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            white-space: nowrap;
-        }
-
-        .header-btn:hover {
-            background: var(--accent-dim2);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .theme-toggle {
-            background: var(--bg-secondary);
-            border: 1.5px solid var(--border-color);
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-            flex-shrink: 0;
-        }
-
-        .theme-toggle:hover {
-            border-color: var(--accent);
-            background: var(--accent-dim);
-        }
-
-        .theme-toggle svg {
-            width: 18px;
-            height: 18px;
-            fill: var(--text-secondary);
-            transition: fill var(--transition);
-        }
-
-        .theme-toggle:hover svg {
-            fill: var(--accent);
-        }
-
-        /* ── GROUPS ── */
-        .group-section {
-            margin-bottom: 48px;
-        }
-
-        .group-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-            padding: 14px 20px;
-            background: var(--group-header-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .group-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-        }
-
-        .group-title svg {
-            fill: var(--accent);
-            opacity: 0.8;
-        }
-
-        .group-count {
-            background: var(--accent-dim);
-            color: var(--accent);
-            font-size: 0.72rem;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 20px;
-            letter-spacing: 0.02em;
-        }
-
-        .group-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .group-delete-btn {
-            background: transparent;
-            border: 1.5px solid var(--border-color);
-            padding: 6px 13px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-size: 0.78rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-family: 'DM Sans', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .group-delete-btn:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-            background: var(--danger-dim);
-        }
-
-        .group-delete-btn svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
-        }
-
-        /* ── SERVICE CARDS ── */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 14px;
-        }
-
-        .service-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 18px 16px 16px;
-            text-align: center;
-            transition: all var(--transition);
-            cursor: pointer;
-            position: relative;
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent);
-            transform: scaleX(0);
-            transition: transform var(--transition);
-            border-radius: 16px 16px 0 0;
-        }
-
-        .service-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: transparent;
-        }
-
-        .service-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .service-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 12px;
-            margin: 0 auto 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
-
-        .service-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-        }
-
-        .icon-fallback {
-            width: 36px;
-            height: 36px;
-            fill: var(--text-secondary);
-        }
-
-        .service-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            letter-spacing: -0.01em;
-        }
-
-        .service-url {
-            font-size: 0.72rem;
-            color: var(--text-secondary);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-weight: 400;
-        }
-
-        /* Delete btn — now subtle, top-right */
-        .delete-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: transparent;
-            border: 1.5px solid transparent;
-            color: var(--text-secondary);
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            opacity: 0;
-            transition: all var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .delete-btn svg {
-            width: 15px;
-            height: 15px;
-            fill: currentColor;
-        }
-
-        .service-card:hover .delete-btn {
-            opacity: 1;
-        }
-
-        .delete-btn:hover {
-            background: var(--danger-dim);
-            border-color: var(--danger);
-            color: var(--danger);
-            transform: scale(1.05);
-        }
-
-        /* ── MODAL ── */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            padding: 36px;
-            border-radius: 20px;
-            max-width: 460px;
-            width: 92%;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border-color);
-            animation: modalIn 0.2s cubic-bezier(0.34, 1.36, 0.64, 1);
-        }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95) translateY(8px); }
-            to   { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .modal-header {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.6rem;
-            font-weight: 400;
-            margin-bottom: 6px;
-            color: var(--text-primary);
-            letter-spacing: -0.02em;
-        }
-
-        .modal-sub {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: 28px;
-        }
-
-        /* Tab switcher inside modal */
-        .modal-tabs {
-            display: flex;
-            gap: 6px;
-            background: var(--bg-secondary);
-            border-radius: 10px;
-            padding: 4px;
-            margin-bottom: 28px;
-        }
-
-        .modal-tab {
-            flex: 1;
-            padding: 9px;
-            border: none;
-            border-radius: 7px;
-            background: transparent;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-
-        .modal-tab.active {
-            background: var(--bg-card);
-            color: var(--accent);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .tab-panel {
-            display: none;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: 500;
-            font-size: 0.875rem;
-            color: var(--text-primary);
-        }
-
-        .label-hint {
-            font-weight: 400;
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-            margin-left: 4px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 11px 14px;
-            border: 1.5px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-family: 'DM Sans', sans-serif;
-            transition: border-color var(--transition), box-shadow var(--transition);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        input::placeholder {
-            color: var(--text-secondary);
-            opacity: 0.7;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-dim);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 26px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            font-family: 'DM Sans', sans-serif;
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 2px 8px rgba(45, 122, 79, 0.25);
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-light);
-            box-shadow: 0 4px 14px rgba(45, 122, 79, 0.35);
-        }
-
-        .btn-secondary {
-            background: var(--bg-secondary);
-            border: 1.5px solid var(--border-color);
-            color: var(--text-secondary);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
-
-        /* ── EMPTY STATE ── */
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            background: var(--bg-card);
-            border-radius: 18px;
-            border: 2px dashed var(--border-color);
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 18px;
-            opacity: 0.5;
-        }
-
-        .empty-state-text {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.5rem;
-            font-weight: 400;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .empty-state-description {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* ── SYSINFO BAR ── */
-        .sysinfo-section {
-            margin-bottom: 44px;
-            background: var(--bg-card);
-            padding: 20px 32px;
-            border-radius: 18px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-        }
-
-        .sysinfo {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .sysinfo-chip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px 16px;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-            transition: all var(--transition);
-        }
-
-        .sysinfo-chip svg {
-            width: 16px;
-            height: 16px;
-            fill: var(--accent);
-            flex-shrink: 0;
-        }
-
-        .sysinfo-chip .chip-value {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .sysinfo-chip .chip-bar {
-            width: 50px;
-            height: 5px;
-            background: var(--border-color);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .sysinfo-chip .chip-bar-fill {
-            height: 100%;
-            border-radius: 3px;
-            background: var(--accent);
-            transition: width 0.6s ease;
-        }
-
-        .chip-bar-fill.warn  { background: #d97706; }
+            position: fixed; top: 28px; right: 28px;
+            width: 44px; height: 44px; border-radius: 12px;
+            background: var(--bg-card); border: 1.5px solid var(--border-color);
+            cursor: pointer; display: none; align-items: center; justify-content: center;
+            transition: all var(--transition); z-index: 200; box-shadow: var(--shadow-md);
+        }
+        .sidebar-toggle:hover { border-color: var(--accent); background: var(--accent-dim); }
+        .bars { display: flex; flex-direction: column; gap: 4px; }
+        .bar { display: block; width: 20px; height: 2px; background: var(--text-secondary); border-radius: 2px; transition: all 0.25s ease; transform-origin: center; }
+        .sidebar-toggle.open .bar:nth-child(1) { transform: translateY(6px) rotate(45deg); background: var(--accent); }
+        .sidebar-toggle.open .bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .sidebar-toggle.open .bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); background: var(--accent); }
+
+        /* HEADER */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 24px 32px; border-radius: 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
+        .header-content { flex: 1; }
+        h1 { font-family: 'DM Serif Display', serif; font-size: 2.2rem; font-weight: 400; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.02em; line-height: 1.2; }
+        .subtitle { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; }
+        .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .header-btn { background: var(--accent-dim); border: 1.5px solid var(--accent-dim2); color: var(--accent); padding: 9px 18px; border-radius: 10px; font-size: 0.875rem; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+        .header-btn:hover { background: var(--accent-dim2); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+        .theme-toggle { background: var(--bg-secondary); border: 1.5px solid var(--border-color); width: 44px; height: 44px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); flex-shrink: 0; }
+        .theme-toggle:hover { border-color: var(--accent); background: var(--accent-dim); }
+        .theme-toggle svg { width: 18px; height: 18px; fill: var(--text-secondary); transition: fill var(--transition); }
+        .theme-toggle:hover svg { fill: var(--accent); }
+
+        /* GROUPS */
+        .group-section { margin-bottom: 48px; }
+        .group-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding: 14px 20px; background: var(--group-header-bg); border-radius: 12px; border: 1px solid var(--border-color); gap: 8px; flex-wrap: wrap; }
+        .group-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 9px; letter-spacing: 0.02em; text-transform: uppercase; }
+        .group-title svg { fill: var(--accent); opacity: 0.8; }
+        .group-count { background: var(--accent-dim); color: var(--accent); font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+        .group-actions { display: flex; gap: 8px; }
+        .group-action-btn { background: transparent; border: 1.5px solid var(--border-color); padding: 6px 13px; border-radius: 8px; cursor: pointer; transition: all var(--transition); font-size: 0.78rem; color: var(--text-secondary); font-weight: 500; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .group-action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+        .group-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-dim); }
+        .group-action-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
+        /* SERVICE CARDS */
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 14px; }
+        .service-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px 16px 16px; text-align: center; transition: all var(--transition); cursor: pointer; position: relative; box-shadow: var(--shadow-sm); overflow: hidden; }
+        .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform var(--transition); border-radius: 16px 16px 0 0; }
+        .service-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: transparent; }
+        .service-card:hover::before { transform: scaleX(1); }
+        .service-icon { width: 52px; height: 52px; border-radius: 12px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); padding: 8px; border: 1px solid var(--border-color); overflow: hidden; }
+        .service-icon img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .icon-fallback { width: 36px; height: 36px; fill: var(--text-secondary); }
+        .service-title { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.01em; }
+        .service-url { font-size: 0.72rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* Card action buttons */
+        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; opacity: 0; transition: opacity var(--transition); }
+        .service-card:hover .card-actions { opacity: 1; }
+        .card-btn { background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-secondary); width: 28px; height: 28px; border-radius: 7px; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; justify-content: center; }
+        .card-btn svg { width: 14px; height: 14px; fill: currentColor; }
+        .card-btn.edit:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+        .card-btn.delete:hover { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--bg-card); padding: 36px; border-radius: 20px; max-width: 480px; width: 100%; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); animation: modalIn 0.2s cubic-bezier(0.34,1.36,0.64,1); max-height: 90vh; overflow-y: auto; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-header { font-family: 'DM Serif Display', serif; font-size: 1.6rem; font-weight: 400; margin-bottom: 6px; color: var(--text-primary); letter-spacing: -0.02em; }
+        .modal-sub { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 28px; }
+        .modal-tabs { display: flex; gap: 6px; background: var(--bg-secondary); border-radius: 10px; padding: 4px; margin-bottom: 28px; }
+        .modal-tab { flex: 1; padding: 9px; border: none; border-radius: 7px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); }
+        .modal-tab.active { background: var(--bg-card); color: var(--accent); box-shadow: var(--shadow-sm); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 7px; font-weight: 500; font-size: 0.875rem; color: var(--text-primary); }
+        .label-hint { font-weight: 400; font-size: 0.82rem; color: var(--text-secondary); margin-left: 4px; }
+        input, select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; transition: border-color var(--transition), box-shadow var(--transition); background: var(--bg-secondary); color: var(--text-primary); }
+        input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+        .button-group { display: flex; gap: 10px; margin-top: 26px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all var(--transition); }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(45,122,79,0.25); }
+        .btn-primary:hover { background: var(--accent-light); box-shadow: 0 4px 14px rgba(45,122,79,0.35); }
+        .btn-secondary { background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-secondary); }
+        .btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { opacity: 0.9; }
+
+        /* Icon preview */
+        .icon-preview { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+        .icon-preview-box { width: 44px; height: 44px; border-radius: 10px; border: 1.5px solid var(--border-color); background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+        .icon-preview-box img { width: 100%; height: 100%; object-fit: contain; }
+        .icon-preview-hint { font-size: 0.78rem; color: var(--text-secondary); }
+
+        /* EMPTY STATE */
+        .empty-state { text-align: center; padding: 80px 20px; background: var(--bg-card); border-radius: 18px; border: 2px dashed var(--border-color); }
+        .empty-state-icon { font-size: 4rem; margin-bottom: 18px; opacity: 0.5; }
+        .empty-state-text { font-family: 'DM Serif Display', serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary); margin-bottom: 8px; }
+        .empty-state-description { color: var(--text-secondary); font-size: 0.9rem; }
+
+        /* SYSINFO */
+        .sysinfo-section { margin-bottom: 44px; background: var(--bg-card); padding: 20px 32px; border-radius: 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
+        .sysinfo { display: flex; gap: 10px; flex-wrap: wrap; }
+        .sysinfo-chip { display: flex; align-items: center; gap: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 16px; font-size: 0.875rem; color: var(--text-secondary); font-weight: 500; }
+        .sysinfo-chip svg { width: 16px; height: 16px; fill: var(--accent); flex-shrink: 0; }
+        .sysinfo-chip .chip-value { color: var(--text-primary); font-weight: 600; }
+        .sysinfo-chip .chip-bar { width: 50px; height: 5px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
+        .sysinfo-chip .chip-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s ease; }
+        .chip-bar-fill.warn { background: #d97706; }
         .chip-bar-fill.danger { background: #dc2626; }
 
-        /* ── RESPONSIVE ── */
-        @media (max-width: 1200px) {
-            body.sidebar-open {
-                padding-right: 24px;
-            }
+        /* TOAST */
+        .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-primary); color: var(--bg-primary); padding: 12px 20px; border-radius: 10px; font-size: 0.875rem; font-weight: 500; z-index: 9999; transition: transform 0.3s cubic-bezier(0.34,1.36,0.64,1); white-space: nowrap; box-shadow: var(--shadow-lg); }
+        .toast.show { transform: translateX(-50%) translateY(0); }
 
-            .sidebar {
-                transform: translateX(100%);
-                background: var(--bg-primary);
-                box-shadow: var(--shadow-lg);
-                border-left: 1px solid var(--border-color);
-                top: 0;
-                height: 100vh;
-                padding: 28px 24px;
-            }
+        /* CONFIRM DIALOG */
+        .confirm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 3000; align-items: center; justify-content: center; padding: 16px; }
+        .confirm-modal.active { display: flex; }
+        .confirm-content { background: var(--bg-card); padding: 28px; border-radius: 16px; max-width: 360px; width: 100%; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); animation: modalIn 0.2s cubic-bezier(0.34,1.36,0.64,1); text-align: center; }
+        .confirm-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .confirm-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; margin-bottom: 8px; }
+        .confirm-msg { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5; }
+        .confirm-actions { display: flex; gap: 10px; }
 
-            .sidebar.visible {
-                transform: translateX(0);
-            }
-
-            .sidebar-toggle {
-                display: flex;
-            }
+        /* RESPONSIVE */
+        /* Desktop: sidebar always visible, no hamburger */
+        @media (min-width: 1201px) {
+            .sidebar { transform: none !important; }
+            .sidebar-toggle { display: none !important; }
+            .sidebar-overlay { display: none !important; }
         }
-
+        /* Mobile/tablet: sidebar hidden by default, hamburger shown */
+        @media (max-width: 1200px) {
+            body.sidebar-open { padding-right: 24px; }
+            .sidebar { transform: translateX(110%); background: var(--bg-primary); box-shadow: var(--shadow-lg); border-left: 1px solid var(--border-color); top: 0; height: 100vh; padding: 76px 24px 28px 24px; }
+            .sidebar.visible { transform: translateX(0); }
+            .sidebar-overlay { display: block; pointer-events: none; }
+            .sidebar-overlay.visible { pointer-events: auto; }
+            .sidebar-toggle { display: flex; }
+        }
         @media (max-width: 768px) {
             body { padding: 12px; }
             body.sidebar-open { padding: 12px; }
             h1 { font-size: 1.6rem; }
             header { padding: 16px; flex-wrap: wrap; gap: 12px; }
-            .header-btn span { display: none; }
+            .btn-text { display: none; }
             .header-btn { padding: 9px 12px; }
             .sysinfo-section { padding: 14px 16px; margin-bottom: 20px; }
             .sysinfo-chip { font-size: 0.75rem; padding: 8px 12px; }
             .sysinfo-chip svg { width: 14px; height: 14px; }
             .sysinfo-chip .chip-bar { width: 35px; height: 4px; }
-            .services-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+            .services-grid { grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap: 10px; }
             .service-card { padding: 14px 12px 12px; }
             .service-icon { width: 44px; height: 44px; margin-bottom: 10px; }
             .group-header { padding: 10px 14px; }
             .modal-content { padding: 24px 20px; }
-
-            .sidebar {
-                width: 100%;
-                max-width: 320px;
-            }
-
-            .clock-time {
-                font-size: 2.5rem;
-            }
+            .sidebar { width: 100%; max-width: 320px; }
+            .clock-time { font-size: 2.5rem; }
+            .card-actions { opacity: 1; }
         }
-
         @media (max-width: 400px) {
-            .services-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .services-grid { grid-template-columns: repeat(3,1fr); gap: 8px; }
             .service-card { padding: 12px 8px 10px; }
             .service-icon { width: 38px; height: 38px; padding: 6px; }
             .service-title { font-size: 0.78rem; }
@@ -1115,23 +269,21 @@
     </style>
 </head>
 <body>
-    <!-- ── SIDEBAR ── -->
-    <aside class="sidebar visible" id="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-section">
             <div class="clock-display">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <div style="flex: 1;"></div>
-                    <button class="clock-settings-btn" onclick="toggleClockSettings()" title="Configuración de hora">
-                        <svg viewBox="0 0 24 24" width="16" height="16">
-                            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-                        </svg>
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+                    <div style="flex:1;"></div>
+                    <button class="clock-settings-btn" onclick="toggleClockSettings()" title="Configuración">
+                        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                     </button>
                 </div>
                 <div class="clock-time" id="clockTime">--:--</div>
                 <div class="clock-date" id="clockDate">Cargando...</div>
                 <div class="clock-timezone" id="clockTimezone"></div>
-
-                <div class="clock-settings-panel" id="clockSettingsPanel" style="display: none;">
+                <div class="clock-settings-panel" id="clockSettingsPanel" style="display:none;">
                     <div class="clock-setting-item">
                         <label for="timezoneSelect">Zona horaria</label>
                         <select id="timezoneSelect">
@@ -1170,7 +322,6 @@
                             </optgroup>
                         </select>
                     </div>
-
                     <div class="clock-setting-item">
                         <label for="timeFormatSelect">Formato</label>
                         <select id="timeFormatSelect">
@@ -1181,61 +332,44 @@
                 </div>
             </div>
         </div>
-
         <div class="sidebar-section">
             <div class="calendar-container">
                 <div class="calendar-header">
                     <div class="calendar-month" id="calendarMonth">Mes Año</div>
                     <div class="calendar-nav">
-                        <button class="calendar-nav-btn" onclick="changeMonth(-1)">
-                            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-                        </button>
-                        <button class="calendar-nav-btn" onclick="changeMonth(1)">
-                            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-                        </button>
+                        <button class="calendar-nav-btn" onclick="changeMonth(-1)"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+                        <button class="calendar-nav-btn" onclick="changeMonth(1)"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
                     </div>
                 </div>
                 <div class="calendar-weekdays">
-                    <div class="calendar-weekday">D</div>
-                    <div class="calendar-weekday">L</div>
-                    <div class="calendar-weekday">M</div>
-                    <div class="calendar-weekday">M</div>
-                    <div class="calendar-weekday">J</div>
-                    <div class="calendar-weekday">V</div>
+                    <div class="calendar-weekday">D</div><div class="calendar-weekday">L</div>
+                    <div class="calendar-weekday">M</div><div class="calendar-weekday">M</div>
+                    <div class="calendar-weekday">J</div><div class="calendar-weekday">V</div>
                     <div class="calendar-weekday">S</div>
                 </div>
                 <div class="calendar-days" id="calendarDays"></div>
             </div>
         </div>
-
         <div class="sidebar-section">
-            <div class="weather-container" id="weatherContainer">
+            <div class="weather-container">
                 <div class="weather-header">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="fill: var(--accent);">
-                            <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/>
-                        </svg>
-                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Clima</span>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" style="fill:var(--accent);"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/></svg>
+                        <span style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">Clima</span>
                     </div>
                     <button class="weather-refresh-btn" onclick="loadWeather()" title="Actualizar">
-                        <svg viewBox="0 0 24 24" width="14" height="14">
-                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" width="14" height="14"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
                     </button>
                 </div>
                 <div class="weather-content" id="weatherContent">
-                    <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-                        Cargando clima...
-                    </div>
+                    <div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">Cargando clima...</div>
                 </div>
             </div>
         </div>
     </aside>
 
     <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
-        <svg viewBox="0 0 24 24">
-            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-        </svg>
+        <div class="bars"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
     </button>
 
     <div class="container">
@@ -1246,36 +380,25 @@
             </div>
             <div class="header-actions">
                 <button class="header-btn" onclick="openModal('service')">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                    </svg>
-                    <span>Nuevo servicio</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    <span class="btn-text">Nuevo servicio</span>
                 </button>
-                <button class="header-btn" onclick="openModal('group')" style="background: transparent; border-color: var(--border-color); color: var(--text-secondary);">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
-                    </svg>
-                    <span>Nuevo grupo</span>
+                <button class="header-btn" onclick="openModal('group')" style="background:transparent;border-color:var(--border-color);color:var(--text-secondary);">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                    <span class="btn-text">Nuevo grupo</span>
                 </button>
                 <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
-                    <svg id="theme-icon-light" viewBox="0 0 24 24" style="display:none;">
-                        <path d="M12 18c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6zm0-10c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zM13 2h-2v3h2V2zm0 17h-2v3h2v-3zM5 11H2v2h3v-2zm17 0h-3v2h3v-2zM6.3 4.9L4.9 6.3l2.1 2.1 1.4-1.4-2.1-2.1zm12.7 12.7l-1.4 1.4 2.1 2.1 1.4-1.4-2.1-2.1zM17.7 6.3l-2.1 2.1 1.4 1.4 2.1-2.1-1.4-1.4zM6.3 19.1l2.1-2.1-1.4-1.4-2.1 2.1 1.4 1.4z"/>
-                    </svg>
-                    <svg id="theme-icon-dark" viewBox="0 0 24 24">
-                        <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
-                    </svg>
+                    <svg id="theme-icon-light" viewBox="0 0 24 24" style="display:none;"><path d="M12 18c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6zm0-10c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zM13 2h-2v3h2V2zm0 17h-2v3h2v-3zM5 11H2v2h3v-2zm17 0h-3v2h3v-2zM6.3 4.9L4.9 6.3l2.1 2.1 1.4-1.4-2.1-2.1zm12.7 12.7l-1.4 1.4 2.1 2.1 1.4-1.4-2.1-2.1zM17.7 6.3l-2.1 2.1 1.4 1.4 2.1-2.1-1.4-1.4zM6.3 19.1l2.1-2.1-1.4-1.4-2.1 2.1 1.4 1.4z"/></svg>
+                    <svg id="theme-icon-dark" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
                 </button>
             </div>
         </header>
-
         <div class="sysinfo-section">
             <div class="sysinfo" id="sysinfo">
-                <div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M17 14h-1v-1h-2v1h-1v2h1v1h2v-1h1v-2zm-4-7h2V5h-2v2zm-4 7H8v-1H6v1H5v2h1v1h2v-1h1v-2zM9 7h2V5H9v2zm4 4h2V9h-2v2zm-4 0h2V9H9v2zM21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg><span>Cargando...</span></div>
+                <div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg><span>Cargando...</span></div>
             </div>
         </div>
-
         <div id="groupsContainer"></div>
-
         <div id="emptyState" class="empty-state" style="display:none;">
             <div class="empty-state-icon">🌿</div>
             <div class="empty-state-text">Todo listo para empezar</div>
@@ -1283,37 +406,33 @@
         </div>
     </div>
 
-    <!-- ── MODAL ── -->
+    <!-- MAIN MODAL -->
     <div id="mainModal" class="modal">
         <div class="modal-content">
             <h2 class="modal-header" id="modalTitle">Agregar</h2>
             <p class="modal-sub" id="modalSub">Elige qué quieres crear</p>
-
-            <!-- Tab switcher -->
-            <div class="modal-tabs">
-                <button class="modal-tab active" id="tab-service" onclick="switchTab('service')">Nuevo Servicio</button>
-                <button class="modal-tab" id="tab-group" onclick="switchTab('group')">Nuevo Grupo</button>
+            <div class="modal-tabs" id="modalTabs">
+                <button class="modal-tab active" id="tab-service" onclick="switchTab('service')">Servicio</button>
+                <button class="modal-tab" id="tab-group" onclick="switchTab('group')">Grupo</button>
             </div>
-
-            <!-- Panel: Servicio -->
             <div class="tab-panel active" id="panel-service">
                 <form id="serviceForm">
+                    <input type="hidden" id="edit-service-id" value="">
                     <div class="form-group">
-                        <label for="service-group">
-                            Grupo
-                            <span class="label-hint">(opcional)</span>
-                        </label>
-                        <select id="service-group">
-                            <option value="">Sin grupo</option>
-                        </select>
+                        <label for="service-group">Grupo <span class="label-hint">(opcional)</span></label>
+                        <select id="service-group"></select>
                     </div>
                     <div class="form-group">
                         <label for="title">Nombre del Servicio</label>
                         <input type="text" id="title" placeholder="Ej: GitHub" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label for="icon">URL del Icono</label>
-                        <input type="url" id="icon" placeholder="https://ejemplo.com/icono.png">
+                        <label for="icon">URL del Icono <span class="label-hint">(opcional)</span></label>
+                        <input type="url" id="icon" placeholder="https://ejemplo.com/icono.png" oninput="previewIcon()">
+                        <div class="icon-preview" id="iconPreview" style="display:none;">
+                            <div class="icon-preview-box"><img id="iconPreviewImg" src="" alt="preview" onerror="this.parentElement.innerHTML='?'"></div>
+                            <span class="icon-preview-hint">Vista previa del icono</span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="url">URL del Servicio</label>
@@ -1321,621 +440,360 @@
                     </div>
                     <div class="button-group">
                         <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Agregar Servicio</button>
+                        <button type="submit" class="btn btn-primary" id="serviceSubmitBtn">Agregar Servicio</button>
                     </div>
                 </form>
             </div>
-
-            <!-- Panel: Grupo -->
             <div class="tab-panel" id="panel-group">
                 <form id="groupForm">
+                    <input type="hidden" id="edit-group-old-name" value="">
                     <div class="form-group">
                         <label for="new-group-name">Nombre del Grupo</label>
                         <input type="text" id="new-group-name" placeholder="Ej: Inteligencia Artificial" autocomplete="off">
                     </div>
                     <div class="button-group">
                         <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Crear Grupo</button>
+                        <button type="submit" class="btn btn-primary" id="groupSubmitBtn">Crear Grupo</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- CONFIRM DIALOG -->
+    <div id="confirmModal" class="confirm-modal">
+        <div class="confirm-content">
+            <div class="confirm-icon" id="confirmIcon">⚠️</div>
+            <div class="confirm-title" id="confirmTitle">¿Estás seguro?</div>
+            <p class="confirm-msg" id="confirmMsg">Esta acción no se puede deshacer.</p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" onclick="closeConfirm()">Cancelar</button>
+                <button class="btn btn-danger" id="confirmOkBtn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
     <script>
         let services = [];
         let localGroups = [];
         let currentCalendarDate = new Date();
+        let confirmCallback = null;
+        let modalMode = 'add';
 
-        /* ── SIDEBAR TOGGLE ── */
+        /* TOAST */
+        function showToast(msg, duration = 2500) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), duration);
+        }
+
+        /* CONFIRM */
+        function showConfirm(title, msg, icon, okLabel, cb) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMsg').textContent = msg;
+            document.getElementById('confirmIcon').textContent = icon || '⚠️';
+            document.getElementById('confirmOkBtn').textContent = okLabel || 'Eliminar';
+            confirmCallback = cb;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+        function closeConfirm() {
+            document.getElementById('confirmModal').classList.remove('active');
+            confirmCallback = null;
+        }
+        document.getElementById('confirmOkBtn').addEventListener('click', () => {
+            if (confirmCallback) confirmCallback();
+            closeConfirm();
+        });
+        document.getElementById('confirmModal').addEventListener('click', e => { if (e.target.id === 'confirmModal') closeConfirm(); });
+
+        /* SIDEBAR */
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const body = document.body;
-            sidebar.classList.toggle('visible');
-            body.classList.toggle('sidebar-open');
+            if (sidebar.classList.contains('visible')) closeSidebar();
+            else {
+                sidebar.classList.add('visible');
+                document.getElementById('sidebarOverlay').classList.add('visible');
+                document.getElementById('sidebarToggle').classList.add('open');
+                document.body.classList.add('sidebar-open');
+            }
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('visible');
+            document.getElementById('sidebarOverlay').classList.remove('visible');
+            document.getElementById('sidebarToggle').classList.remove('open');
+            document.body.classList.remove('sidebar-open');
         }
 
-        /* ── CLOCK ── */
+        /* CLOCK */
         let selectedTimezone = localStorage.getItem('selectedTimezone') || 'auto';
         let timeFormat = localStorage.getItem('timeFormat') || '24';
-
         function toggleClockSettings() {
-            const panel = document.getElementById('clockSettingsPanel');
-            if (panel.style.display === 'none') {
-                panel.style.display = 'block';
-            } else {
-                panel.style.display = 'none';
-            }
+            const p = document.getElementById('clockSettingsPanel');
+            p.style.display = p.style.display === 'none' ? 'block' : 'none';
         }
-
         function updateClock() {
-            let now = new Date();
-            let timezone = selectedTimezone;
-
-            if (timezone === 'auto') {
-                timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            }
-
-            // Hora en la zona horaria seleccionada
-            const use12Hour = timeFormat === '12';
-            const timeOptions = {
-                timeZone: timezone,
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: use12Hour
-            };
-
-            let timeStr = now.toLocaleTimeString('es-ES', timeOptions);
-
-            // Si es formato de 12 horas, separar el AM/PM
-            if (use12Hour) {
-                // Extraer AM/PM del string
-                const ampmMatch = timeStr.match(/(a\.\s?m\.|p\.\s?m\.|AM|PM)/i);
-                if (ampmMatch) {
-                    const ampm = ampmMatch[0];
-                    const time = timeStr.replace(ampm, '').trim();
-                    // Convertir a.m./p.m. a AM/PM
-                    const ampmFormatted = ampm.toLowerCase().includes('a') ? 'AM' : 'PM';
-                    document.getElementById('clockTime').innerHTML = `${time}<span class="clock-ampm">${ampmFormatted}</span>`;
-                } else {
-                    document.getElementById('clockTime').textContent = timeStr;
-                }
-            } else {
-                document.getElementById('clockTime').textContent = timeStr;
-            }
-
-            // Fecha en la zona horaria seleccionada
-            const dateOptions = {
-                timeZone: timezone,
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
-            const dateStr = now.toLocaleDateString('es-ES', dateOptions);
-            document.getElementById('clockDate').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
-
-            // Mostrar zona horaria
-            const tzDisplay = timezone === Intl.DateTimeFormat().resolvedOptions().timeZone
-                ? `${timezone} (Local)`
-                : timezone;
-            document.getElementById('clockTimezone').textContent = tzDisplay;
+            const now = new Date();
+            const tz = selectedTimezone === 'auto' ? Intl.DateTimeFormat().resolvedOptions().timeZone : selectedTimezone;
+            const use12 = timeFormat === '12';
+            let timeStr = now.toLocaleTimeString('es-ES', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: use12 });
+            if (use12) {
+                const m = timeStr.match(/(a\.\s?m\.|p\.\s?m\.|AM|PM)/i);
+                if (m) {
+                    const ampm = m[0].toLowerCase().includes('a') ? 'AM' : 'PM';
+                    document.getElementById('clockTime').innerHTML = `${timeStr.replace(m[0],'').trim()}<span class="clock-ampm">${ampm}</span>`;
+                } else document.getElementById('clockTime').textContent = timeStr;
+            } else document.getElementById('clockTime').textContent = timeStr;
+            const ds = now.toLocaleDateString('es-ES', { timeZone: tz, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('clockDate').textContent = ds.charAt(0).toUpperCase() + ds.slice(1);
+            const local = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            document.getElementById('clockTimezone').textContent = tz === local ? `${tz} (Local)` : tz;
         }
+        function changeTimezone() { selectedTimezone = document.getElementById('timezoneSelect').value; localStorage.setItem('selectedTimezone', selectedTimezone); updateClock(); }
+        function changeTimeFormat() { timeFormat = document.getElementById('timeFormatSelect').value; localStorage.setItem('timeFormat', timeFormat); updateClock(); }
 
-        function changeTimezone() {
-            const select = document.getElementById('timezoneSelect');
-            selectedTimezone = select.value;
-            localStorage.setItem('selectedTimezone', selectedTimezone);
-            updateClock();
-        }
-
-        function changeTimeFormat() {
-            const select = document.getElementById('timeFormatSelect');
-            timeFormat = select.value;
-            localStorage.setItem('timeFormat', timeFormat);
-            updateClock();
-        }
-
-        /* ── WEATHER ── */
+        /* WEATHER */
         async function loadWeather() {
-            const weatherContent = document.getElementById('weatherContent');
-
-            try {
-                // Primero obtenemos la ubicación del usuario
-                if (!navigator.geolocation) {
-                    weatherContent.innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-                            Geolocalización no disponible
-                        </div>
-                    `;
-                    return;
-                }
-
-                weatherContent.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-                        Obteniendo ubicación...
-                    </div>
-                `;
-
-                navigator.geolocation.getCurrentPosition(async (position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-
-                    // Usar Open-Meteo API (gratuita, sin API key necesaria)
-                    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`;
-
-                    const response = await fetch(weatherUrl);
-                    const data = await response.json();
-
-                    // Obtener nombre de la ciudad usando Nominatim (OpenStreetMap)
-                    const geoUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
-                    const geoResponse = await fetch(geoUrl);
-                    const geoData = await geoResponse.json();
-
-                    const city = geoData.address.city || geoData.address.town || geoData.address.village || 'Tu ubicación';
-                    const country = geoData.address.country || '';
-
-                    // Mapear códigos de clima a emojis y descripciones
-                    const weatherCodes = {
-                        0: { icon: '☀️', desc: 'Despejado' },
-                        1: { icon: '🌤️', desc: 'Mayormente despejado' },
-                        2: { icon: '⛅', desc: 'Parcialmente nublado' },
-                        3: { icon: '☁️', desc: 'Nublado' },
-                        45: { icon: '🌫️', desc: 'Neblina' },
-                        48: { icon: '🌫️', desc: 'Niebla' },
-                        51: { icon: '🌦️', desc: 'Llovizna ligera' },
-                        53: { icon: '🌦️', desc: 'Llovizna moderada' },
-                        55: { icon: '🌧️', desc: 'Llovizna densa' },
-                        61: { icon: '🌧️', desc: 'Lluvia ligera' },
-                        63: { icon: '🌧️', desc: 'Lluvia moderada' },
-                        65: { icon: '🌧️', desc: 'Lluvia fuerte' },
-                        71: { icon: '🌨️', desc: 'Nevada ligera' },
-                        73: { icon: '🌨️', desc: 'Nevada moderada' },
-                        75: { icon: '❄️', desc: 'Nevada fuerte' },
-                        77: { icon: '🌨️', desc: 'Granizo' },
-                        80: { icon: '🌦️', desc: 'Chubascos ligeros' },
-                        81: { icon: '🌧️', desc: 'Chubascos moderados' },
-                        82: { icon: '⛈️', desc: 'Chubascos fuertes' },
-                        95: { icon: '⛈️', desc: 'Tormenta' },
-                        96: { icon: '⛈️', desc: 'Tormenta con granizo' },
-                        99: { icon: '⛈️', desc: 'Tormenta severa' }
-                    };
-
-                    const weatherCode = data.current.weather_code;
-                    const weather = weatherCodes[weatherCode] || { icon: '🌡️', desc: 'Clima desconocido' };
-
-                    weatherContent.innerHTML = `
-                        <div class="weather-main">
-                            <div class="weather-icon">${weather.icon}</div>
-                            <div class="weather-temp">
-                                <div class="weather-temp-value">${Math.round(data.current.temperature_2m)}°C</div>
-                                <div class="weather-temp-desc">${weather.desc}</div>
-                            </div>
-                        </div>
-                        <div class="weather-details">
-                            <div class="weather-detail-item">
-                                <div class="weather-detail-label">Humedad</div>
-                                <div class="weather-detail-value">${data.current.relative_humidity_2m}%</div>
-                            </div>
-                            <div class="weather-detail-item">
-                                <div class="weather-detail-label">Viento</div>
-                                <div class="weather-detail-value">${Math.round(data.current.wind_speed_10m)} km/h</div>
-                            </div>
-                        </div>
-                        <div class="weather-location">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                            ${city}${country ? ', ' + country : ''}
-                        </div>
-                    `;
-                }, (error) => {
-                    weatherContent.innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-                            No se pudo obtener la ubicación<br>
-                            <small style="opacity: 0.7;">Permite el acceso a tu ubicación</small>
-                        </div>
-                    `;
-                });
-
-            } catch (error) {
-                console.error('Error cargando clima:', error);
-                weatherContent.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-                        Error al cargar el clima
-                    </div>
-                `;
-            }
+            const wc = document.getElementById('weatherContent');
+            if (!navigator.geolocation) { wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">Geolocalización no disponible</div>'; return; }
+            wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">Obteniendo ubicación...</div>';
+            navigator.geolocation.getCurrentPosition(async pos => {
+                try {
+                    const { latitude: lat, longitude: lon } = pos.coords;
+                    const [wr, gr] = await Promise.all([
+                        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`),
+                        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+                    ]);
+                    const data = await wr.json(), geo = await gr.json();
+                    const city = geo.address.city || geo.address.town || geo.address.village || 'Tu ubicación';
+                    const country = geo.address.country || '';
+                    const codes = {0:{i:'☀️',d:'Despejado'},1:{i:'🌤️',d:'Mayormente despejado'},2:{i:'⛅',d:'Parcialmente nublado'},3:{i:'☁️',d:'Nublado'},45:{i:'🌫️',d:'Neblina'},48:{i:'🌫️',d:'Niebla'},51:{i:'🌦️',d:'Llovizna ligera'},53:{i:'🌦️',d:'Llovizna moderada'},55:{i:'🌧️',d:'Llovizna densa'},61:{i:'🌧️',d:'Lluvia ligera'},63:{i:'🌧️',d:'Lluvia moderada'},65:{i:'🌧️',d:'Lluvia fuerte'},71:{i:'🌨️',d:'Nevada ligera'},73:{i:'🌨️',d:'Nevada moderada'},75:{i:'❄️',d:'Nevada fuerte'},80:{i:'🌦️',d:'Chubascos ligeros'},81:{i:'🌧️',d:'Chubascos moderados'},82:{i:'⛈️',d:'Chubascos fuertes'},95:{i:'⛈️',d:'Tormenta'},99:{i:'⛈️',d:'Tormenta severa'}};
+                    const w = codes[data.current.weather_code] || {i:'🌡️',d:'Clima desconocido'};
+                    wc.innerHTML = `<div class="weather-main"><div class="weather-icon">${w.i}</div><div class="weather-temp"><div class="weather-temp-value">${Math.round(data.current.temperature_2m)}°C</div><div class="weather-temp-desc">${w.d}</div></div></div><div class="weather-details"><div class="weather-detail-item"><div class="weather-detail-label">Humedad</div><div class="weather-detail-value">${data.current.relative_humidity_2m}%</div></div><div class="weather-detail-item"><div class="weather-detail-label">Viento</div><div class="weather-detail-value">${Math.round(data.current.wind_speed_10m)} km/h</div></div></div><div class="weather-location"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>${city}${country?', '+country:''}</div>`;
+                } catch { wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">Error al cargar el clima</div>'; }
+            }, () => { wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">No se pudo obtener la ubicación<br><small style="opacity:0.7;">Permite el acceso a tu ubicación</small></div>'; });
         }
 
-        /* ── CALENDAR ── */
+        /* CALENDAR */
         function renderCalendar() {
-            const year = currentCalendarDate.getFullYear();
-            const month = currentCalendarDate.getMonth();
+            const y = currentCalendarDate.getFullYear(), m = currentCalendarDate.getMonth();
+            const mn = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            document.getElementById('calendarMonth').textContent = `${mn[m]} ${y}`;
+            const firstDay = new Date(y,m,1).getDay(), dim = new Date(y,m+1,0).getDate(), dipm = new Date(y,m,0).getDate();
+            const cd = document.getElementById('calendarDays'); cd.innerHTML = '';
+            const today = new Date(), isCur = today.getFullYear()===y && today.getMonth()===m;
+            for (let i=firstDay-1;i>=0;i--) { const d=document.createElement('div'); d.className='calendar-day other-month'; d.textContent=dipm-i; cd.appendChild(d); }
+            for (let day=1;day<=dim;day++) { const d=document.createElement('div'); d.className='calendar-day'+(isCur&&day===today.getDate()?' today':''); d.textContent=day; cd.appendChild(d); }
+            const rem=(7-cd.children.length%7)%7;
+            for (let day=1;day<=rem;day++) { const d=document.createElement('div'); d.className='calendar-day other-month'; d.textContent=day; cd.appendChild(d); }
+        }
+        function changeMonth(dir) { currentCalendarDate.setMonth(currentCalendarDate.getMonth()+dir); renderCalendar(); }
 
-            // Update header
-            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                               'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-            document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+        /* THEME */
+        function initTheme() { const s=localStorage.getItem('theme')||'light'; document.documentElement.setAttribute('data-theme',s); updateThemeIcon(s); }
+        function toggleTheme() { const c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',n); localStorage.setItem('theme',n); updateThemeIcon(n); }
+        function updateThemeIcon(t) { document.getElementById('theme-icon-light').style.display=t==='dark'?'block':'none'; document.getElementById('theme-icon-dark').style.display=t==='dark'?'none':'block'; }
 
-            // Get first day of month and total days
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-            const calendarDays = document.getElementById('calendarDays');
-            calendarDays.innerHTML = '';
-
-            const today = new Date();
-            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
-
-            // Previous month days
-            for (let i = firstDay - 1; i >= 0; i--) {
-                const day = daysInPrevMonth - i;
-                const dayEl = document.createElement('div');
-                dayEl.className = 'calendar-day other-month';
-                dayEl.textContent = day;
-                calendarDays.appendChild(dayEl);
-            }
-
-            // Current month days
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayEl = document.createElement('div');
-                dayEl.className = 'calendar-day';
-                if (isCurrentMonth && day === today.getDate()) {
-                    dayEl.classList.add('today');
-                }
-                dayEl.textContent = day;
-                calendarDays.appendChild(dayEl);
-            }
-
-            // Next month days to fill grid
-            const totalCells = calendarDays.children.length;
-            const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
-            for (let day = 1; day <= remainingCells; day++) {
-                const dayEl = document.createElement('div');
-                dayEl.className = 'calendar-day other-month';
-                dayEl.textContent = day;
-                calendarDays.appendChild(dayEl);
-            }
+        /* ICON HELPERS */
+        function setFallbackIcon(wrapper) {
+            const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('viewBox','0 0 24 24'); svg.classList.add('icon-fallback');
+            const path=document.createElementNS('http://www.w3.org/2000/svg','path'); path.setAttribute('d','M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z');
+            svg.appendChild(path); wrapper.innerHTML=''; wrapper.appendChild(svg);
+        }
+        function previewIcon() {
+            const url=document.getElementById('icon').value.trim(), prev=document.getElementById('iconPreview'), img=document.getElementById('iconPreviewImg');
+            if (url) { img.src=url; prev.style.display='flex'; } else prev.style.display='none';
         }
 
-        function changeMonth(direction) {
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
-            renderCalendar();
-        }
-
-        /* ── THEME ── */
-        function initTheme() {
-            const saved = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', saved);
-            updateThemeIcon(saved);
-        }
-
-        function toggleTheme() {
-            const cur = document.documentElement.getAttribute('data-theme');
-            const next = cur === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            updateThemeIcon(next);
-        }
-
-        function updateThemeIcon(theme) {
-            document.getElementById('theme-icon-light').style.display = theme === 'dark' ? 'block' : 'none';
-            document.getElementById('theme-icon-dark').style.display  = theme === 'dark' ? 'none'  : 'block';
-        }
-
-        /* ── ICON FALLBACK ── */
-        function setFallbackIcon(imgEl) {
-            const wrapper = imgEl.parentElement;
-            imgEl.remove();
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('viewBox', '0 0 24 24');
-            svg.classList.add('icon-fallback');
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            path.setAttribute('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z');
-            svg.appendChild(path);
-            wrapper.appendChild(svg);
-        }
-
-        /* ── DATA LOADING ── */
+        /* DATA */
         async function loadServices() {
-            try {
-                const response = await fetch('/api/services');
-                const text = await response.text();
-                services = text ? JSON.parse(text) : [];
-                if (!Array.isArray(services)) services = [];
-                renderAll();
-            } catch (err) {
-                console.error('Error cargando servicios:', err);
-            }
+            try { const r=await fetch('/api/services'), t=await r.text(); services=t?JSON.parse(t):[]; if(!Array.isArray(services))services=[]; renderAll(); }
+            catch(e) { console.error('Error:',e); }
         }
-
         function getGroupMap() {
-            const groupMap = {};
-            localGroups.forEach(g => {
-                if (!groupMap[g]) groupMap[g] = [];
-            });
-            services.forEach(s => {
-                const name = s.group || 'Sin Grupo';
-                if (!groupMap[name]) groupMap[name] = [];
-                groupMap[name].push(s);
-            });
-            return groupMap;
+            const gm={}; localGroups.forEach(g=>{if(!gm[g])gm[g]=[];});
+            services.forEach(s=>{const n=s.group||'Sin Grupo';if(!gm[n])gm[n]=[];gm[n].push(s);}); return gm;
         }
-
         function renderAll() {
-            const groupMap = getGroupMap();
-            const container = document.getElementById('groupsContainer');
-            const emptyState = document.getElementById('emptyState');
-
-            const totalItems = Object.keys(groupMap).length;
-            if (totalItems === 0) {
-                container.innerHTML = '';
-                emptyState.style.display = 'block';
-                return;
-            }
-
-            emptyState.style.display = 'none';
-            container.innerHTML = '';
-
-            Object.keys(groupMap).sort().forEach(groupName => {
-                const items = groupMap[groupName];
-                const section = document.createElement('div');
-                section.className = 'group-section';
-
-                const header = document.createElement('div');
-                header.className = 'group-header';
-
-                const title = document.createElement('h2');
-                title.className = 'group-title';
-                title.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`;
-                const titleText = document.createTextNode(groupName);
-                title.appendChild(titleText);
-                const countBadge = document.createElement('span');
-                countBadge.className = 'group-count';
-                countBadge.textContent = items.length;
-                title.appendChild(countBadge);
-
-                const actions = document.createElement('div');
-                actions.className = 'group-actions';
-                const delGroupBtn = document.createElement('button');
-                delGroupBtn.className = 'group-delete-btn';
-                delGroupBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Eliminar grupo`;
-                delGroupBtn.addEventListener('click', () => deleteGroup(groupName));
-                actions.appendChild(delGroupBtn);
-
-                header.appendChild(title);
-                header.appendChild(actions);
-                section.appendChild(header);
-
-                const grid = document.createElement('div');
-                grid.className = 'services-grid';
-
-                if (items.length === 0) {
-                    const empty = document.createElement('div');
-                    empty.style.cssText = 'color:var(--text-secondary);font-size:0.85rem;padding:20px;opacity:0.6;';
-                    empty.textContent = 'Grupo vacío — agrega servicios aquí.';
-                    grid.appendChild(empty);
-                } else {
-                    items.forEach(s => grid.appendChild(buildServiceCard(s)));
-                }
-
-                section.appendChild(grid);
-                container.appendChild(section);
+            const gm=getGroupMap(), con=document.getElementById('groupsContainer'), es=document.getElementById('emptyState');
+            if(Object.keys(gm).length===0){con.innerHTML='';es.style.display='block';return;}
+            es.style.display='none'; con.innerHTML='';
+            Object.keys(gm).sort().forEach(gn=>{
+                const items=gm[gn], sec=document.createElement('div'); sec.className='group-section';
+                const hdr=document.createElement('div'); hdr.className='group-header';
+                const ttl=document.createElement('h2'); ttl.className='group-title';
+                ttl.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`;
+                ttl.appendChild(document.createTextNode(gn));
+                const cb=document.createElement('span'); cb.className='group-count'; cb.textContent=items.length; ttl.appendChild(cb);
+                const acts=document.createElement('div'); acts.className='group-actions';
+                const eb=document.createElement('button'); eb.className='group-action-btn';
+                eb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Renombrar`;
+                eb.addEventListener('click',()=>openEditGroup(gn)); acts.appendChild(eb);
+                const db=document.createElement('button'); db.className='group-action-btn danger';
+                db.innerHTML=`<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Eliminar`;
+                db.addEventListener('click',()=>deleteGroup(gn)); acts.appendChild(db);
+                hdr.appendChild(ttl); hdr.appendChild(acts); sec.appendChild(hdr);
+                const grid=document.createElement('div'); grid.className='services-grid';
+                if(items.length===0){const e=document.createElement('div');e.style.cssText='color:var(--text-secondary);font-size:0.85rem;padding:20px;opacity:0.6;';e.textContent='Grupo vacío — agrega servicios aquí.';grid.appendChild(e);}
+                else items.forEach(s=>grid.appendChild(buildServiceCard(s)));
+                sec.appendChild(grid); con.appendChild(sec);
             });
-
             updateGroupSelect();
         }
-
         function buildServiceCard(s) {
-            const card = document.createElement('div');
-            card.className = 'service-card';
-            card.addEventListener('click', () => window.open(s.url, '_blank'));
-
-            const delBtn = document.createElement('button');
-            delBtn.className = 'delete-btn';
-            delBtn.title = 'Eliminar';
-            delBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
-            delBtn.addEventListener('click', e => { e.stopPropagation(); deleteService(s.id); });
-
-            const iconWrap = document.createElement('div');
-            iconWrap.className = 'service-icon';
-            if (s.icon) {
-                const img = document.createElement('img');
-                img.src = s.icon;
-                img.alt = s.title;
-                img.addEventListener('error', function() { setFallbackIcon(this); });
-                iconWrap.appendChild(img);
-            } else {
-                setFallbackIcon({ parentElement: iconWrap, remove: () => {} });
-            }
-
-            const titleEl = document.createElement('div');
-            titleEl.className = 'service-title';
-            titleEl.textContent = s.title;
-
-            const urlEl = document.createElement('div');
-            urlEl.className = 'service-url';
-            urlEl.textContent = s.url;
-
-            card.appendChild(delBtn);
-            card.appendChild(iconWrap);
-            card.appendChild(titleEl);
-            card.appendChild(urlEl);
-            return card;
+            const card=document.createElement('div'); card.className='service-card';
+            card.addEventListener('click',e=>{if(!e.target.closest('.card-actions'))window.open(s.url,'_blank');});
+            const acts=document.createElement('div'); acts.className='card-actions';
+            const eb=document.createElement('button'); eb.className='card-btn edit'; eb.title='Editar';
+            eb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+            eb.addEventListener('click',e=>{e.stopPropagation();openEditService(s);}); acts.appendChild(eb);
+            const db=document.createElement('button'); db.className='card-btn delete'; db.title='Eliminar';
+            db.innerHTML=`<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
+            db.addEventListener('click',e=>{e.stopPropagation();deleteService(s.id,s.title);}); acts.appendChild(db);
+            const iw=document.createElement('div'); iw.className='service-icon';
+            if(s.icon){const img=document.createElement('img');img.src=s.icon;img.alt=s.title;img.addEventListener('error',()=>setFallbackIcon(iw));iw.appendChild(img);}
+            else setFallbackIcon(iw);
+            const te=document.createElement('div'); te.className='service-title'; te.textContent=s.title;
+            const ue=document.createElement('div'); ue.className='service-url'; ue.textContent=s.url;
+            card.appendChild(acts); card.appendChild(iw); card.appendChild(te); card.appendChild(ue); return card;
         }
-
-        function escapeHtml(str) {
-            const d = document.createElement('div');
-            d.textContent = String(str);
-            return d.innerHTML;
-        }
-
+        function escapeHtml(s){const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
         function updateGroupSelect() {
-            const groupMap = getGroupMap();
-            const select = document.getElementById('service-group');
-            const currentValue = select.value;
-            select.innerHTML = '<option value="">Sin grupo</option>' +
-                Object.keys(groupMap).sort().map(g =>
-                    `<option value="${escapeHtml(g)}" ${g === currentValue ? 'selected' : ''}>${escapeHtml(g)}</option>`
-                ).join('');
+            const gm=getGroupMap(), sel=document.getElementById('service-group'), cv=sel.value;
+            sel.innerHTML='<option value="">Sin grupo</option>'+Object.keys(gm).sort().map(g=>`<option value="${escapeHtml(g)}"${g===cv?' selected':''}>${escapeHtml(g)}</option>`).join('');
         }
 
-        /* ── API ACTIONS ── */
-        async function addService(title, icon, url, group) {
-            const response = await fetch('/api/services', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, icon, url, group: group || 'Sin Grupo', order: 0 })
+        /* API */
+        async function addService(title,icon,url,group) {
+            const r=await fetch('/api/services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,icon,url,group:group||'Sin Grupo',order:0})});
+            const ns=await r.json(); services.push(ns);
+            if(group)localGroups=localGroups.filter(g=>g!==group);
+            renderAll(); showToast(`✅ "${title}" agregado`);
+        }
+        async function updateService(id,title,icon,url,group) {
+            const r=await fetch('/api/services',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,title,icon,url,group:group||'Sin Grupo',order:0})});
+            const up=await r.json(); services=services.map(s=>s.id===id?up:s);
+            renderAll(); showToast(`✏️ "${title}" actualizado`);
+        }
+        async function deleteService(id,name) {
+            showConfirm('Eliminar servicio',`¿Eliminar "${name}"? Esta acción no se puede deshacer.`,'🗑️','Eliminar',async()=>{
+                await fetch('/api/services',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+                services=services.filter(s=>s.id!==id); renderAll(); showToast(`🗑️ "${name}" eliminado`);
             });
-            const newService = await response.json();
-            services.push(newService);
-            if (group) localGroups = localGroups.filter(g => g !== group);
-            renderAll();
         }
-
-        async function deleteService(id) {
-            if (!confirm('¿Eliminar este servicio?')) return;
-            await fetch('/api/services', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
+        async function deleteGroup(gn) {
+            const gs=services.filter(s=>(s.group||'Sin Grupo')===gn);
+            const extra=gs.length>0?` Esto también eliminará ${gs.length} servicio(s) dentro del grupo.`:'';
+            showConfirm(`Eliminar grupo`,`¿Eliminar el grupo "${gn}"?${extra}`,'📁','Eliminar grupo',async()=>{
+                for(const s of gs) await fetch('/api/services',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:s.id})});
+                localGroups=localGroups.filter(g=>g!==gn); await loadServices(); showToast(`🗑️ Grupo "${gn}" eliminado`);
             });
-            await loadServices();
+        }
+        async function renameGroup(oldName,newName) {
+            const gs=services.filter(s=>(s.group||'Sin Grupo')===oldName);
+            for(const s of gs) await fetch('/api/services',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({...s,group:newName})});
+            localGroups=localGroups.map(g=>g===oldName?newName:g);
+            await loadServices(); showToast(`✏️ Grupo renombrado a "${newName}"`);
         }
 
-        async function deleteGroup(groupName) {
-            const groupServices = services.filter(s => (s.group || 'Sin Grupo') === groupName);
-            const msg = groupServices.length > 0
-                ? `¿Eliminar el grupo "${groupName}" y sus ${groupServices.length} servicio(s)?`
-                : `¿Eliminar el grupo vacío "${groupName}"?`;
-            if (!confirm(msg)) return;
-
-            for (const s of groupServices) {
-                await fetch('/api/services', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: s.id })
-                });
-            }
-            localGroups = localGroups.filter(g => g !== groupName);
-            await loadServices();
-        }
-
-        /* ── MODAL ── */
+        /* MODAL */
         function openModal(tab) {
+            modalMode='add';
+            document.getElementById('modalTitle').textContent='Agregar';
+            document.getElementById('modalSub').textContent='Elige qué quieres crear';
+            document.getElementById('modalTabs').style.display='flex';
+            document.getElementById('edit-service-id').value='';
+            document.getElementById('edit-group-old-name').value='';
+            document.getElementById('serviceSubmitBtn').textContent='Agregar Servicio';
+            document.getElementById('groupSubmitBtn').textContent='Crear Grupo';
+            document.getElementById('iconPreview').style.display='none';
             document.getElementById('mainModal').classList.add('active');
-            switchTab(tab || 'service');
+            switchTab(tab||'service');
         }
-
+        function openEditService(s) {
+            modalMode='edit';
+            document.getElementById('modalTitle').textContent='Editar Servicio';
+            document.getElementById('modalSub').textContent=`Modificando "${s.title}"`;
+            document.getElementById('modalTabs').style.display='none';
+            document.getElementById('edit-service-id').value=s.id;
+            document.getElementById('title').value=s.title;
+            document.getElementById('icon').value=s.icon||'';
+            document.getElementById('url').value=s.url;
+            document.getElementById('serviceSubmitBtn').textContent='Guardar Cambios';
+            updateGroupSelect();
+            document.getElementById('service-group').value=s.group||'';
+            previewIcon();
+            document.getElementById('mainModal').classList.add('active');
+            switchTab('service');
+        }
+        function openEditGroup(gn) {
+            modalMode='edit';
+            document.getElementById('modalTitle').textContent='Renombrar Grupo';
+            document.getElementById('modalSub').textContent=`Modificando "${gn}"`;
+            document.getElementById('modalTabs').style.display='none';
+            document.getElementById('edit-group-old-name').value=gn;
+            document.getElementById('new-group-name').value=gn;
+            document.getElementById('groupSubmitBtn').textContent='Guardar Nombre';
+            document.getElementById('mainModal').classList.add('active');
+            switchTab('group');
+            setTimeout(()=>document.getElementById('new-group-name').select(),100);
+        }
         function closeModal() {
             document.getElementById('mainModal').classList.remove('active');
             document.getElementById('serviceForm').reset();
             document.getElementById('groupForm').reset();
+            document.getElementById('iconPreview').style.display='none';
+            modalMode='add';
         }
-
         function switchTab(tab) {
-            ['service', 'group'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
-                document.getElementById(`panel-${t}`).classList.toggle('active', t === tab);
+            ['service','group'].forEach(t=>{
+                document.getElementById(`tab-${t}`).classList.toggle('active',t===tab);
+                document.getElementById(`panel-${t}`).classList.toggle('active',t===tab);
             });
         }
 
-        /* ── FORM HANDLERS ── */
-        document.getElementById('serviceForm').addEventListener('submit', async e => {
+        /* FORM HANDLERS */
+        document.getElementById('serviceForm').addEventListener('submit',async e=>{
             e.preventDefault();
-            const title = document.getElementById('title').value.trim();
-            const icon  = document.getElementById('icon').value.trim();
-            const url   = document.getElementById('url').value.trim();
-            const group = document.getElementById('service-group').value;
-            if (!title || !url) return;
-            await addService(title, icon || '', url, group);
+            const title=document.getElementById('title').value.trim(), icon=document.getElementById('icon').value.trim(),
+                  url=document.getElementById('url').value.trim(), group=document.getElementById('service-group').value,
+                  editId=parseInt(document.getElementById('edit-service-id').value)||0;
+            if(!title||!url)return;
+            if(modalMode==='edit'&&editId) await updateService(editId,title,icon||'',url,group);
+            else await addService(title,icon||'',url,group);
             closeModal();
         });
-
-        document.getElementById('groupForm').addEventListener('submit', e => {
+        document.getElementById('groupForm').addEventListener('submit',async e=>{
             e.preventDefault();
-            const name = document.getElementById('new-group-name').value.trim();
-            if (!name) return;
-            if (!localGroups.includes(name) && !services.some(s => (s.group || 'Sin Grupo') === name)) {
-                localGroups.push(name);
-            }
-            renderAll();
+            const name=document.getElementById('new-group-name').value.trim(), oldName=document.getElementById('edit-group-old-name').value;
+            if(!name)return;
+            if(modalMode==='edit'&&oldName){if(name!==oldName)await renameGroup(oldName,name);}
+            else { if(!localGroups.includes(name)&&!services.some(s=>(s.group||'Sin Grupo')===name))localGroups.push(name); renderAll(); showToast(`📁 Grupo "${name}" creado`); }
             closeModal();
         });
+        document.getElementById('mainModal').addEventListener('click',e=>{if(e.target.id==='mainModal')closeModal();});
 
-        document.getElementById('mainModal').addEventListener('click', e => {
-            if (e.target.id === 'mainModal') closeModal();
-        });
-
-        /* ── SYSINFO ── */
+        /* SYSINFO */
         async function loadSysInfo() {
             try {
-                const res = await fetch('/api/sysinfo');
-                const text = await res.text();
-                if (!text) return;
-                const d = JSON.parse(text);
-                const bar = document.getElementById('sysinfo');
-                if (!bar) return;
-
-                const cpuColor  = d.cpu_percent > 80 ? 'danger' : d.cpu_percent > 60 ? 'warn' : '';
-                const ramColor  = d.ram_percent > 80 ? 'danger' : d.ram_percent > 60 ? 'warn' : '';
-                const diskColor = d.disk_percent > 80 ? 'danger' : d.disk_percent > 60 ? 'warn' : '';
-
-                bar.innerHTML = `
-                    <div class="sysinfo-chip">
-                        <svg viewBox="0 0 24 24"><path d="M17 14h-1v-1h-2v1h-1v2h1v1h2v-1h1v-2zm-4-7h2V5h-2v2zm-4 7H8v-1H6v1H5v2h1v1h2v-1h1v-2zM9 7h2V5H9v2zm4 4h2V9h-2v2zm-4 0h2V9H9v2zM21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>
-                        CPU&nbsp;<span class="chip-value">${d.cpu_percent}%</span>
-                        <div class="chip-bar"><div class="chip-bar-fill ${cpuColor}" style="width:${d.cpu_percent}%"></div></div>
-                    </div>
-                    <div class="sysinfo-chip">
-                        <svg viewBox="0 0 24 24"><path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7C5.9 5 5 5.9 5 7v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2zm-4 6H7V7h10v10z"/></svg>
-                        RAM&nbsp;<span class="chip-value">${d.ram_used_gb}/${d.ram_total_gb} GB</span>
-                        <div class="chip-bar"><div class="chip-bar-fill ${ramColor}" style="width:${d.ram_percent}%"></div></div>
-                    </div>
-                    <div class="sysinfo-chip">
-                        <svg viewBox="0 0 24 24"><path d="M6 2h12l4 4v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 0v4h12V2M4 6v14h16V6H4zm8 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
-                        Disco&nbsp;<span class="chip-value">${d.disk_used_gb}/${d.disk_total_gb} GB</span>
-                        <div class="chip-bar"><div class="chip-bar-fill ${diskColor}" style="width:${d.disk_percent}%"></div></div>
-                    </div>
-                    <div class="sysinfo-chip">
-                        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
-                        Up&nbsp;<span class="chip-value">${d.uptime}</span>
-                    </div>
-                `;
-            } catch(e) {
-                const bar = document.getElementById('sysinfo');
-                if (bar) bar.style.display = 'none';
-            }
+                const r=await fetch('/api/sysinfo'), t=await r.text(); if(!t)return;
+                const d=JSON.parse(t), bar=document.getElementById('sysinfo'); if(!bar)return;
+                const cc=d.cpu_percent>80?'danger':d.cpu_percent>60?'warn':'', rc=d.ram_percent>80?'danger':d.ram_percent>60?'warn':'', dc=d.disk_percent>80?'danger':d.disk_percent>60?'warn':'';
+                bar.innerHTML=`<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M17 14h-1v-1h-2v1h-1v2h1v1h2v-1h1v-2zm-4-7h2V5h-2v2zm-4 7H8v-1H6v1H5v2h1v1h2v-1h1v-2zM9 7h2V5H9v2zm4 4h2V9h-2v2zm-4 0h2V9H9v2zM21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>CPU&nbsp;<span class="chip-value">${d.cpu_percent}%</span><div class="chip-bar"><div class="chip-bar-fill ${cc}" style="width:${d.cpu_percent}%"></div></div></div><div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7C5.9 5 5 5.9 5 7v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2zm-4 6H7V7h10v10z"/></svg>RAM&nbsp;<span class="chip-value">${d.ram_used_gb}/${d.ram_total_gb} GB</span><div class="chip-bar"><div class="chip-bar-fill ${rc}" style="width:${d.ram_percent}%"></div></div></div><div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M6 2h12l4 4v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 0v4h12V2M4 6v14h16V6H4zm8 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>Disco&nbsp;<span class="chip-value">${d.disk_used_gb}/${d.disk_total_gb} GB</span><div class="chip-bar"><div class="chip-bar-fill ${dc}" style="width:${d.disk_percent}%"></div></div></div><div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>Up&nbsp;<span class="chip-value">${d.uptime}</span></div>`;
+            } catch(e) { const b=document.getElementById('sysinfo'); if(b)b.style.display='none'; }
         }
 
-        /* ── INIT ── */
-        initTheme();
-        loadServices();
-        loadSysInfo();
-        updateClock();
-        renderCalendar();
-        loadWeather();
-
-        // Inicializar selector de zona horaria
-        const timezoneSelect = document.getElementById('timezoneSelect');
-        timezoneSelect.value = selectedTimezone;
-        timezoneSelect.addEventListener('change', changeTimezone);
-
-        // Inicializar selector de formato de hora
-        const timeFormatSelect = document.getElementById('timeFormatSelect');
-        timeFormatSelect.value = timeFormat;
-        timeFormatSelect.addEventListener('change', changeTimeFormat);
-
-        // Auto-open sidebar on desktop
-        if (window.innerWidth >= 1200) {
-            document.body.classList.add('sidebar-open');
-        }
-
-        // Update clock every second
-        setInterval(updateClock, 1000);
-        setInterval(loadSysInfo, 5000);
-        // Update weather every 10 minutes
-        setInterval(loadWeather, 600000);
+        /* INIT */
+        initTheme(); loadServices(); loadSysInfo(); updateClock(); renderCalendar(); loadWeather();
+        document.getElementById('timezoneSelect').value=selectedTimezone;
+        document.getElementById('timezoneSelect').addEventListener('change',changeTimezone);
+        document.getElementById('timeFormatSelect').value=timeFormat;
+        document.getElementById('timeFormatSelect').addEventListener('change',changeTimeFormat);
+        // Desktop: sidebar always visible via CSS, just add padding to body
+        if(window.innerWidth>1200){ document.body.classList.add('sidebar-open'); }
+        setInterval(updateClock,1000); setInterval(loadSysInfo,5000); setInterval(loadWeather,600000);
     </script>
 </body>
 </html>
