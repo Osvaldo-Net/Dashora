@@ -1,11 +1,11 @@
 services:
-  dashboard:
-    build: .
-    container_name: mi-dashboard
-    ports:
-      - "3222:8080"
+  dashora:
+    image: netosvaltools/dashora:latest
+    container_name: dashora
     dns:
-      - 1.1.1.3
+      - 8.8.8.8
+    ports:
+      - "8080:8080"
     volumes:
       - ./data:/app/data
     restart: unless-stopped
