@@ -16,11 +16,9 @@ function initSearch() {
 
     if (!searchInput) return;
 
-    // Búsqueda en tiempo real
     searchInput.addEventListener('input', (e) => {
         searchQuery = e.target.value.toLowerCase().trim();
 
-        // Mostrar/ocultar botón de limpiar
         if (searchQuery) {
             searchClear.style.display = 'flex';
         } else {
@@ -30,9 +28,7 @@ function initSearch() {
         performSearch();
     });
 
-    // Atajo de teclado: presionar "/" para enfocar búsqueda
     document.addEventListener('keydown', (e) => {
-        // Si está en un input, textarea o modal, no hacer nada
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         if (document.getElementById('mainModal').classList.contains('active')) return;
 
@@ -41,7 +37,6 @@ function initSearch() {
             searchInput.focus();
         }
 
-        // ESC para limpiar búsqueda
         if (e.key === 'Escape' && searchQuery) {
             clearSearch();
         }
@@ -52,11 +47,9 @@ function performSearch() {
     const container = document.getElementById('groupsContainer');
 
     if (!searchQuery) {
-        // Sin búsqueda, mostrar todo normalmente
         container.classList.remove('search-active');
         document.querySelectorAll('.service-card').forEach(card => {
             card.classList.remove('search-match');
-            // Restaurar título original
             const titleEl = card.querySelector('.service-title');
             if (titleEl && titleEl.dataset.originalText) {
                 titleEl.textContent = titleEl.dataset.originalText;
@@ -69,12 +62,10 @@ function performSearch() {
         return;
     }
 
-    // Activar modo búsqueda
     container.classList.add('search-active');
 
     let totalMatches = 0;
 
-    // Buscar en cada grupo
     document.querySelectorAll('.group-section').forEach(section => {
         let groupHasMatches = false;
 
@@ -85,15 +76,13 @@ function performSearch() {
             if (!titleEl) return;
 
             const title = titleEl.textContent.toLowerCase();
-            const url = urlEl ? urlEl.textContent.toLowerCase() : '';
+            const descOrUrl = urlEl ? urlEl.textContent.toLowerCase() : '';
 
-            // Buscar en título y URL
-            if (title.includes(searchQuery) || url.includes(searchQuery)) {
+            if (title.includes(searchQuery) || descOrUrl.includes(searchQuery)) {
                 card.classList.add('search-match');
                 groupHasMatches = true;
                 totalMatches++;
 
-                // Highlight del término buscado
                 highlightText(titleEl, searchQuery);
             } else {
                 card.classList.remove('search-match');
@@ -107,7 +96,6 @@ function performSearch() {
         }
     });
 
-    // Mostrar mensaje si no hay resultados
     if (totalMatches === 0) {
         showNoResultsMessage();
     } else {
@@ -116,7 +104,6 @@ function performSearch() {
 }
 
 function highlightText(element, query) {
-    // Guardar texto original
     if (!element.dataset.originalText) {
         element.dataset.originalText = element.textContent;
     }
@@ -157,7 +144,7 @@ function showNoResultsMessage() {
     noResults.id = 'noSearchResults';
     noResults.className = 'empty-state';
     noResults.innerHTML = `
-        <div class="empty-state-icon">🔍</div>
+        <div class="empty-state-icon">&#128269;</div>
         <div class="empty-state-text">No se encontraron resultados</div>
         <p class="empty-state-description">No hay servicios que coincidan con "${escapeHtml(searchQuery)}"</p>
         <button class="btn btn-secondary" onclick="clearSearch()" style="margin-top:20px;max-width:200px;">
@@ -191,7 +178,7 @@ function showToast(msg, duration = 2500) {
 function showConfirm(title, msg, icon, okLabel, cb) {
     document.getElementById('confirmTitle').textContent = title;
     document.getElementById('confirmMsg').textContent = msg;
-    document.getElementById('confirmIcon').textContent = icon || '⚠️';
+    document.getElementById('confirmIcon').textContent = icon || '\u26A0\uFE0F';
     document.getElementById('confirmOkBtn').textContent = okLabel || 'Eliminar';
     confirmCallback = cb;
     document.getElementById('confirmModal').classList.add('active');
@@ -326,29 +313,29 @@ async function loadWeather() {
             const country = geo.address.country || '';
 
             const codes = {
-                0: {i:'☀️', d:'Despejado'},
-                1: {i:'🌤️', d:'Mayormente despejado'},
-                2: {i:'⛅', d:'Parcialmente nublado'},
-                3: {i:'☁️', d:'Nublado'},
-                45: {i:'🌫️', d:'Neblina'},
-                48: {i:'🌫️', d:'Niebla'},
-                51: {i:'🌦️', d:'Llovizna ligera'},
-                53: {i:'🌦️', d:'Llovizna moderada'},
-                55: {i:'🌧️', d:'Llovizna densa'},
-                61: {i:'🌧️', d:'Lluvia ligera'},
-                63: {i:'🌧️', d:'Lluvia moderada'},
-                65: {i:'🌧️', d:'Lluvia fuerte'},
-                71: {i:'🌨️', d:'Nevada ligera'},
-                73: {i:'🌨️', d:'Nevada moderada'},
-                75: {i:'❄️', d:'Nevada fuerte'},
-                80: {i:'🌦️', d:'Chubascos ligeros'},
-                81: {i:'🌧️', d:'Chubascos moderados'},
-                82: {i:'⛈️', d:'Chubascos fuertes'},
-                95: {i:'⛈️', d:'Tormenta'},
-                99: {i:'⛈️', d:'Tormenta severa'}
+                0: {i:'\u2600\uFE0F', d:'Despejado'},
+                1: {i:'\u{1F324}\uFE0F', d:'Mayormente despejado'},
+                2: {i:'\u26C5', d:'Parcialmente nublado'},
+                3: {i:'\u2601\uFE0F', d:'Nublado'},
+                45: {i:'\u{1F32B}\uFE0F', d:'Neblina'},
+                48: {i:'\u{1F32B}\uFE0F', d:'Niebla'},
+                51: {i:'\u{1F326}\uFE0F', d:'Llovizna ligera'},
+                53: {i:'\u{1F326}\uFE0F', d:'Llovizna moderada'},
+                55: {i:'\u{1F326}\uFE0F', d:'Llovizna densa'},
+                61: {i:'\u{1F327}\uFE0F', d:'Lluvia ligera'},
+                63: {i:'\u{1F327}\uFE0F', d:'Lluvia moderada'},
+                65: {i:'\u{1F327}\uFE0F', d:'Lluvia fuerte'},
+                71: {i:'\u{1F328}\uFE0F', d:'Nevada ligera'},
+                73: {i:'\u{1F328}\uFE0F', d:'Nevada moderada'},
+                75: {i:'\u2744\uFE0F', d:'Nevada fuerte'},
+                80: {i:'\u{1F326}\uFE0F', d:'Chubascos ligeros'},
+                81: {i:'\u{1F327}\uFE0F', d:'Chubascos moderados'},
+                82: {i:'\u26C8\uFE0F', d:'Chubascos fuertes'},
+                95: {i:'\u26C8\uFE0F', d:'Tormenta'},
+                99: {i:'\u26C8\uFE0F', d:'Tormenta severa'}
             };
 
-            const w = codes[data.current.weather_code] || {i:'🌡️', d:'Clima desconocido'};
+            const w = codes[data.current.weather_code] || {i:'\u{1F321}\uFE0F', d:'Clima desconocido'};
 
             wc.innerHTML = `
                 <div class="weather-main">
@@ -437,38 +424,32 @@ function handleBackgroundUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
-        showToast('⚠️ Solo se permiten archivos de imagen');
+        showToast('\u26A0\uFE0F Solo se permiten archivos de imagen');
         return;
     }
 
-    // Validar tamaño (5MB)
     if (file.size > 5 * 1024 * 1024) {
-        showToast('⚠️ La imagen debe ser menor a 5MB');
+        showToast('\u26A0\uFE0F La imagen debe ser menor a 5MB');
         return;
     }
 
-    // Leer archivo como base64
     const reader = new FileReader();
     reader.onload = (e) => {
         const imageData = e.target.result;
 
-        // Guardar en localStorage
         localStorage.setItem('backgroundImage', imageData);
 
-        // Aplicar fondo
         applyBackgroundImage(imageData);
 
-        // Actualizar UI
-        document.getElementById('backgroundUploadText').textContent = 'Imagen cargada ✓';
+        document.getElementById('backgroundUploadText').textContent = 'Imagen cargada \u2713';
         document.getElementById('removeBackgroundBtn').style.display = 'inline-flex';
 
-        showToast('✅ Fondo actualizado correctamente');
+        showToast('\u2713 Fondo actualizado correctamente');
     };
 
     reader.onerror = () => {
-        showToast('❌ Error al cargar la imagen');
+        showToast('\u2717 Error al cargar la imagen');
     };
 
     reader.readAsDataURL(file);
@@ -484,14 +465,11 @@ function updateBackgroundOpacity(value) {
     localStorage.setItem('backgroundOpacity', value);
 
     const opacity = value / 100;
-    const beforeElement = document.querySelector('body::before');
     document.documentElement.style.setProperty('--background-opacity', opacity);
 
-    // Aplicar opacidad
     const style = document.createElement('style');
     style.id = 'background-opacity-style';
 
-    // Remover estilo anterior si existe
     const oldStyle = document.getElementById('background-opacity-style');
     if (oldStyle) {
         oldStyle.remove();
@@ -523,7 +501,7 @@ function removeBackground() {
     document.getElementById('backgroundOpacity').value = 50;
     document.getElementById('backgroundOpacityValue').textContent = '50%';
 
-    showToast('🗑️ Fondo eliminado');
+    showToast('\u{1F5D1}\uFE0F Fondo eliminado');
 }
 
 function loadBackgroundSettings() {
@@ -532,7 +510,7 @@ function loadBackgroundSettings() {
 
     if (savedImage) {
         applyBackgroundImage(savedImage);
-        document.getElementById('backgroundUploadText').textContent = 'Imagen cargada ✓';
+        document.getElementById('backgroundUploadText').textContent = 'Imagen cargada \u2713';
         document.getElementById('removeBackgroundBtn').style.display = 'inline-flex';
     }
 
@@ -629,24 +607,20 @@ function handleIconUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
-        showToast('⚠️ Solo se permiten archivos de imagen');
+        showToast('\u26A0\uFE0F Solo se permiten archivos de imagen');
         return;
     }
 
-    // Validar tamaño (2MB)
     if (file.size > 2 * 1024 * 1024) {
-        showToast('⚠️ La imagen debe ser menor a 2MB');
+        showToast('\u26A0\uFE0F La imagen debe ser menor a 2MB');
         return;
     }
 
-    // Leer archivo como base64
     const reader = new FileReader();
     reader.onload = (e) => {
         uploadedIconData = e.target.result;
 
-        // Mostrar preview
         const preview = document.getElementById('iconPreview');
         const previewImg = document.getElementById('iconPreviewImg');
 
@@ -655,7 +629,6 @@ function handleIconUpload(event) {
             preview.style.display = 'flex';
         }
 
-        // Actualizar label del área de upload SIN sobrescribir el input
         const uploadArea = document.getElementById('fileUploadArea');
         const label = uploadArea ? uploadArea.querySelector('.file-upload-label') : null;
         if (label) {
@@ -666,12 +639,11 @@ function handleIconUpload(event) {
             `;
         }
 
-        // Mensaje de éxito
-        showToast('✅ Icono cargado correctamente');
+        showToast('\u2713 Icono cargado correctamente');
     };
 
     reader.onerror = () => {
-        showToast('❌ Error al cargar la imagen');
+        showToast('\u2717 Error al cargar la imagen');
     };
 
     reader.readAsDataURL(file);
@@ -685,7 +657,6 @@ function clearIconUpload() {
         fileInput.value = '';
     }
 
-    // Restaurar área de upload
     const uploadArea = document.getElementById('fileUploadArea');
     if (uploadArea) {
         uploadArea.innerHTML = `
@@ -703,23 +674,18 @@ function clearIconUpload() {
         preview.style.display = 'none';
     }
 
-    // Re-inicializar drag & drop
     initIconDragDrop();
 }
 
 function switchIconTab(tab) {
-    // Cambiar tabs activas
     document.querySelectorAll('.icon-tab').forEach(t => {
         t.classList.toggle('active', t.dataset.tab === tab);
     });
 
-    // Cambiar contenido activo
     document.getElementById('icon-tab-url').classList.toggle('active', tab === 'url');
     document.getElementById('icon-tab-upload').classList.toggle('active', tab === 'upload');
 
-    // Limpiar el contenido del tab que NO está activo
     if (tab === 'url') {
-        // Limpiamos upload pero mantenemos la estructura del input
         uploadedIconData = null;
         const uploadArea = document.getElementById('fileUploadArea');
         const label = uploadArea.querySelector('.file-upload-label');
@@ -735,11 +701,9 @@ function switchIconTab(tab) {
             fileInput.value = '';
         }
     } else {
-        // Limpiamos URL
         document.getElementById('icon').value = '';
     }
 
-    // Si no hay datos cargados, ocultar preview
     if (!uploadedIconData && !document.getElementById('icon').value) {
         document.getElementById('iconPreview').style.display = 'none';
     }
@@ -755,13 +719,12 @@ function previewIconUrl() {
     if (url) {
         img.src = url;
         prev.style.display = 'flex';
-        uploadedIconData = null; // Limpiar upload si usamos URL
+        uploadedIconData = null;
     } else {
         prev.style.display = 'none';
     }
 }
 
-// Mantener compatibilidad con código antiguo
 function previewIcon() {
     previewIconUrl();
 }
@@ -829,7 +792,6 @@ function renderAll() {
         const acts = document.createElement('div');
         acts.className = 'group-actions';
 
-        // Botón de colapsar/expandir
         const collapseBtn = document.createElement('button');
         collapseBtn.className = 'group-collapse-btn' + (collapsedGroups.includes(gn) ? ' collapsed' : '');
         collapseBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>`;
@@ -856,7 +818,6 @@ function renderAll() {
         grid.className = 'services-grid' + (collapsedGroups.includes(gn) ? ' collapsed' : '');
         grid.dataset.group = gn;
 
-        // Drag & drop events
         grid.addEventListener('dragover', handleDragOver);
         grid.addEventListener('dragleave', handleDragLeave);
         grid.addEventListener('drop', handleDrop);
@@ -911,8 +872,8 @@ async function handleDrop(e) {
     const newGroup = targetGrid.dataset.group;
 
     if (draggedService && draggedService.group !== newGroup) {
-        await updateService(draggedService.id, draggedService.title, draggedService.icon, draggedService.url, newGroup);
-        showToast(`📦 "${draggedService.title}" movido a "${newGroup}"`);
+        await updateService(draggedService.id, draggedService.title, draggedService.icon, draggedService.url, draggedService.description, newGroup);
+        showToast(`\u{1F500} "${draggedService.title}" movido a "${newGroup}"`);
     }
 
     return false;
@@ -973,7 +934,7 @@ function buildServiceCard(s) {
 
     const ue = document.createElement('div');
     ue.className = 'service-url';
-    ue.textContent = s.url;
+    ue.textContent = s.description || s.url;
 
     card.appendChild(acts);
     card.appendChild(iw);
@@ -995,7 +956,7 @@ function updateGroupSelect() {
 }
 
 /* API */
-async function addService(title, icon, url, group) {
+async function addService(title, icon, url, description, group) {
     const r = await fetch('/api/services', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -1003,6 +964,7 @@ async function addService(title, icon, url, group) {
             title,
             icon,
             url,
+            description: description || '',
             group: group || 'Sin Grupo',
             order: 0
         })
@@ -1016,10 +978,10 @@ async function addService(title, icon, url, group) {
     }
 
     renderAll();
-    showToast(`✅ "${title}" agregado`);
+    showToast(`\u2713 "${title}" agregado`);
 }
 
-async function updateService(id, title, icon, url, group) {
+async function updateService(id, title, icon, url, description, group) {
     const r = await fetch('/api/services', {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
@@ -1028,6 +990,7 @@ async function updateService(id, title, icon, url, group) {
             title,
             icon,
             url,
+            description: description || '',
             group: group || 'Sin Grupo',
             order: 0
         })
@@ -1036,14 +999,14 @@ async function updateService(id, title, icon, url, group) {
     const up = await r.json();
     services = services.map(s => s.id === id ? up : s);
     renderAll();
-    showToast(`✏️ "${title}" actualizado`);
+    showToast(`\u270F\uFE0F "${title}" actualizado`);
 }
 
 async function deleteService(id, name) {
     showConfirm(
         'Eliminar servicio',
         `¿Eliminar "${name}"? Esta acción no se puede deshacer.`,
-        '🗑️',
+        '\u{1F5D1}\uFE0F',
         'Eliminar',
         async () => {
             await fetch('/api/services', {
@@ -1054,7 +1017,7 @@ async function deleteService(id, name) {
 
             services = services.filter(s => s.id !== id);
             renderAll();
-            showToast(`🗑️ "${name}" eliminado`);
+            showToast(`\u{1F5D1}\uFE0F "${name}" eliminado`);
         }
     );
 }
@@ -1066,7 +1029,7 @@ async function deleteGroup(gn) {
     showConfirm(
         `Eliminar grupo`,
         `¿Eliminar el grupo "${gn}"?${extra}`,
-        '📁',
+        '\u{1F4C1}',
         'Eliminar grupo',
         async () => {
             for (const s of gs) {
@@ -1079,7 +1042,7 @@ async function deleteGroup(gn) {
 
             localGroups = localGroups.filter(g => g !== gn);
             await loadServices();
-            showToast(`🗑️ Grupo "${gn}" eliminado`);
+            showToast(`\u{1F5D1}\uFE0F Grupo "${gn}" eliminado`);
         }
     );
 }
@@ -1097,7 +1060,7 @@ async function renameGroup(oldName, newName) {
 
     localGroups = localGroups.map(g => g === oldName ? newName : g);
     await loadServices();
-    showToast(`✏️ Grupo renombrado a "${newName}"`);
+    showToast(`\u270F\uFE0F Grupo renombrado a "${newName}"`);
 }
 
 /* MODAL */
@@ -1112,10 +1075,14 @@ function openModal(tab) {
     document.getElementById('groupSubmitBtn').textContent = 'Crear Grupo';
     document.getElementById('iconPreview').style.display = 'none';
 
-    // Limpiar estados
     uploadedIconData = null;
     clearIconUpload();
     switchIconTab('url');
+
+    const charCount = document.getElementById('char-count');
+    if (charCount) {
+        charCount.textContent = '0';
+    }
 
     document.getElementById('mainModal').classList.add('active');
     switchTab(tab || 'service');
@@ -1129,31 +1096,32 @@ function openEditService(s) {
     document.getElementById('edit-service-id').value = s.id;
     document.getElementById('title').value = s.title;
     document.getElementById('url').value = s.url;
+    document.getElementById('description').value = s.description || '';
     document.getElementById('serviceSubmitBtn').textContent = 'Guardar Cambios';
     updateGroupSelect();
     document.getElementById('service-group').value = s.group || '';
 
-    // Limpiar estados previos
+    const charCount = document.getElementById('char-count');
+    if (charCount) {
+        charCount.textContent = (s.description || '').length;
+    }
+
     uploadedIconData = null;
     document.getElementById('icon').value = '';
     const preview = document.getElementById('iconPreview');
     const previewImg = document.getElementById('iconPreviewImg');
     if (preview) preview.style.display = 'none';
 
-    // Detectar si el icono es base64 (imagen subida) o URL
     if (s.icon) {
         if (s.icon.startsWith('data:image')) {
-            // Es una imagen base64
             uploadedIconData = s.icon;
             switchIconTab('upload');
 
-            // Mostrar preview
             if (previewImg && preview) {
                 previewImg.src = s.icon;
                 preview.style.display = 'flex';
             }
 
-            // Actualizar label del área de upload SIN sobrescribir el input
             const uploadArea = document.getElementById('fileUploadArea');
             const label = uploadArea.querySelector('.file-upload-label');
             if (label) {
@@ -1164,13 +1132,11 @@ function openEditService(s) {
                 `;
             }
         } else {
-            // Es una URL
             document.getElementById('icon').value = s.icon;
             switchIconTab('url');
             previewIconUrl();
         }
     } else {
-        // Sin icono, resetear a tab URL
         switchIconTab('url');
         clearIconUpload();
     }
@@ -1213,12 +1179,15 @@ function closeModal() {
         preview.style.display = 'none';
     }
 
-    // Limpiar upload de imagen
     uploadedIconData = null;
     clearIconUpload();
 
-    // Resetear a tab URL
     switchIconTab('url');
+
+    const charCount = document.getElementById('char-count');
+    if (charCount) {
+        charCount.textContent = '0';
+    }
 
     modalMode = 'add';
 }
@@ -1237,10 +1206,10 @@ document.getElementById('serviceForm').addEventListener('submit', async e => {
     const title = document.getElementById('title').value.trim();
     let icon = document.getElementById('icon').value.trim();
     const url = document.getElementById('url').value.trim();
+    const description = document.getElementById('description').value.trim();
     const group = document.getElementById('service-group').value;
     const editId = parseInt(document.getElementById('edit-service-id').value) || 0;
 
-    // Si hay imagen subida, usar esa en lugar de URL
     if (uploadedIconData) {
         icon = uploadedIconData;
     }
@@ -1248,9 +1217,9 @@ document.getElementById('serviceForm').addEventListener('submit', async e => {
     if (!title || !url) return;
 
     if (modalMode === 'edit' && editId) {
-        await updateService(editId, title, icon || '', url, group);
+        await updateService(editId, title, icon || '', url, description, group);
     } else {
-        await addService(title, icon || '', url, group);
+        await addService(title, icon || '', url, description, group);
     }
 
     closeModal();
@@ -1273,7 +1242,7 @@ document.getElementById('groupForm').addEventListener('submit', async e => {
             localGroups.push(name);
         }
         renderAll();
-        showToast(`📁 Grupo "${name}" creado`);
+        showToast(`\u{1F4C1} Grupo "${name}" creado`);
     }
 
     closeModal();
@@ -1341,6 +1310,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('timezoneSelect').addEventListener('change', changeTimezone);
     document.getElementById('timeFormatSelect').value = timeFormat;
     document.getElementById('timeFormatSelect').addEventListener('change', changeTimeFormat);
+
+    const descInput = document.getElementById('description');
+    const charCount = document.getElementById('char-count');
+    if (descInput && charCount) {
+        descInput.addEventListener('input', () => {
+            charCount.textContent = descInput.value.length;
+        });
+    }
 
     if (window.innerWidth > 1200) {
         document.body.classList.add('sidebar-open');
