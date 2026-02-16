@@ -16,12 +16,13 @@ import (
 )
 
 type Service struct {
-        ID    int    `json:"id"`
-        Title string `json:"title"`
-        Icon  string `json:"icon"`
-        URL   string `json:"url"`
-        Group string `json:"group"`
-        Order int    `json:"order"`
+        ID          int    `json:"id"`
+        Title       string `json:"title"`
+        Icon        string `json:"icon"`
+        URL         string `json:"url"`
+        Description string `json:"description"`
+        Group       string `json:"group"`
+        Order       int    `json:"order"`
 }
 
 type SysInfo struct {
@@ -47,22 +48,36 @@ func initDB() {
         if err != nil {
                 log.Fatal(err)
         }
+
+        // Crear tabla con descripción
         createTable := `
         CREATE TABLE IF NOT EXISTS services (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 icon TEXT NOT NULL,
                 url TEXT NOT NULL,
+                description TEXT DEFAULT '',
                 service_group TEXT DEFAULT 'Sin Grupo',
                 sort_order INTEGER DEFAULT 0
         );`
         if _, err = db.Exec(createTable); err != nil {
                 log.Fatal(err)
         }
+
+        // Migración: agregar columna description si no existe
+        var count int
+        err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('services') WHERE name='description'").Scan(&count)
+        if err == nil && count == 0 {
+                log.Println("Migrando base de datos: agregando columna 'description'...")
+                _, err = db.Exec("ALTER TABLE services ADD COLUMN description TEXT DEFAULT ''")
+                if err != nil {
+                        log.Printf("Advertencia: no se pudo agregar columna description: %v", err)
+                }
+        }
 }
 
 func getServices(w http.ResponseWriter, r *http.Request) {
-        rows, err := db.Query("SELECT id, title, icon, url, service_group, sort_order FROM services ORDER BY service_group ASC, sort_order ASC, id ASC")
+        rows, err := db.Query("SELECT id, title, icon, url, COALESCE(description, ''), service_group, sort_order FROM services ORDER BY service_group ASC, sort_order ASC, id ASC")
         if err != nil {
                 http.Error(w, err.Error(), http.StatusInternalServerError)
                 return
@@ -71,7 +86,7 @@ func getServices(w http.ResponseWriter, r *http.Request) {
         services := make([]Service, 0)
         for rows.Next() {
                 var s Service
-                if err := rows.Scan(&s.ID, &s.Title, &s.Icon, &s.URL, &s.Group, &s.Order); err != nil {
+                if err := rows.Scan(&s.ID, &s.Title, &s.Icon, &s.URL, &s.Description, &s.Group, &s.Order); err != nil {
                         http.Error(w, err.Error(), http.StatusInternalServerError)
                         return
                 }
@@ -90,8 +105,14 @@ func addService(w http.ResponseWriter, r *http.Request) {
         if s.Group == "" {
                 s.Group = "Sin Grupo"
         }
-        result, err := db.Exec("INSERT INTO services (title, icon, url, service_group, sort_order) VALUES (?, ?, ?, ?, ?)",
-                s.Title, s.Icon, s.URL, s.Group, s.Order)
+
+        // Limitar descripción a 23 caracteres
+        if len(s.Description) > 23 {
+                s.Description = s.Description[:23]
+        }
+
+        result, err := db.Exec("INSERT INTO services (title, icon, url, description, service_group, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
+                s.Title, s.Icon, s.URL, s.Description, s.Group, s.Order)
         if err != nil {
                 http.Error(w, err.Error(), http.StatusInternalServerError)
                 return
@@ -125,8 +146,14 @@ func updateService(w http.ResponseWriter, r *http.Request) {
         if s.Group == "" {
                 s.Group = "Sin Grupo"
         }
-        if _, err := db.Exec("UPDATE services SET title=?, icon=?, url=?, service_group=?, sort_order=? WHERE id=?",
-                s.Title, s.Icon, s.URL, s.Group, s.Order, s.ID); err != nil {
+
+        // Limitar descripción a 23 caracteres
+        if len(s.Description) > 23 {
+                s.Description = s.Description[:23]
+        }
+
+        if _, err := db.Exec("UPDATE services SET title=?, icon=?, url=?, description=?, service_group=?, sort_order=? WHERE id=?",
+                s.Title, s.Icon, s.URL, s.Description, s.Group, s.Order, s.ID); err != nil {
                 http.Error(w, err.Error(), http.StatusInternalServerError)
                 return
         }
@@ -284,7 +311,7 @@ func main() {
                 getSysInfo(w, r)
         })
 
-        // ? NUEVO: Servir archivos estáticos desde /static/ con UTF-8
+        // Servir archivos estáticos desde /static/ con UTF-8
         fs := http.FileServer(http.Dir("./static"))
         http.Handle("/static/", http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
                 // Asegurar UTF-8 para archivos JavaScript y CSS
