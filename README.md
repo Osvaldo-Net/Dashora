@@ -1,8 +1,21 @@
 # Dashora
 Dashboard para tu laboratorio domestico. 
 
-## Docker Compose
+## Instalación usando Docker Compose
 
+services:
+  dashora:
+    image: netosvaltools/dashora:latest
+    container_name: dashora
+    dns:
+      - 8.8.8.8
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    environment:
+      - DB_PATH=/app/data/dashboard.db
 
 ## Modo dia
 <img width="1325" height="595" alt="image" src="https://github.com/user-attachments/assets/dbbdca55-e227-4b97-bc78-e75680d7aebd" />
