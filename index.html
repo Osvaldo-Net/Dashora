@@ -189,8 +189,35 @@
                         <input type="text" id="title" placeholder="Ej: GitHub" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label for="icon">URL del Icono <span class="label-hint">(opcional)</span></label>
-                        <input type="url" id="icon" placeholder="https://ejemplo.com/icono.png" oninput="previewIcon()">
+                        <label>Icono <span class="label-hint">(opcional)</span></label>
+                        <div class="icon-input-tabs">
+                            <button type="button" class="icon-tab active" data-tab="url" onclick="switchIconTab('url')">
+                                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+                                URL
+                            </button>
+                            <button type="button" class="icon-tab" data-tab="upload" onclick="switchIconTab('upload')">
+                                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+                                Subir
+                            </button>
+                        </div>
+                        
+                        <!-- Tab URL -->
+                        <div class="icon-tab-content active" id="icon-tab-url">
+                            <input type="url" id="icon" placeholder="https://ejemplo.com/icono.png" oninput="previewIconUrl()">
+                        </div>
+                        
+                        <!-- Tab Upload -->
+                        <div class="icon-tab-content" id="icon-tab-upload">
+                            <div class="file-upload-area" id="fileUploadArea">
+                                <input type="file" id="iconFile" accept="image/*" onchange="handleIconUpload(event)" style="display:none;">
+                                <label for="iconFile" class="file-upload-label">
+                                    <svg viewBox="0 0 24 24" width="32" height="32"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+                                    <span>Click para seleccionar imagen</span>
+                                    <small>PNG, JPG, SVG, GIF (máx. 2MB)</small>
+                                </label>
+                            </div>
+                        </div>
+                        
                         <div class="icon-preview" id="iconPreview" style="display:none;">
                             <div class="icon-preview-box"><img id="iconPreviewImg" src="" alt="preview" onerror="this.parentElement.innerHTML='?'"></div>
                             <span class="icon-preview-hint">Vista previa del icono</span>
