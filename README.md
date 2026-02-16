@@ -1,6 +1,6 @@
 # Dashora
 
-<img width="400" height="408" alt="favicon" src="https://github.com/user-attachments/assets/487387f3-b35e-4a8b-9974-4ebd61947737" />
+<img width="200" height="208" alt="favicon" src="https://github.com/user-attachments/assets/487387f3-b35e-4a8b-9974-4ebd61947737" />
 
 Dashboard para tu laboratorio domestico. 
 
