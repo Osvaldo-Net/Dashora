@@ -23,7 +23,10 @@ WORKDIR /app
 
 # Copiar binario compilado
 COPY --from=builder /app/dashboard .
+
+# Copiar archivos web
 COPY --from=builder /app/index.html .
+COPY --from=builder /app/static ./static
 
 # Crear volumen para la base de datos
 VOLUME ["/app/data"]
