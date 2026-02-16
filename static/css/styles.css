@@ -45,13 +45,14 @@
 }
 
 body {
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg-primary);
     min-height: 100vh;
     padding: 28px 24px;
     transition: background var(--transition), color var(--transition);
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
 }
 
 body.sidebar-open {
@@ -102,15 +103,16 @@ body.sidebar-open {
     text-align: center;
     margin-bottom: 24px;
     padding: 24px;
-    background: var(--bg-secondary);
+    background: var(--bg-card);
     border-radius: 14px;
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
 }
 
 .clock-time {
-    font-family: 'DM Serif Display', serif;
+    font-family: 'Space Mono', 'Courier New', monospace;
     font-size: 3.5rem;
-    font-weight: 400;
+    font-weight: 700;
     color: var(--text-primary);
     line-height: 1;
     margin-bottom: 8px;
@@ -118,7 +120,7 @@ body.sidebar-open {
 }
 
 .clock-ampm {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 1.4rem;
     font-weight: 500;
     color: var(--text-secondary);
@@ -225,10 +227,11 @@ body.sidebar-open {
 
 /* CALENDAR */
 .calendar-container {
-    background: var(--bg-secondary);
+    background: var(--bg-card);
     border-radius: 14px;
     padding: 20px;
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
 }
 
 .calendar-header {
@@ -250,7 +253,7 @@ body.sidebar-open {
 }
 
 .calendar-nav-btn {
-    background: var(--bg-card);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     width: 32px;
     height: 32px;
@@ -333,10 +336,11 @@ body.sidebar-open {
 
 /* WEATHER */
 .weather-container {
-    background: var(--bg-secondary);
+    background: var(--bg-card);
     border-radius: 14px;
     padding: 20px;
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
 }
 
 .weather-header {
@@ -347,7 +351,7 @@ body.sidebar-open {
 }
 
 .weather-refresh-btn {
-    background: var(--bg-card);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     width: 28px;
     height: 28px;
@@ -385,7 +389,7 @@ body.sidebar-open {
     align-items: center;
     gap: 16px;
     padding: 12px;
-    background: var(--bg-card);
+    background: var(--bg-secondary);
     border-radius: 10px;
 }
 
@@ -419,7 +423,7 @@ body.sidebar-open {
 }
 
 .weather-detail-item {
-    background: var(--bg-card);
+    background: var(--bg-secondary);
     padding: 10px;
     border-radius: 8px;
     display: flex;
@@ -525,19 +529,6 @@ header {
     border: 1px solid var(--border-color);
 }
 
-/* HEADER */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    background: var(--bg-card);
-    padding: 24px 32px;
-    border-radius: 18px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-}
-
 .header-content {
     flex: 1;
     display: flex;
@@ -557,12 +548,12 @@ header {
 }
 
 h1 {
-    font-family: 'DM Serif Display', serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 2.2rem;
-    font-weight: 400;
+    font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 4px;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     line-height: 1.2;
 }
 
@@ -594,7 +585,7 @@ h1 {
     border: 1.5px solid var(--border-color);
     border-radius: 12px;
     font-size: 0.9rem;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     background: var(--bg-secondary);
     color: var(--text-primary);
     transition: all var(--transition);
@@ -670,22 +661,6 @@ h1 {
     border-radius: 4px;
 }
 
-h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2.2rem;
-    font-weight: 400;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-}
-
-.subtitle {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    font-weight: 400;
-}
-
 .header-actions {
     display: flex;
     align-items: center;
@@ -701,7 +676,7 @@ h1 {
     border-radius: 10px;
     font-size: 0.875rem;
     font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     cursor: pointer;
     transition: all var(--transition);
     display: flex;
@@ -805,7 +780,7 @@ h1 {
     font-size: 0.78rem;
     color: var(--text-secondary);
     font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -1066,9 +1041,9 @@ h1 {
 }
 
 .modal-header {
-    font-family: 'DM Serif Display', serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 1.6rem;
-    font-weight: 400;
+    font-weight: 700;
     margin-bottom: 6px;
     color: var(--text-primary);
     letter-spacing: -0.02em;
@@ -1095,7 +1070,7 @@ h1 {
     border: none;
     border-radius: 7px;
     background: transparent;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-secondary);
@@ -1152,7 +1127,7 @@ label {
     border: none;
     border-radius: 7px;
     background: transparent;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-secondary);
@@ -1243,7 +1218,7 @@ input, select {
     border: 1.5px solid var(--border-color);
     border-radius: 10px;
     font-size: 0.9rem;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     transition: border-color var(--transition), box-shadow var(--transition);
     background: var(--bg-secondary);
     color: var(--text-primary);
@@ -1273,7 +1248,7 @@ input:focus, select:focus {
     border-radius: 10px;
     font-size: 0.9rem;
     font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     cursor: pointer;
     transition: all var(--transition);
 }
@@ -1361,11 +1336,12 @@ input:focus, select:focus {
 }
 
 .empty-state-text {
-    font-family: 'DM Serif Display', serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 1.5rem;
-    font-weight: 400;
+    font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 8px;
+    letter-spacing: -0.02em;
 }
 
 .empty-state-description {
@@ -1497,9 +1473,11 @@ input:focus, select:focus {
 }
 
 .confirm-title {
-    font-family: 'DM Serif Display', serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 1.3rem;
+    font-weight: 700;
     margin-bottom: 8px;
+    letter-spacing: -0.02em;
 }
 
 .confirm-msg {
