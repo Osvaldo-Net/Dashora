@@ -515,6 +515,305 @@ body.sidebar-open {
     fill: var(--text-secondary);
 }
 
+/* BACKGROUND SETTINGS */
+.background-settings-container {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.background-settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.background-settings-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    padding: 0;
+}
+
+.background-settings-btn:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    transform: rotate(45deg);
+}
+
+.background-settings-btn svg {
+    fill: var(--text-secondary);
+    transition: fill var(--transition);
+}
+
+.background-settings-btn:hover svg {
+    fill: var(--accent);
+}
+
+.background-settings-panel {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    animation: slideDown 0.3s ease;
+}
+
+.background-upload-area {
+    margin-bottom: 16px;
+}
+
+.background-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--bg-secondary);
+}
+
+.background-upload-label:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+}
+
+.background-upload-label svg {
+    fill: var(--accent);
+    opacity: 0.6;
+}
+
+.background-upload-label:hover svg {
+    opacity: 1;
+}
+
+.background-upload-label span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.background-setting-item {
+    margin-bottom: 16px;
+}
+
+.background-setting-item label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.background-opacity-value {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.background-setting-item input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 5px;
+    background: var(--bg-secondary);
+    outline: none;
+    -webkit-appearance: none;
+    padding: 0;
+    border: none;
+}
+
+.background-setting-item input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.background-setting-item input[type="range"]::-webkit-slider-thumb:hover {
+    background: var(--accent-light);
+    transform: scale(1.1);
+}
+
+.background-setting-item input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.background-setting-item input[type="range"]::-moz-range-thumb:hover {
+    background: var(--accent-light);
+    transform: scale(1.1);
+}
+
+.background-actions {
+    margin-top: 12px;
+}
+
+.btn-sm {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-sm svg {
+    fill: currentColor;
+}
+
+/* Background overlay */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    z-index: -1;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+body.has-background::before {
+    background-image: var(--background-image);
+}
+
+/* GLASSMORPHISM EFFECT - Cuando hay fondo personalizado */
+body.has-background .service-card,
+body.has-background header,
+body.has-background .sysinfo-section,
+body.has-background .group-header,
+body.has-background .clock-display,
+body.has-background .calendar-container,
+body.has-background .weather-container,
+body.has-background .background-settings-container {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] body.has-background .service-card,
+[data-theme="dark"] body.has-background header,
+[data-theme="dark"] body.has-background .sysinfo-section,
+[data-theme="dark"] body.has-background .group-header,
+[data-theme="dark"] body.has-background .clock-display,
+[data-theme="dark"] body.has-background .calendar-container,
+[data-theme="dark"] body.has-background .weather-container,
+[data-theme="dark"] body.has-background .background-settings-container {
+    background: rgba(0, 0, 0, 0.25) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Ajustes adicionales para mejor contraste */
+body.has-background .service-icon {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] body.has-background .service-icon {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.has-background .sysinfo-chip,
+body.has-background .weather-main,
+body.has-background .weather-detail-item,
+body.has-background .search-input {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] body.has-background .sysinfo-chip,
+[data-theme="dark"] body.has-background .weather-main,
+[data-theme="dark"] body.has-background .weather-detail-item,
+[data-theme="dark"] body.has-background .search-input {
+    background: rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Mejorar visibilidad del texto */
+body.has-background .service-title,
+body.has-background .service-url,
+body.has-background h1,
+body.has-background .subtitle,
+body.has-background .group-title,
+body.has-background .clock-time,
+body.has-background .clock-date {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Efecto hover más pronunciado con fondo */
+body.has-background .service-card:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] body.has-background .service-card:hover {
+    background: rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Botones con glassmorphism */
+body.has-background .header-btn,
+body.has-background .theme-toggle {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] body.has-background .header-btn,
+[data-theme="dark"] body.has-background .theme-toggle {
+    background: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Card actions con mejor contraste */
+body.has-background .card-btn {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+[data-theme="dark"] body.has-background .card-btn {
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
 /* HAMBURGER TOGGLE */
 .sidebar-toggle {
     position: fixed;
