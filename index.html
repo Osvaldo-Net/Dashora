@@ -6,7 +6,8 @@
     <title>Dashora</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --bg-primary: #f0f2f0; --bg-secondary: #e8ebe8; --bg-card: #ffffff;
@@ -31,7 +32,7 @@
             --group-header-bg: #282828;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); min-height: 100vh; padding: 28px 24px; transition: background var(--transition), color var(--transition); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; background: var(--bg-primary); min-height: 100vh; padding: 28px 24px; transition: background var(--transition), color var(--transition); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
         body.sidebar-open { padding-right: calc(var(--sidebar-width) + 48px); }
         .container { max-width: 1320px; margin: 0 auto; }
 
@@ -45,8 +46,8 @@
 
         /* CLOCK */
         .clock-display { text-align: center; margin-bottom: 24px; padding: 24px; background: var(--bg-secondary); border-radius: 14px; border: 1px solid var(--border-color); }
-        .clock-time { font-family: 'DM Serif Display', serif; font-size: 3.5rem; font-weight: 400; color: var(--text-primary); line-height: 1; margin-bottom: 8px; letter-spacing: -0.02em; }
-        .clock-ampm { font-family: 'DM Sans', sans-serif; font-size: 1.4rem; font-weight: 500; color: var(--text-secondary); margin-left: 6px; vertical-align: middle; letter-spacing: 0.02em; }
+        .clock-time { font-family: 'Inter', sans-serif; font-size: 3.5rem; font-weight: 300; color: var(--text-primary); line-height: 1; margin-bottom: 8px; letter-spacing: -0.02em; }
+        .clock-ampm { font-family: 'Inter', sans-serif; font-size: 1.4rem; font-weight: 500; color: var(--text-secondary); margin-left: 6px; vertical-align: middle; letter-spacing: 0.02em; }
         .clock-date { font-size: 1rem; color: var(--text-secondary); font-weight: 500; margin-bottom: 4px; }
         .clock-timezone { font-size: 0.8rem; color: var(--text-secondary); opacity: 0.7; }
         .clock-settings-btn { background: transparent; border: 1px solid var(--border-color); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); padding: 0; }
@@ -117,10 +118,10 @@
         /* HEADER */
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 24px 32px; border-radius: 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
         .header-content { flex: 1; }
-        h1 { font-family: 'DM Serif Display', serif; font-size: 2.2rem; font-weight: 400; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.02em; line-height: 1.2; }
+        h1 { font-family: 'Inter', sans-serif; font-size: 2.2rem; font-weight: 400; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.02em; line-height: 1.2; }
         .subtitle { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; }
         .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .header-btn { background: var(--accent-dim); border: 1.5px solid var(--accent-dim2); color: var(--accent); padding: 9px 18px; border-radius: 10px; font-size: 0.875rem; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+        .header-btn { background: var(--accent-dim); border: 1.5px solid var(--accent-dim2); color: var(--accent); padding: 9px 18px; border-radius: 10px; font-size: 0.875rem; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; gap: 7px; white-space: nowrap; }
         .header-btn:hover { background: var(--accent-dim2); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
         .theme-toggle { background: var(--bg-secondary); border: 1.5px solid var(--border-color); width: 44px; height: 44px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); flex-shrink: 0; }
         .theme-toggle:hover { border-color: var(--accent); background: var(--accent-dim); }
@@ -134,7 +135,7 @@
         .group-title svg { fill: var(--accent); opacity: 0.8; }
         .group-count { background: var(--accent-dim); color: var(--accent); font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
         .group-actions { display: flex; gap: 8px; align-items: center; }
-        .group-action-btn { background: transparent; border: 1.5px solid var(--border-color); padding: 6px 13px; border-radius: 8px; cursor: pointer; transition: all var(--transition); font-size: 0.78rem; color: var(--text-secondary); font-weight: 500; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 5px; }
+        .group-action-btn { background: transparent; border: 1.5px solid var(--border-color); padding: 6px 13px; border-radius: 8px; cursor: pointer; transition: all var(--transition); font-size: 0.78rem; color: var(--text-secondary); font-weight: 500; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 5px; }
         .group-action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
         .group-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-dim); }
         .group-action-btn svg { width: 14px; height: 14px; fill: currentColor; }
@@ -176,7 +177,7 @@
         .card-context-menu { display: none; position: absolute; top: 44px; right: 8px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 10px; box-shadow: var(--shadow-lg); overflow: hidden; z-index: 12; min-width: 140px; animation: menuIn 0.15s ease; }
         @keyframes menuIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
         .card-context-menu.active { display: block; }
-        .card-context-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: all var(--transition); border: none; background: transparent; width: 100%; text-align: left; color: var(--text-primary); font-size: 0.875rem; font-family: 'DM Sans', sans-serif; }
+        .card-context-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: all var(--transition); border: none; background: transparent; width: 100%; text-align: left; color: var(--text-primary); font-size: 0.875rem; font-family: 'Inter', sans-serif; }
         .card-context-item svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
         .card-context-item:hover { background: var(--accent-dim); color: var(--accent); }
         .card-context-item.danger:hover { background: var(--danger-dim); color: var(--danger); }
@@ -190,18 +191,18 @@
         .modal-header { font-family: 'DM Serif Display', serif; font-size: 1.6rem; font-weight: 400; margin-bottom: 6px; color: var(--text-primary); letter-spacing: -0.02em; }
         .modal-sub { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 28px; }
         .modal-tabs { display: flex; gap: 6px; background: var(--bg-secondary); border-radius: 10px; padding: 4px; margin-bottom: 28px; }
-        .modal-tab { flex: 1; padding: 9px; border: none; border-radius: 7px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); }
+        .modal-tab { flex: 1; padding: 9px; border: none; border-radius: 7px; background: transparent; font-family: 'Inter', sans-serif; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); }
         .modal-tab.active { background: var(--bg-card); color: var(--accent); box-shadow: var(--shadow-sm); }
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 7px; font-weight: 500; font-size: 0.875rem; color: var(--text-primary); }
         .label-hint { font-weight: 400; font-size: 0.82rem; color: var(--text-secondary); margin-left: 4px; }
-        input, select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; transition: border-color var(--transition), box-shadow var(--transition); background: var(--bg-secondary); color: var(--text-primary); }
+        input, select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 0.9rem; font-family: 'Inter', sans-serif; transition: border-color var(--transition), box-shadow var(--transition); background: var(--bg-secondary); color: var(--text-primary); }
         input::placeholder { color: var(--text-secondary); opacity: 0.7; }
         input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
         .button-group { display: flex; gap: 10px; margin-top: 26px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all var(--transition); }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all var(--transition); }
         .btn:hover { transform: translateY(-1px); }
         .btn-primary { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(45,122,79,0.25); }
         .btn-primary:hover { background: var(--accent-light); box-shadow: 0 4px 14px rgba(45,122,79,0.35); }
