@@ -59,6 +59,38 @@ body.sidebar-open {
     padding-right: calc(var(--sidebar-width) + 48px);
 }
 
+/* SCROLLBAR PERSONALIZADO */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+    border: 2px solid var(--bg-secondary);
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--accent-light);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--bg-secondary);
+}
+
 .container {
     max-width: 1320px;
     margin: 0 auto;
@@ -92,6 +124,28 @@ body.sidebar-open {
     overflow-y: auto;
     z-index: 100;
     transition: transform var(--transition);
+}
+
+/* Scrollbar específico para sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 10px 0;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light);
+    background-clip: padding-box;
 }
 
 .sidebar-section {
@@ -1027,6 +1081,26 @@ h1 {
     animation: modalIn 0.2s cubic-bezier(0.34,1.36,0.64,1);
     max-height: 90vh;
     overflow-y: auto;
+}
+
+/* Scrollbar para modales */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+    border: 2px solid var(--bg-secondary);
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light);
 }
 
 @keyframes modalIn {
