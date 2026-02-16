@@ -3,6 +3,7 @@ Dashboard para tu laboratorio domestico.
 
 ## Instalación usando Docker Compose
 
+```
 services:
   dashora:
     image: netosvaltools/dashora:latest
@@ -17,6 +18,7 @@ services:
     environment:
       - DB_PATH=/app/data/dashboard.db
 
+```
 ## Modo dia
 <img width="1325" height="595" alt="image" src="https://github.com/user-attachments/assets/dbbdca55-e227-4b97-bc78-e75680d7aebd" />
 
