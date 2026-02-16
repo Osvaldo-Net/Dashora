@@ -133,29 +133,39 @@
         .group-title { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 9px; letter-spacing: 0.02em; text-transform: uppercase; }
         .group-title svg { fill: var(--accent); opacity: 0.8; }
         .group-count { background: var(--accent-dim); color: var(--accent); font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
-        .group-actions { display: flex; gap: 8px; }
+        .group-actions { display: flex; gap: 8px; align-items: center; }
         .group-action-btn { background: transparent; border: 1.5px solid var(--border-color); padding: 6px 13px; border-radius: 8px; cursor: pointer; transition: all var(--transition); font-size: 0.78rem; color: var(--text-secondary); font-weight: 500; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 5px; }
         .group-action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
         .group-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-dim); }
         .group-action-btn svg { width: 14px; height: 14px; fill: currentColor; }
+        
+        /* Collapse toggle */
+        .group-collapse-btn { background: transparent; border: 1.5px solid var(--border-color); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition); }
+        .group-collapse-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+        .group-collapse-btn svg { width: 16px; height: 16px; fill: var(--text-secondary); transition: all var(--transition); }
+        .group-collapse-btn:hover svg { fill: var(--accent); }
+        .group-collapse-btn.collapsed svg { transform: rotate(-90deg); }
 
         /* SERVICE CARDS */
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 14px; }
-        .service-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px 16px 16px; text-align: center; transition: all var(--transition); cursor: pointer; position: relative; box-shadow: var(--shadow-sm); overflow: hidden; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 14px; min-height: 60px; transition: all var(--transition); }
+        .services-grid.collapsed { display: none; }
+        .services-grid.drag-over { background: var(--accent-dim); border: 2px dashed var(--accent); border-radius: 12px; padding: 8px; }
+        .service-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px 16px 16px; text-align: center; transition: all var(--transition); cursor: move; position: relative; box-shadow: var(--shadow-sm); overflow: hidden; }
+        .service-card.dragging { opacity: 0.5; transform: rotate(2deg); cursor: grabbing; }
         .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform var(--transition); border-radius: 16px 16px 0 0; }
         .service-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: transparent; }
         .service-card:hover::before { transform: scaleX(1); }
-        .service-icon { width: 52px; height: 52px; border-radius: 12px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); padding: 8px; border: 1px solid var(--border-color); overflow: hidden; }
+        .service-icon { width: 52px; height: 52px; border-radius: 12px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); padding: 8px; border: 1px solid var(--border-color); overflow: hidden; pointer-events: none; }
         .service-icon img { width: 100%; height: 100%; object-fit: contain; display: block; }
         .icon-fallback { width: 36px; height: 36px; fill: var(--text-secondary); }
-        .service-title { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.01em; }
-        .service-url { font-size: 0.72rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .service-title { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.01em; pointer-events: none; }
+        .service-url { font-size: 0.72rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
 
         /* Card action buttons */
-        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; opacity: 0; transition: opacity var(--transition); }
+        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; opacity: 0; transition: opacity var(--transition); z-index: 10; }
         .service-card:hover .card-actions { opacity: 1; }
-        .card-btn { background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-secondary); width: 28px; height: 28px; border-radius: 7px; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; justify-content: center; }
-        .card-btn svg { width: 14px; height: 14px; fill: currentColor; }
+        .card-btn { background: var(--bg-card); border: 1.5px solid var(--border-color); color: var(--text-secondary); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); }
+        .card-btn svg { width: 16px; height: 16px; fill: currentColor; }
         .card-btn.edit:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
         .card-btn.delete:hover { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
 
@@ -257,7 +267,10 @@
             .modal-content { padding: 24px 20px; }
             .sidebar { width: 100%; max-width: 320px; }
             .clock-time { font-size: 2.5rem; }
+            /* Hacer los botones de editar y borrar siempre visibles en móvil */
             .card-actions { opacity: 1; }
+            .card-btn { width: 36px; height: 36px; background: rgba(255,255,255,0.95); backdrop-filter: blur(4px); }
+            [data-theme="dark"] .card-btn { background: rgba(47,47,47,0.95); }
         }
         @media (max-width: 400px) {
             .services-grid { grid-template-columns: repeat(3,1fr); gap: 8px; }
@@ -481,6 +494,8 @@
         let currentCalendarDate = new Date();
         let confirmCallback = null;
         let modalMode = 'add';
+        let draggedService = null;
+        let collapsedGroups = JSON.parse(localStorage.getItem('collapsedGroups') || '[]');
 
         /* TOAST */
         function showToast(msg, duration = 2500) {
@@ -508,6 +523,18 @@
             closeConfirm();
         });
         document.getElementById('confirmModal').addEventListener('click', e => { if (e.target.id === 'confirmModal') closeConfirm(); });
+
+        /* COLLAPSE GROUPS */
+        function toggleGroupCollapse(groupName) {
+            const idx = collapsedGroups.indexOf(groupName);
+            if (idx > -1) {
+                collapsedGroups.splice(idx, 1);
+            } else {
+                collapsedGroups.push(groupName);
+            }
+            localStorage.setItem('collapsedGroups', JSON.stringify(collapsedGroups));
+            renderAll();
+        }
 
         /* SIDEBAR */
         function toggleSidebar() {
@@ -630,7 +657,16 @@
                 ttl.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`;
                 ttl.appendChild(document.createTextNode(gn));
                 const cb=document.createElement('span'); cb.className='group-count'; cb.textContent=items.length; ttl.appendChild(cb);
+                
                 const acts=document.createElement('div'); acts.className='group-actions';
+                
+                // Botón de colapsar/expandir
+                const collapseBtn = document.createElement('button');
+                collapseBtn.className = 'group-collapse-btn' + (collapsedGroups.includes(gn) ? ' collapsed' : '');
+                collapseBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>`;
+                collapseBtn.addEventListener('click', () => toggleGroupCollapse(gn));
+                acts.appendChild(collapseBtn);
+                
                 const eb=document.createElement('button'); eb.className='group-action-btn';
                 eb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Renombrar`;
                 eb.addEventListener('click',()=>openEditGroup(gn)); acts.appendChild(eb);
@@ -638,16 +674,77 @@
                 db.innerHTML=`<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Eliminar`;
                 db.addEventListener('click',()=>deleteGroup(gn)); acts.appendChild(db);
                 hdr.appendChild(ttl); hdr.appendChild(acts); sec.appendChild(hdr);
-                const grid=document.createElement('div'); grid.className='services-grid';
+                
+                const grid=document.createElement('div'); 
+                grid.className='services-grid' + (collapsedGroups.includes(gn) ? ' collapsed' : '');
+                grid.dataset.group = gn;
+                
+                // Drag & drop events
+                grid.addEventListener('dragover', handleDragOver);
+                grid.addEventListener('dragleave', handleDragLeave);
+                grid.addEventListener('drop', handleDrop);
+                
                 if(items.length===0){const e=document.createElement('div');e.style.cssText='color:var(--text-secondary);font-size:0.85rem;padding:20px;opacity:0.6;';e.textContent='Grupo vacío — agrega servicios aquí.';grid.appendChild(e);}
                 else items.forEach(s=>grid.appendChild(buildServiceCard(s)));
                 sec.appendChild(grid); con.appendChild(sec);
             });
             updateGroupSelect();
         }
+        
+        /* DRAG & DROP */
+        function handleDragStart(e, service) {
+            draggedService = service;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.innerHTML);
+        }
+        
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.services-grid').forEach(grid => {
+                grid.classList.remove('drag-over');
+            });
+        }
+        
+        function handleDragOver(e) {
+            if (e.preventDefault) e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+            return false;
+        }
+        
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+        
+        async function handleDrop(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            e.currentTarget.classList.remove('drag-over');
+            
+            const targetGrid = e.currentTarget;
+            const newGroup = targetGrid.dataset.group;
+            
+            if (draggedService && draggedService.group !== newGroup) {
+                await updateService(draggedService.id, draggedService.title, draggedService.icon, draggedService.url, newGroup);
+                showToast(`📦 "${draggedService.title}" movido a "${newGroup}"`);
+            }
+            
+            return false;
+        }
+        
         function buildServiceCard(s) {
-            const card=document.createElement('div'); card.className='service-card';
-            card.addEventListener('click',e=>{if(!e.target.closest('.card-actions'))window.open(s.url,'_blank');});
+            const card=document.createElement('div'); 
+            card.className='service-card';
+            card.draggable = true;
+            
+            card.addEventListener('dragstart', (e) => handleDragStart(e, s));
+            card.addEventListener('dragend', handleDragEnd);
+            card.addEventListener('click',e=>{
+                if(!e.target.closest('.card-actions') && !card.classList.contains('dragging')) {
+                    window.open(s.url,'_blank');
+                }
+            });
+            
             const acts=document.createElement('div'); acts.className='card-actions';
             const eb=document.createElement('button'); eb.className='card-btn edit'; eb.title='Editar';
             eb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
@@ -662,6 +759,7 @@
             const ue=document.createElement('div'); ue.className='service-url'; ue.textContent=s.url;
             card.appendChild(acts); card.appendChild(iw); card.appendChild(te); card.appendChild(ue); return card;
         }
+        
         function escapeHtml(s){const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
         function updateGroupSelect() {
             const gm=getGroupMap(), sel=document.getElementById('service-group'), cv=sel.value;
@@ -729,7 +827,7 @@
             document.getElementById('service-group').value=s.group||'';
             document.getElementById('mainModal').classList.add('active');
             switchTab('service');
-            previewIcon(); // después de que el panel esté visible
+            previewIcon();
         }
         function openEditGroup(gn) {
             modalMode='edit';
@@ -794,7 +892,6 @@
         document.getElementById('timezoneSelect').addEventListener('change',changeTimezone);
         document.getElementById('timeFormatSelect').value=timeFormat;
         document.getElementById('timeFormatSelect').addEventListener('change',changeTimeFormat);
-        // Desktop: sidebar always visible via CSS, just add padding to body
         if(window.innerWidth>1200){ document.body.classList.add('sidebar-open'); }
         setInterval(updateClock,1000); setInterval(loadSysInfo,5000); setInterval(loadWeather,600000);
     </script>
