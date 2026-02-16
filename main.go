@@ -36,6 +36,11 @@ type SysInfo struct {
         Uptime      string  `json:"uptime"`
 }
 
+type Settings struct {
+        BackgroundImage   string `json:"background_image"`
+        BackgroundOpacity int    `json:"background_opacity"`
+}
+
 var db *sql.DB
 
 func initDB() {
@@ -48,8 +53,8 @@ func initDB() {
         if err != nil {
                 log.Fatal(err)
         }
-
-        // Crear tabla con descripción
+        
+        // Crear tabla services
         createTable := `
         CREATE TABLE IF NOT EXISTS services (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,7 +68,24 @@ func initDB() {
         if _, err = db.Exec(createTable); err != nil {
                 log.Fatal(err)
         }
-
+        
+        // Crear tabla settings
+        createSettings := `
+        CREATE TABLE IF NOT EXISTS settings (
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                background_image TEXT DEFAULT '',
+                background_opacity INTEGER DEFAULT 50
+        );`
+        if _, err = db.Exec(createSettings); err != nil {
+                log.Fatal(err)
+        }
+        
+        // Insertar settings por defecto si no existe
+        _, err = db.Exec("INSERT OR IGNORE INTO settings (id, background_image, background_opacity) VALUES (1, '', 50)")
+        if err != nil {
+                log.Fatal(err)
+        }
+        
         // Migración: agregar columna description si no existe
         var count int
         err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('services') WHERE name='description'").Scan(&count)
@@ -105,12 +127,11 @@ func addService(w http.ResponseWriter, r *http.Request) {
         if s.Group == "" {
                 s.Group = "Sin Grupo"
         }
-
-        // Limitar descripción a 23 caracteres
+        
         if len(s.Description) > 23 {
                 s.Description = s.Description[:23]
         }
-
+        
         result, err := db.Exec("INSERT INTO services (title, icon, url, description, service_group, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
                 s.Title, s.Icon, s.URL, s.Description, s.Group, s.Order)
         if err != nil {
@@ -146,12 +167,11 @@ func updateService(w http.ResponseWriter, r *http.Request) {
         if s.Group == "" {
                 s.Group = "Sin Grupo"
         }
-
-        // Limitar descripción a 23 caracteres
+        
         if len(s.Description) > 23 {
                 s.Description = s.Description[:23]
         }
-
+        
         if _, err := db.Exec("UPDATE services SET title=?, icon=?, url=?, description=?, service_group=?, sort_order=? WHERE id=?",
                 s.Title, s.Icon, s.URL, s.Description, s.Group, s.Order, s.ID); err != nil {
                 http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -159,6 +179,37 @@ func updateService(w http.ResponseWriter, r *http.Request) {
         }
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(s)
+}
+
+// Obtener configuración
+func getSettings(w http.ResponseWriter, r *http.Request) {
+        var settings Settings
+        err := db.QueryRow("SELECT background_image, background_opacity FROM settings WHERE id = 1").Scan(&settings.BackgroundImage, &settings.BackgroundOpacity)
+        if err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(settings)
+}
+
+// Actualizar configuración
+func updateSettings(w http.ResponseWriter, r *http.Request) {
+        var settings Settings
+        if err := json.NewDecoder(r.Body).Decode(&settings); err != nil {
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }
+        
+        _, err := db.Exec("UPDATE settings SET background_image = ?, background_opacity = ? WHERE id = 1",
+                settings.BackgroundImage, settings.BackgroundOpacity)
+        if err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+        
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(settings)
 }
 
 func readCPUStat() (total, idle uint64) {
@@ -306,15 +357,31 @@ func main() {
                 }
         })
 
+        http.HandleFunc("/api/settings", func(w http.ResponseWriter, r *http.Request) {
+                w.Header().Set("Access-Control-Allow-Origin", "*")
+                w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, OPTIONS")
+                w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+                if r.Method == "OPTIONS" {
+                        w.WriteHeader(http.StatusOK)
+                        return
+                }
+                switch r.Method {
+                case "GET":
+                        getSettings(w, r)
+                case "PUT":
+                        updateSettings(w, r)
+                default:
+                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                }
+        })
+
         http.HandleFunc("/api/sysinfo", func(w http.ResponseWriter, r *http.Request) {
                 w.Header().Set("Access-Control-Allow-Origin", "*")
                 getSysInfo(w, r)
         })
 
-        // Servir archivos estáticos desde /static/ con UTF-8
         fs := http.FileServer(http.Dir("./static"))
         http.Handle("/static/", http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-                // Asegurar UTF-8 para archivos JavaScript y CSS
                 if strings.HasSuffix(r.URL.Path, ".js") {
                         w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
                 } else if strings.HasSuffix(r.URL.Path, ".css") {
@@ -323,7 +390,6 @@ func main() {
                 fs.ServeHTTP(w, r)
         })))
 
-        // Servir index.html en la raíz
         http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
                 if r.URL.Path != "/" {
                         http.NotFound(w, r)
