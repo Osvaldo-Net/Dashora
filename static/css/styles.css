@@ -1136,6 +1136,107 @@ label {
     margin-left: 4px;
 }
 
+/* Icon input tabs */
+.icon-input-tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 12px;
+}
+
+.icon-tab {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.icon-tab svg {
+    fill: currentColor;
+}
+
+.icon-tab.active {
+    background: var(--bg-card);
+    color: var(--accent);
+    box-shadow: var(--shadow-sm);
+}
+
+.icon-tab:hover:not(.active) {
+    color: var(--text-primary);
+}
+
+.icon-tab-content {
+    display: none;
+}
+
+.icon-tab-content.active {
+    display: block;
+}
+
+/* File upload area */
+.file-upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: all var(--transition);
+    background: var(--bg-secondary);
+}
+
+.file-upload-area:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+}
+
+.file-upload-area.dragover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    transform: scale(1.02);
+}
+
+.file-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.file-upload-label svg {
+    fill: var(--accent);
+    opacity: 0.6;
+    transition: all var(--transition);
+}
+
+.file-upload-label:hover svg {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.file-upload-label span {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.file-upload-label small {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
 input, select {
     width: 100%;
     padding: 11px 14px;
