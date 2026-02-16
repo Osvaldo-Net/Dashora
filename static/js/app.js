@@ -698,6 +698,157 @@ function escapeHtml(s) {
     return d.innerHTML;
 }
 
+/* ICON UPLOAD */
+let uploadedIconData = null;
+
+// Inicializar drag & drop para iconos
+function initIconDragDrop() {
+    const uploadArea = document.getElementById('fileUploadArea');
+    if (!uploadArea) return;
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.add('dragover');
+        }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.remove('dragover');
+        }, false);
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length > 0) {
+            const file = files[0];
+            // Simular el evento de cambio del input
+            const event = { target: { files: [file] } };
+            handleIconUpload(event);
+        }
+    }, false);
+}
+
+function switchIconTab(tab) {
+    // Cambiar tabs activas
+    document.querySelectorAll('.icon-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+    });
+    
+    // Cambiar contenido activo
+    document.getElementById('icon-tab-url').classList.toggle('active', tab === 'url');
+    document.getElementById('icon-tab-upload').classList.toggle('active', tab === 'upload');
+    
+    // Limpiar preview si cambiamos de tab
+    if (tab === 'url') {
+        uploadedIconData = null;
+    } else {
+        document.getElementById('icon').value = '';
+    }
+}
+
+function handleIconUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+        showToast('\u26A0\uFE0F Solo se permiten archivos de imagen');
+        return;
+    }
+    
+    // Validar tamaño (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('\u26A0\uFE0F La imagen debe ser menor a 2MB');
+        return;
+    }
+    
+    // Leer archivo como base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        uploadedIconData = e.target.result;
+        
+        // Mostrar preview
+        const preview = document.getElementById('iconPreview');
+        const previewImg = document.getElementById('iconPreviewImg');
+        
+        previewImg.src = uploadedIconData;
+        preview.style.display = 'flex';
+        
+        // Actualizar label del área de upload
+        const uploadArea = document.getElementById('fileUploadArea');
+        uploadArea.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+                <img src="${uploadedIconData}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;">
+                <div style="text-align:left;">
+                    <div style="font-weight:500;color:var(--text-primary);">${escapeHtml(file.name)}</div>
+                    <div style="font-size:0.75rem;color:var(--text-secondary);">${formatFileSize(file.size)}</div>
+                </div>
+            </div>
+            <button type="button" onclick="clearIconUpload()" style="margin-top:12px;padding:6px 12px;border:1px solid var(--border-color);background:var(--bg-card);border-radius:8px;cursor:pointer;font-size:0.85rem;color:var(--text-secondary);">
+                Cambiar imagen
+            </button>
+        `;
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearIconUpload() {
+    uploadedIconData = null;
+    document.getElementById('iconFile').value = '';
+    
+    // Restaurar área de upload
+    const uploadArea = document.getElementById('fileUploadArea');
+    uploadArea.innerHTML = `
+        <input type="file" id="iconFile" accept="image/*" onchange="handleIconUpload(event)" style="display:none;">
+        <label for="iconFile" class="file-upload-label">
+            <svg viewBox="0 0 24 24" width="32" height="32"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+            <span>Click para seleccionar imagen</span>
+            <small>PNG, JPG, SVG, GIF (máx. 2MB)</small>
+        </label>
+    `;
+    
+    document.getElementById('iconPreview').style.display = 'none';
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+
+function previewIconUrl() {
+    const url = document.getElementById('icon').value.trim();
+    const prev = document.getElementById('iconPreview');
+    const img = document.getElementById('iconPreviewImg');
+    
+    if (!prev || !img) return;
+    
+    if (url) {
+        img.src = url;
+        prev.style.display = 'flex';
+        uploadedIconData = null; // Limpiar upload si usamos URL
+    } else {
+        prev.style.display = 'none';
+    }
+}
+
+// Mantener compatibilidad con código antiguo
+function previewIcon() {
+    previewIconUrl();
+}
+
 function updateGroupSelect() {
     const gm = getGroupMap();
     const sel = document.getElementById('service-group');
@@ -837,14 +988,48 @@ function openEditService(s) {
     document.getElementById('modalTabs').style.display = 'none';
     document.getElementById('edit-service-id').value = s.id;
     document.getElementById('title').value = s.title;
-    document.getElementById('icon').value = s.icon || '';
     document.getElementById('url').value = s.url;
     document.getElementById('serviceSubmitBtn').textContent = 'Guardar Cambios';
     updateGroupSelect();
     document.getElementById('service-group').value = s.group || '';
+    
+    // Detectar si el icono es base64 (imagen subida) o URL
+    if (s.icon) {
+        if (s.icon.startsWith('data:image')) {
+            // Es una imagen base64
+            uploadedIconData = s.icon;
+            switchIconTab('upload');
+            
+            // Mostrar preview
+            const preview = document.getElementById('iconPreview');
+            const previewImg = document.getElementById('iconPreviewImg');
+            previewImg.src = s.icon;
+            preview.style.display = 'flex';
+            
+            // Actualizar área de upload para mostrar la imagen existente
+            const uploadArea = document.getElementById('fileUploadArea');
+            uploadArea.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+                    <img src="${s.icon}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;">
+                    <div style="text-align:left;">
+                        <div style="font-weight:500;color:var(--text-primary);">Imagen actual</div>
+                        <div style="font-size:0.75rem;color:var(--text-secondary);">Click abajo para cambiar</div>
+                    </div>
+                </div>
+                <button type="button" onclick="clearIconUpload()" style="margin-top:12px;padding:6px 12px;border:1px solid var(--border-color);background:var(--bg-card);border-radius:8px;cursor:pointer;font-size:0.85rem;color:var(--text-secondary);">
+                    Cambiar imagen
+                </button>
+            `;
+        } else {
+            // Es una URL
+            document.getElementById('icon').value = s.icon;
+            switchIconTab('url');
+            previewIconUrl();
+        }
+    }
+    
     document.getElementById('mainModal').classList.add('active');
     switchTab('service');
-    previewIcon();
 }
 
 function openEditGroup(gn) {
@@ -865,6 +1050,14 @@ function closeModal() {
     document.getElementById('serviceForm').reset();
     document.getElementById('groupForm').reset();
     document.getElementById('iconPreview').style.display = 'none';
+    
+    // Limpiar upload de imagen
+    uploadedIconData = null;
+    clearIconUpload();
+    
+    // Resetear a tab URL
+    switchIconTab('url');
+    
     modalMode = 'add';
 }
 
@@ -880,10 +1073,15 @@ document.getElementById('serviceForm').addEventListener('submit', async e => {
     e.preventDefault();
     
     const title = document.getElementById('title').value.trim();
-    const icon = document.getElementById('icon').value.trim();
+    let icon = document.getElementById('icon').value.trim();
     const url = document.getElementById('url').value.trim();
     const group = document.getElementById('service-group').value;
     const editId = parseInt(document.getElementById('edit-service-id').value) || 0;
+    
+    // Si hay imagen subida, usar esa en lugar de URL
+    if (uploadedIconData) {
+        icon = uploadedIconData;
+    }
     
     if (!title || !url) return;
     
@@ -969,6 +1167,7 @@ async function loadSysInfo() {
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initSearch();
+    initIconDragDrop();
     loadServices();
     loadSysInfo();
     updateClock();
