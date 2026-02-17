@@ -23,17 +23,17 @@ Sin dependencias en la nube. Sin telemetría. Solo tú y tus servicios.
 
 ---
 
-## ✨ Características
+## Características
 
-- 🌓 **Modo día y noche** — Cambia de tema con un clic
-- 🎨 **Temas personalizados** — Adapta colores y apariencia a tu gusto
-- 🗂️ **Grupos de servicios** — Organiza por categorías (medios, red, almacenamiento, etc.)
-- ⚡ **Rápido y ligero** — Imagen Docker minimalista, arranca en segundos
-- 🔒 **100% local** — Ningún dato sale de tu red
+- **Modo día y noche** — Cambia de tema con un clic
+- **Temas personalizados** — Adapta colores y apariencia a tu gusto
+- **Grupos de servicios** — Organiza por categorías (medios, red, almacenamiento, etc.)
+- **Rápido y ligero** — Imagen Docker minimalista, arranca en segundos
+- **100% local** — Ningún dato sale de tu red
 
 ---
 
-## 🚀 Instalación
+## Instalación
 
 ### Con Docker Compose *(recomendado)*
 
@@ -78,7 +78,7 @@ docker run -d \
 
 ---
 
-## 🖼️ Capturas de pantalla
+## Capturas de pantalla
 
 ### Modo día
 
@@ -103,7 +103,7 @@ docker run -d \
 
 ---
 
-## ⚙️ Configuración
+## Configuración
 
 | Variable de entorno | Descripción | Valor por defecto |
 |---|---|---|
@@ -113,7 +113,7 @@ Los datos persisten en el volumen `./data`. Haz backup de esa carpeta para no pe
 
 ---
 
-## 📦 Actualizar
+## Actualizar
 
 ```bash
 docker compose pull
@@ -122,8 +122,3 @@ docker compose up -d
 
 ---
 
-
-
-<div align="center">
-Hecho con ☕ para la comunidad homelab
-</div>
