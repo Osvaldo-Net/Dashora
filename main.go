@@ -26,9 +26,12 @@ type Service struct {
 }
 
 type Bookmark struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	URL   string `json:"url"`
+	Icon  string `json:"icon"`
+	Group string `json:"group"`
+	Order int    `json:"order"`
 }
 
 type SysInfo struct {
@@ -92,27 +95,45 @@ func initDB() {
 		log.Fatal(err)
 	}
 
-	// Tabla bookmarks
+	// Tabla bookmarks con grupo e icono
 	createBookmarks := `
 	CREATE TABLE IF NOT EXISTS bookmarks (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL,
 		url TEXT NOT NULL,
+		icon TEXT DEFAULT '',
+		bookmark_group TEXT DEFAULT 'Sin Grupo',
 		sort_order INTEGER DEFAULT 0
 	);`
 	if _, err = db.Exec(createBookmarks); err != nil {
 		log.Fatal(err)
 	}
 
-	// Migración: columna description en services
+	// Migraciones para services
 	var count int
 	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('services') WHERE name='description'").Scan(&count)
 	if err == nil && count == 0 {
-		log.Println("Migrando base de datos: agregando columna 'description'...")
-		_, err = db.Exec("ALTER TABLE services ADD COLUMN description TEXT DEFAULT ''")
-		if err != nil {
-			log.Printf("Advertencia: no se pudo agregar columna description: %v", err)
-		}
+		db.Exec("ALTER TABLE services ADD COLUMN description TEXT DEFAULT ''")
+	}
+
+	// Migraciones para bookmarks: agregar icon si no existe
+	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('bookmarks') WHERE name='icon'").Scan(&count)
+	if err == nil && count == 0 {
+		log.Println("Migrando bookmarks: agregando columna 'icon'...")
+		db.Exec("ALTER TABLE bookmarks ADD COLUMN icon TEXT DEFAULT ''")
+	}
+
+	// Migraciones para bookmarks: agregar bookmark_group si no existe
+	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('bookmarks') WHERE name='bookmark_group'").Scan(&count)
+	if err == nil && count == 0 {
+		log.Println("Migrando bookmarks: agregando columna 'bookmark_group'...")
+		db.Exec("ALTER TABLE bookmarks ADD COLUMN bookmark_group TEXT DEFAULT 'Sin Grupo'")
+	}
+
+	// Migraciones para bookmarks: agregar sort_order si no existe
+	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('bookmarks') WHERE name='sort_order'").Scan(&count)
+	if err == nil && count == 0 {
+		db.Exec("ALTER TABLE bookmarks ADD COLUMN sort_order INTEGER DEFAULT 0")
 	}
 }
 
@@ -200,7 +221,7 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 // ─── BOOKMARKS ─────────────────────────────────────────────────────────────
 
 func getBookmarks(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT id, name, url FROM bookmarks ORDER BY sort_order ASC, id ASC")
+	rows, err := db.Query("SELECT id, name, url, COALESCE(icon,''), COALESCE(bookmark_group,'Sin Grupo'), sort_order FROM bookmarks ORDER BY bookmark_group ASC, sort_order ASC, id ASC")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -209,7 +230,7 @@ func getBookmarks(w http.ResponseWriter, r *http.Request) {
 	bookmarks := make([]Bookmark, 0)
 	for rows.Next() {
 		var b Bookmark
-		if err := rows.Scan(&b.ID, &b.Name, &b.URL); err != nil {
+		if err := rows.Scan(&b.ID, &b.Name, &b.URL, &b.Icon, &b.Group, &b.Order); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -229,7 +250,11 @@ func addBookmark(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "name and url are required", http.StatusBadRequest)
 		return
 	}
-	result, err := db.Exec("INSERT INTO bookmarks (name, url, sort_order) VALUES (?, ?, 0)", b.Name, b.URL)
+	if b.Group == "" {
+		b.Group = "Sin Grupo"
+	}
+	result, err := db.Exec("INSERT INTO bookmarks (name, url, icon, bookmark_group, sort_order) VALUES (?, ?, ?, ?, 0)",
+		b.Name, b.URL, b.Icon, b.Group)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -246,7 +271,11 @@ func updateBookmark(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if _, err := db.Exec("UPDATE bookmarks SET name=?, url=? WHERE id=?", b.Name, b.URL, b.ID); err != nil {
+	if b.Group == "" {
+		b.Group = "Sin Grupo"
+	}
+	if _, err := db.Exec("UPDATE bookmarks SET name=?, url=?, icon=?, bookmark_group=? WHERE id=?",
+		b.Name, b.URL, b.Icon, b.Group, b.ID); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -395,7 +424,6 @@ func getSysInfo(w http.ResponseWriter, r *http.Request) {
 	cpuPct := getCPUPercent()
 	ramUsed, ramTotal, ramPct := getRAM()
 	diskUsed, diskTotal, diskPct := getDisk()
-
 	uptimeStr := "?"
 	data, err := os.ReadFile("/proc/uptime")
 	if err == nil {
@@ -403,16 +431,9 @@ func getSysInfo(w http.ResponseWriter, r *http.Request) {
 		fmt.Sscanf(strings.TrimSpace(string(data)), "%f", &secs)
 		uptimeStr = formatUptime(time.Duration(secs) * time.Second)
 	}
-
 	info := SysInfo{
-		CPUPercent:  cpuPct,
-		RAMPercent:  ramPct,
-		RAMUsedGB:   ramUsed,
-		RAMTotalGB:  ramTotal,
-		DiskPercent: diskPct,
-		DiskUsedGB:  diskUsed,
-		DiskTotalGB: diskTotal,
-		Uptime:      uptimeStr,
+		CPUPercent: cpuPct, RAMPercent: ramPct, RAMUsedGB: ramUsed, RAMTotalGB: ramTotal,
+		DiskPercent: diskPct, DiskUsedGB: diskUsed, DiskTotalGB: diskTotal, Uptime: uptimeStr,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(info)
@@ -420,7 +441,7 @@ func getSysInfo(w http.ResponseWriter, r *http.Request) {
 
 // ─── MAIN ──────────────────────────────────────────────────────────────────
 
-func corsMiddleware(next http.HandlerFunc, methods string) http.HandlerFunc {
+func cors(next http.HandlerFunc, methods string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", methods)
@@ -437,8 +458,7 @@ func main() {
 	initDB()
 	defer db.Close()
 
-	// Services
-	http.HandleFunc("/api/services", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/services", cors(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
 			getServices(w, r)
@@ -453,8 +473,7 @@ func main() {
 		}
 	}, "GET, POST, PUT, DELETE, OPTIONS"))
 
-	// Bookmarks
-	http.HandleFunc("/api/bookmarks", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/bookmarks", cors(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
 			getBookmarks(w, r)
@@ -469,8 +488,7 @@ func main() {
 		}
 	}, "GET, POST, PUT, DELETE, OPTIONS"))
 
-	// Settings
-	http.HandleFunc("/api/settings", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/settings", cors(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
 			getSettings(w, r)
@@ -481,13 +499,11 @@ func main() {
 		}
 	}, "GET, PUT, OPTIONS"))
 
-	// SysInfo
 	http.HandleFunc("/api/sysinfo", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		getSysInfo(w, r)
 	})
 
-	// Static files
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasSuffix(r.URL.Path, ".js") {
