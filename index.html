@@ -149,62 +149,104 @@
         <div class="bars"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
     </button>
 
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <div class="header-top">
-                    <div class="header-text">
-                        <h1>Dashora</h1>
-                        <p class="subtitle">Todos tus servicios en un solo lugar.</p>
+    <!-- NAVEGACIÓN DE PESTAÑAS (estilo browser) -->
+    <div class="page-tabs-nav" id="pageTabsNav">
+        <button class="page-tab active" id="tab-inicio" onclick="switchPageTab('inicio')">Inicio</button>
+        <button class="page-tab" id="tab-marcadores" onclick="switchPageTab('marcadores')">Marcadores</button>
+    </div>
+
+    <!-- PAGE: INICIO -->
+    <div class="page-panel active" id="page-inicio">
+        <div class="container">
+            <header>
+                <div class="header-content">
+                    <div class="header-top">
+                        <div class="header-text">
+                            <h1>Dashora</h1>
+                            <p class="subtitle">Todos tus servicios en un solo lugar.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="header-btn" onclick="openModal('service')">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                <span class="btn-text">Nuevo servicio</span>
+                            </button>
+                            <button class="header-btn" onclick="openModal('group')" style="background:transparent;border-color:var(--border-color);color:var(--text-secondary);">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                                <span class="btn-text">Nuevo grupo</span>
+                            </button>
+                            <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+                                <svg id="theme-icon-light" viewBox="0 0 24 24" style="display:none;"><path d="M12 18c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6zm0-10c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zM13 2h-2v3h2V2zm0 17h-2v3h2v-3zM5 11H2v2h3v-2zm17 0h-3v2h3v-2zM6.3 4.9L4.9 6.3l2.1 2.1 1.4-1.4-2.1-2.1zm12.7 12.7l-1.4 1.4 2.1 2.1 1.4-1.4-2.1-2.1zM17.7 6.3l-2.1 2.1 1.4 1.4 2.1-2.1-1.4-1.4zM6.3 19.1l2.1-2.1-1.4-1.4-2.1 2.1 1.4 1.4z"/></svg>
+                                <svg id="theme-icon-dark" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="header-actions">
-                        <button class="header-btn" onclick="openModal('service')">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                            <span class="btn-text">Nuevo servicio</span>
-                        </button>
-                        <button class="header-btn" onclick="openModal('group')" style="background:transparent;border-color:var(--border-color);color:var(--text-secondary);">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
-                            <span class="btn-text">Nuevo grupo</span>
-                        </button>
-                        <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
-                            <svg id="theme-icon-light" viewBox="0 0 24 24" style="display:none;"><path d="M12 18c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6zm0-10c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zM13 2h-2v3h2V2zm0 17h-2v3h2v-3zM5 11H2v2h3v-2zm17 0h-3v2h3v-2zM6.3 4.9L4.9 6.3l2.1 2.1 1.4-1.4-2.1-2.1zm12.7 12.7l-1.4 1.4 2.1 2.1 1.4-1.4-2.1-2.1zM17.7 6.3l-2.1 2.1 1.4 1.4 2.1-2.1-1.4-1.4zM6.3 19.1l2.1-2.1-1.4-1.4-2.1 2.1 1.4 1.4z"/></svg>
-                            <svg id="theme-icon-dark" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="search-container">
-                    <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18">
-                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                    </svg>
-                    <input
-                        type="text"
-                        id="searchInput"
-                        class="search-input"
-                        placeholder="Buscar servicios... (presiona / para enfocar)"
-                        autocomplete="off"
-                    />
-                    <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">
-                        <svg viewBox="0 0 24 24" width="18" height="18">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    <div class="search-container">
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                         </svg>
-                    </button>
+                        <input type="text" id="searchInput" class="search-input" placeholder="Buscar servicios... (presiona / para enfocar)" autocomplete="off"/>
+                        <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">
+                            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            <div class="sysinfo-section">
+                <div class="sysinfo" id="sysinfo">
+                    <div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg><span>Cargando...</span></div>
                 </div>
             </div>
-        </header>
-        <div class="sysinfo-section">
-            <div class="sysinfo" id="sysinfo">
-                <div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg><span>Cargando...</span></div>
+            <div id="groupsContainer"></div>
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <div class="empty-state-icon">&#128640;</div>
+                <div class="empty-state-text">Todo listo para empezar</div>
+                <p class="empty-state-description">Agrega tu primer grupo o servicio con el botón de arriba</p>
             </div>
-        </div>
-        <div id="groupsContainer"></div>
-        <div id="emptyState" class="empty-state" style="display:none;">
-            <div class="empty-state-icon">??</div>
-            <div class="empty-state-text">Todo listo para empezar</div>
-            <p class="empty-state-description">Agrega tu primer grupo o servicio con el botón de arriba</p>
         </div>
     </div>
 
-    <!-- MAIN MODAL -->
+    <!-- PAGE: MARCADORES -->
+    <div class="page-panel" id="page-marcadores">
+        <div class="container">
+            <header>
+                <div class="header-content">
+                    <div class="header-top">
+                        <div class="header-text">
+                            <h1>Marcadores</h1>
+                            <p class="subtitle">Tus enlaces guardados, siempre a mano.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="header-btn" onclick="openBookmarkModal()">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                <span class="btn-text">Nuevo marcador</span>
+                            </button>
+                            <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+                                <svg id="theme-icon-light-bm" viewBox="0 0 24 24" style="display:none;"><path d="M12 18c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6zm0-10c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zM13 2h-2v3h2V2zm0 17h-2v3h2v-3zM5 11H2v2h3v-2zm17 0h-3v2h3v-2zM6.3 4.9L4.9 6.3l2.1 2.1 1.4-1.4-2.1-2.1zm12.7 12.7l-1.4 1.4 2.1 2.1 1.4-1.4-2.1-2.1zM17.7 6.3l-2.1 2.1 1.4 1.4 2.1-2.1-1.4-1.4zM6.3 19.1l2.1-2.1-1.4-1.4-2.1 2.1 1.4 1.4z"/></svg>
+                                <svg id="theme-icon-dark-bm" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="search-container">
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        <input type="text" id="bookmarkSearchInput" class="search-input" placeholder="Buscar marcadores..." autocomplete="off" oninput="filterBookmarks(this.value)"/>
+                        <button class="search-clear" id="bookmarkSearchClear" onclick="clearBookmarkSearch()" style="display:none;">
+                            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            <div id="bookmarksContainer" class="bookmarks-list"></div>
+            <div id="bookmarksEmpty" class="empty-state" style="display:none;">
+                <div class="empty-state-icon">&#128278;</div>
+                <div class="empty-state-text">Sin marcadores aún</div>
+                <p class="empty-state-description">Agrega tu primer marcador con el botón de arriba</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN MODAL (Servicios) -->
     <div id="mainModal" class="modal">
         <div class="modal-content">
             <h2 class="modal-header" id="modalTitle">Agregar</h2>
@@ -236,13 +278,9 @@
                                 Subir
                             </button>
                         </div>
-
-                        <!-- Tab URL -->
                         <div class="icon-tab-content active" id="icon-tab-url">
                             <input type="url" id="icon" placeholder="https://ejemplo.com/icono.png" oninput="previewIconUrl()">
                         </div>
-
-                        <!-- Tab Upload -->
                         <div class="icon-tab-content" id="icon-tab-upload">
                             <div class="file-upload-area" id="fileUploadArea">
                                 <input type="file" id="iconFile" accept="image/*" onchange="handleIconUpload(event)" style="display:none;">
@@ -253,7 +291,6 @@
                                 </label>
                             </div>
                         </div>
-
                         <div class="icon-preview" id="iconPreview" style="display:none;">
                             <div class="icon-preview-box"><img id="iconPreviewImg" src="" alt="preview" onerror="this.parentElement.innerHTML='?'"></div>
                             <span class="icon-preview-hint">Vista previa del icono</span>
@@ -292,10 +329,33 @@
         </div>
     </div>
 
+    <!-- BOOKMARK MODAL -->
+    <div id="bookmarkModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header" id="bookmarkModalTitle">Nuevo Marcador</h2>
+            <p class="modal-sub" id="bookmarkModalSub">Guarda un enlace rápido</p>
+            <form id="bookmarkForm">
+                <input type="hidden" id="edit-bookmark-id" value="">
+                <div class="form-group">
+                    <label for="bookmark-name">Nombre</label>
+                    <input type="text" id="bookmark-name" placeholder="Ej: Google" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="bookmark-url">URL</label>
+                    <input type="url" id="bookmark-url" placeholder="https://google.com">
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="closeBookmarkModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="bookmarkSubmitBtn">Guardar Marcador</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- CONFIRM DIALOG -->
     <div id="confirmModal" class="confirm-modal">
         <div class="confirm-content">
-            <div class="confirm-icon" id="confirmIcon">??</div>
+            <div class="confirm-icon" id="confirmIcon">&#9888;&#65039;</div>
             <div class="confirm-title" id="confirmTitle">¿Estás seguro?</div>
             <p class="confirm-msg" id="confirmMsg">Esta acción no se puede deshacer.</p>
             <div class="confirm-actions">
