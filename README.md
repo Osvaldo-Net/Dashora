@@ -23,13 +23,27 @@ services:
 
 ```
 ## Modo dia
-<img width="1325" height="595" alt="image" src="https://github.com/user-attachments/assets/dbbdca55-e227-4b97-bc78-e75680d7aebd" />
 
-<img width="1335" height="595" alt="image" src="https://github.com/user-attachments/assets/cd3b7675-5bfc-4aaf-9c6b-3a746a04680f" />
+<img width="1365" height="597" alt="image" src="https://github.com/user-attachments/assets/3b14a88d-754c-4e07-9277-26c504872131" />
 
+<img width="1365" height="592" alt="image" src="https://github.com/user-attachments/assets/86f552d0-736b-40f3-aec7-20e17610f307" />
 
 ## Modo noche
 
-<img width="1335" height="596" alt="image" src="https://github.com/user-attachments/assets/fcabc3c5-8e9a-482c-9175-3b338c1b2941" />
+<img width="1365" height="590" alt="image" src="https://github.com/user-attachments/assets/331aa432-6b73-4a51-8ef4-ca37934bc5fc" />
 
-<img width="1329" height="589" alt="image" src="https://github.com/user-attachments/assets/4b0529bd-c9c4-49e1-930d-dff4f330aaf7" />
+## Personalizado
+
+<img width="1365" height="596" alt="image" src="https://github.com/user-attachments/assets/6b693461-ba8e-4c7f-a9ff-2fb81da13873" />
+
+## Agregar Servicios
+
+<img width="1365" height="597" alt="image" src="https://github.com/user-attachments/assets/e9309cec-ed25-44e5-accd-d24c8ad58941" />
+
+## Agregar Grupos
+
+<img width="1365" height="595" alt="image" src="https://github.com/user-attachments/assets/f614a35b-33fb-4fea-b934-e3fde2d54839" />
+
+
+
+
