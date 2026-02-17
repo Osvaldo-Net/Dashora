@@ -28,8 +28,11 @@ Sin dependencias en la nube. Sin telemetría. Solo tú y tus servicios.
 - **Modo día y noche** — Cambia de tema con un clic
 - **Temas personalizados** — Adapta colores y apariencia a tu gusto
 - **Grupos de servicios** — Organiza por categorías (medios, red, almacenamiento, etc.)
+- **Pestaña de marcadores** — Tus enlaces guardados, siempre a mano.
 - **Rápido y ligero** — Imagen Docker minimalista, arranca en segundos
 - **100% local** — Ningún dato sale de tu red
+
+
 
 ---
 
