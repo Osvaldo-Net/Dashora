@@ -128,10 +128,7 @@
                         </label>
                     </div>
                     <div class="background-setting-item">
-                        <label for="backgroundOpacity">
-                            Opacidad
-                            <span class="background-opacity-value" id="backgroundOpacityValue">50%</span>
-                        </label>
+                        <label for="backgroundOpacity">Opacidad <span class="background-opacity-value" id="backgroundOpacityValue">50%</span></label>
                         <input type="range" id="backgroundOpacity" min="0" max="100" value="50" oninput="updateBackgroundOpacity(this.value)">
                     </div>
                     <div class="background-actions">
@@ -149,7 +146,7 @@
         <div class="bars"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
     </button>
 
-    <!-- NAVEGACIÓN DE PESTAÑAS (estilo browser) -->
+    <!-- NAVEGACIÓN DE PESTAÑAS -->
     <div class="page-tabs-nav" id="pageTabsNav">
         <button class="page-tab active" id="tab-inicio" onclick="switchPageTab('inicio')">Inicio</button>
         <button class="page-tab" id="tab-marcadores" onclick="switchPageTab('marcadores')">Marcadores</button>
@@ -181,9 +178,7 @@
                         </div>
                     </div>
                     <div class="search-container">
-                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18">
-                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                        </svg>
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                         <input type="text" id="searchInput" class="search-input" placeholder="Buscar servicios... (presiona / para enfocar)" autocomplete="off"/>
                         <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">
                             <svg viewBox="0 0 24 24" width="18" height="18"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -213,12 +208,16 @@
                     <div class="header-top">
                         <div class="header-text">
                             <h1>Marcadores</h1>
-                            <p class="subtitle">Tus enlaces guardados, siempre a mano.</p>
+                            <p class="subtitle">Tus enlaces guardados, organizados por grupos.</p>
                         </div>
                         <div class="header-actions">
                             <button class="header-btn" onclick="openBookmarkModal()">
                                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                                 <span class="btn-text">Nuevo marcador</span>
+                            </button>
+                            <button class="header-btn" onclick="openBookmarkGroupModal()" style="background:transparent;border-color:var(--border-color);color:var(--text-secondary);">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                                <span class="btn-text">Nuevo grupo</span>
                             </button>
                             <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
                                 <svg id="theme-icon-light-bm" viewBox="0 0 24 24" style="display:none;"><path d="M12 18c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6zm0-10c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zM13 2h-2v3h2V2zm0 17h-2v3h2v-3zM5 11H2v2h3v-2zm17 0h-3v2h3v-2zM6.3 4.9L4.9 6.3l2.1 2.1 1.4-1.4-2.1-2.1zm12.7 12.7l-1.4 1.4 2.1 2.1 1.4-1.4-2.1-2.1zM17.7 6.3l-2.1 2.1 1.4 1.4 2.1-2.1-1.4-1.4zM6.3 19.1l2.1-2.1-1.4-1.4-2.1 2.1 1.4 1.4z"/></svg>
@@ -227,9 +226,7 @@
                         </div>
                     </div>
                     <div class="search-container">
-                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18">
-                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                        </svg>
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                         <input type="text" id="bookmarkSearchInput" class="search-input" placeholder="Buscar marcadores..." autocomplete="off" oninput="filterBookmarks(this.value)"/>
                         <button class="search-clear" id="bookmarkSearchClear" onclick="clearBookmarkSearch()" style="display:none;">
                             <svg viewBox="0 0 24 24" width="18" height="18"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -237,7 +234,7 @@
                     </div>
                 </div>
             </header>
-            <div id="bookmarksContainer" class="bookmarks-list"></div>
+            <div id="bookmarkGroupsContainer"></div>
             <div id="bookmarksEmpty" class="empty-state" style="display:none;">
                 <div class="empty-state-icon">&#128278;</div>
                 <div class="empty-state-text">Sin marcadores aún</div>
@@ -246,7 +243,7 @@
         </div>
     </div>
 
-    <!-- MAIN MODAL (Servicios) -->
+    <!-- MODAL SERVICIOS -->
     <div id="mainModal" class="modal">
         <div class="modal-content">
             <h2 class="modal-header" id="modalTitle">Agregar</h2>
@@ -270,12 +267,10 @@
                         <label>Icono <span class="label-hint">(opcional)</span></label>
                         <div class="icon-input-tabs">
                             <button type="button" class="icon-tab active" data-tab="url" onclick="switchIconTab('url')">
-                                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
-                                URL
+                                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>URL
                             </button>
                             <button type="button" class="icon-tab" data-tab="upload" onclick="switchIconTab('upload')">
-                                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
-                                Subir
+                                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>Subir
                             </button>
                         </div>
                         <div class="icon-tab-content active" id="icon-tab-url">
@@ -303,9 +298,7 @@
                     <div class="form-group">
                         <label for="description">Descripción <span class="label-hint">(máx. 23 caracteres)</span></label>
                         <input type="text" id="description" placeholder="Ej: Repositorio de código" maxlength="23" autocomplete="off">
-                        <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">
-                            <span id="char-count">0</span>/23 caracteres
-                        </div>
+                        <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;"><span id="char-count">0</span>/23 caracteres</div>
                     </div>
                     <div class="button-group">
                         <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
@@ -329,7 +322,7 @@
         </div>
     </div>
 
-    <!-- BOOKMARK MODAL -->
+    <!-- MODAL MARCADOR -->
     <div id="bookmarkModal" class="modal">
         <div class="modal-content">
             <h2 class="modal-header" id="bookmarkModalTitle">Nuevo Marcador</h2>
@@ -337,16 +330,68 @@
             <form id="bookmarkForm">
                 <input type="hidden" id="edit-bookmark-id" value="">
                 <div class="form-group">
+                    <label for="bookmark-group-select">Grupo <span class="label-hint">(opcional)</span></label>
+                    <select id="bookmark-group-select"></select>
+                </div>
+                <div class="form-group">
                     <label for="bookmark-name">Nombre</label>
                     <input type="text" id="bookmark-name" placeholder="Ej: Google" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label for="bookmark-url">URL</label>
-                    <input type="url" id="bookmark-url" placeholder="https://google.com">
+                    <input type="url" id="bookmark-url" placeholder="https://google.com" id="bookmark-url">
+                </div>
+                <div class="form-group">
+                    <label>Icono <span class="label-hint">(opcional)</span></label>
+                    <!-- Tabs icono marcador -->
+                    <div class="icon-input-tabs">
+                        <button type="button" class="icon-tab active" data-tab="bm-favicon" onclick="switchBmIconTab('bm-favicon')">
+                            <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                            Auto (favicon)
+                        </button>
+                        <button type="button" class="icon-tab" data-tab="bm-url" onclick="switchBmIconTab('bm-url')">
+                            <svg viewBox="0 0 24 24" width="16" height="16"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+                            URL
+                        </button>
+                    </div>
+                    <div class="icon-tab-content active" id="bm-icon-tab-favicon">
+                        <div class="bm-favicon-preview" id="bmFaviconPreview">
+                            <div class="bm-favicon-preview-box" id="bmFaviconBox">
+                                <svg viewBox="0 0 24 24" width="20" height="20" style="fill:var(--text-secondary);opacity:0.4;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                            </div>
+                            <span class="icon-preview-hint" id="bmFaviconHint">Se detectará automáticamente al guardar la URL</span>
+                        </div>
+                    </div>
+                    <div class="icon-tab-content" id="bm-icon-tab-url">
+                        <input type="url" id="bookmark-icon-url" placeholder="https://ejemplo.com/icono.png" oninput="previewBmIconUrl()">
+                        <div class="icon-preview" id="bmIconUrlPreview" style="display:none;">
+                            <div class="icon-preview-box"><img id="bmIconUrlImg" src="" alt="preview" onerror="this.parentElement.innerHTML='?'"></div>
+                            <span class="icon-preview-hint">Vista previa</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="button-group">
                     <button type="button" class="btn btn-secondary" onclick="closeBookmarkModal()">Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="bookmarkSubmitBtn">Guardar Marcador</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL GRUPO DE MARCADORES -->
+    <div id="bookmarkGroupModal" class="modal">
+        <div class="modal-content" style="max-width:400px;">
+            <h2 class="modal-header" id="bmGroupModalTitle">Nuevo Grupo</h2>
+            <p class="modal-sub" id="bmGroupModalSub">Crea un grupo para organizar tus marcadores</p>
+            <form id="bookmarkGroupForm">
+                <input type="hidden" id="edit-bm-group-old-name" value="">
+                <div class="form-group">
+                    <label for="bm-group-name">Nombre del Grupo</label>
+                    <input type="text" id="bm-group-name" placeholder="Ej: Trabajo, Personal..." autocomplete="off">
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="closeBookmarkGroupModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="bmGroupSubmitBtn">Crear Grupo</button>
                 </div>
             </form>
         </div>
@@ -366,7 +411,6 @@
     </div>
 
     <div class="toast" id="toast"></div>
-
     <script src="/static/js/app.js"></script>
 </body>
 </html>
