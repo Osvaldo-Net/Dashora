@@ -952,6 +952,7 @@ function buildServiceCard(s) {
         }
     });
     
+    // Botones de editar/eliminar (solo desktop)
     const acts = document.createElement('div');
     acts.className = 'card-actions';
     
