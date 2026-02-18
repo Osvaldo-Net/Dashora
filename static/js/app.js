@@ -1,7 +1,7 @@
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // GLOBALS
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 let services = [];
 let localGroups = [];
 let bookmarks = [];
@@ -17,9 +17,9 @@ let uploadedIconData = null;
 let bmIconMode = 'favicon'; // 'favicon' | 'url'
 let bookmarkMode = 'add';
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // PAGE TAB SWITCHING
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function switchPageTab(tab) {
     document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.id === 'tab-' + tab));
     document.querySelectorAll('.page-panel').forEach(p => p.classList.toggle('active', p.id === 'page-' + tab));
@@ -39,9 +39,9 @@ function switchPageTab(tab) {
     }
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // SEARCH (INICIO)
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function initSearch() {
     const si = document.getElementById('searchInput');
     const sc = document.getElementById('searchClear');
@@ -140,9 +140,9 @@ function removeNoResultsMessage() {
     if (e) e.remove();
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // TOAST & CONFIRM
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function showToast(msg, duration = 2500) {
     const t = document.getElementById('toast');
     if (!t) return;
@@ -174,9 +174,9 @@ document.getElementById('confirmModal').addEventListener('click', e => {
     if (e.target.id === 'confirmModal') closeConfirm();
 });
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // SIDEBAR
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function toggleSidebar() {
     const s = document.getElementById('sidebar');
     if (s.classList.contains('visible')) closeSidebar();
@@ -195,9 +195,9 @@ function closeSidebar() {
     document.body.classList.remove('sidebar-open');
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // CLOCK
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 let selectedTimezone = localStorage.getItem('selectedTimezone') || 'auto';
 let timeFormat = localStorage.getItem('timeFormat') || '24';
 
@@ -239,9 +239,9 @@ function changeTimeFormat() {
     updateClock();
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // WEATHER
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 async function loadWeather() {
     const wc = document.getElementById('weatherContent');
     if (!navigator.geolocation) {
@@ -290,9 +290,9 @@ async function loadWeather() {
     });
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // CALENDAR
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function renderCalendar() {
     const y = currentCalendarDate.getFullYear(), m = currentCalendarDate.getMonth();
     const mn = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -323,9 +323,9 @@ function changeMonth(dir) {
     renderCalendar();
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // BACKGROUND
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function toggleBackgroundSettings() {
     const p = document.getElementById('backgroundSettingsPanel');
     p.style.display = p.style.display === 'none' ? 'block' : 'none';
@@ -433,9 +433,9 @@ async function loadBackgroundSettings() {
     } catch {}
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // THEME
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function initTheme() {
     const s = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', s);
@@ -466,9 +466,9 @@ function updateThemeIconsBM(t) {
     if (d) d.style.display = t === 'dark' ? 'none' : 'block';
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // ICON HELPERS (SERVICES)
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function setFallbackIcon(wrapper) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 24 24');
@@ -562,9 +562,9 @@ function previewIconUrl() {
     else { prev.style.display = 'none'; }
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // SERVICES RENDER
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 async function loadServices() {
     try {
         const r = await fetch('/api/services');
@@ -677,9 +677,9 @@ function updateGroupSelect() {
         Object.keys(gm).sort().map(g => '<option value="' + escapeHtml(g) + '"' + (g === cv ? ' selected' : '') + '>' + escapeHtml(g) + '</option>').join('');
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // SERVICES API
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 async function addServiceAPI(title, icon, url, description, group) {
     const r = await fetch('/api/services', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title, icon, url, description: description||'', group: group||'Sin Grupo', order:0}) });
     const ns = await r.json(); services.push(ns);
@@ -715,9 +715,9 @@ async function renameGroup(oldName, newName) {
     await loadServices(); showToast('\u270F\uFE0F Grupo renombrado a "' + newName + '"');
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // MODAL SERVICIOS
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function openModal(tab) {
     modalMode = 'add';
     document.getElementById('modalTitle').textContent = 'Agregar';
@@ -824,9 +824,9 @@ document.getElementById('groupForm').addEventListener('submit', async e => {
 
 document.getElementById('mainModal').addEventListener('click', e => { if (e.target.id === 'mainModal') closeModal(); });
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // SYSINFO
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 async function loadSysInfo() {
     try {
         const r = await fetch('/api/sysinfo');
@@ -846,9 +846,9 @@ async function loadSysInfo() {
     } catch(e) { const b = document.getElementById('sysinfo'); if (b) b.style.display = 'none'; }
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // BOOKMARKS - ICON TABS
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function switchBmIconTab(tab) {
     bmIconMode = tab === 'bm-favicon' ? 'favicon' : 'url';
     document.querySelectorAll('#bookmarkForm .icon-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
@@ -884,9 +884,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bmUrl) bmUrl.addEventListener('input', () => { if (bmIconMode === 'favicon') updateBmFaviconPreview(bmUrl.value.trim()); });
 });
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // BOOKMARKS - GROUPS
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function getBmGroupMap() {
     const gm = {};
     localBmGroups.forEach(g => { if (!gm[g]) gm[g] = []; });
@@ -986,9 +986,9 @@ function clearBookmarkSearch() {
     renderBookmarks(bookmarks);
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // BOOKMARKS - MODAL
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function openBookmarkModal() {
     bookmarkMode = 'add';
     document.getElementById('bookmarkModalTitle').textContent = 'Nuevo Marcador';
@@ -1074,9 +1074,9 @@ function deleteBookmarkConfirm(id, name) {
     });
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // BOOKMARK GROUPS MODAL
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 function openBookmarkGroupModal() {
     document.getElementById('bmGroupModalTitle').textContent = 'Nuevo Grupo';
     document.getElementById('bmGroupModalSub').textContent = 'Crea un grupo para organizar tus marcadores';
@@ -1135,9 +1135,9 @@ async function deleteBmGroup(gn) {
     });
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // LOAD BOOKMARKS
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 async function loadBookmarks() {
     try {
         const r = await fetch('/api/bookmarks');
@@ -1148,9 +1148,9 @@ async function loadBookmarks() {
     } catch(e) { console.error(e); renderBookmarks([]); }
 }
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // INIT
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initSearch();
@@ -1183,9 +1183,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(loadWeather, 600000);
 });
 
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 // RSS FEEDS
-// ═══════════════════════════════════════════════
+// -----------------------------------------------
 let rssFeeds = [];
 let rssMode = 'add';
 let rssRefreshIntervals = new Map();
@@ -1416,15 +1416,15 @@ if (rssModal) {
     rssModal.addEventListener('click', e => { if (e.target.id === 'rssModal') closeRSSModal(); });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// INTEGRATIONS (Uptime Kuma + AdGuard Home)
-// ═══════════════════════════════════════════════════════════════
+// ---------------------------------------------------------------
+// INTEGRATIONS (Uptime Kuma + AdGuard Home + Syncthing)
+// ---------------------------------------------------------------
 
 let integrations = [];
 let integrationMode = 'add';
 let integrationSyncIntervals = new Map();
 
-// ─── LOAD & RENDER ───────────────────────────────────────────────
+// --- LOAD & RENDER -----------------------------------------------
 async function loadIntegrations() {
     try {
         const r = await fetch('/api/integrations');
@@ -1457,21 +1457,26 @@ function renderIntegrations() {
     integrations.forEach(it => container.appendChild(buildIntegrationCard(it)));
 }
 
-// ─── BUILD CARD (Uptime Kuma + AdGuard) ──────────────────────────
+// --- BUILD CARD --------------------------------------------------
 function buildIntegrationCard(it) {
     const card = document.createElement('div');
     card.className = 'integration-card';
     card.id = 'integration-card-' + it.id;
     const isAdguard = it.itype === 'adguard';
+    const isSyncthing = it.itype === 'syncthing';
 
     const header = document.createElement('div'); header.className = 'integration-card-header';
     const titleArea = document.createElement('div'); titleArea.className = 'integration-card-title-area';
 
     const badge = document.createElement('div');
     badge.className = 'integration-type-badge integration-type-' + (it.itype || 'uptime_kuma');
-    badge.innerHTML = isAdguard
-        ? '<svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> AdGuard Home'
-        : '<svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/></svg> Uptime Kuma';
+    if (isAdguard) {
+        badge.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> AdGuard Home';
+    } else if (isSyncthing) {
+        badge.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg> Syncthing';
+    } else {
+        badge.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/></svg> Uptime Kuma';
+    }
 
     const nameEl = document.createElement('div'); nameEl.className = 'integration-card-name'; nameEl.textContent = it.name;
     const urlEl = document.createElement('div'); urlEl.className = 'integration-card-url'; urlEl.textContent = it.url;
@@ -1510,6 +1515,9 @@ function buildIntegrationCard(it) {
     if (isAdguard) {
         if (cached && cached.total_queries !== undefined) renderAdguardCard(contentEl, cached);
         else contentEl.innerHTML = '<div class="uk-loading">Sincronizando con AdGuard Home...</div>';
+    } else if (isSyncthing) {
+        if (cached && cached.folders) renderSyncthingCard(contentEl, cached);
+        else contentEl.innerHTML = '<div class="uk-loading">Sincronizando con Syncthing...</div>';
     } else {
         if (cached && cached.publicGroupList && cached.publicGroupList.length > 0) renderUptimeKumaMonitors(contentEl, cached);
         else contentEl.innerHTML = '<div class="uk-loading">Sincronizando con Uptime Kuma...</div>';
@@ -1518,7 +1526,7 @@ function buildIntegrationCard(it) {
     return card;
 }
 
-// ─── RENDER UPTIME KUMA MONITORS ─────────────────────────────────
+// --- RENDER UPTIME KUMA MONITORS ---------------------------------
 function renderUptimeKumaMonitors(container, data) {
     container.innerHTML = '';
 
@@ -1616,7 +1624,7 @@ function renderUptimeKumaMonitors(container, data) {
     }
 }
 
-// ─── RENDER ADGUARD CARD ─────────────────────────────────────────
+// --- RENDER ADGUARD CARD -----------------------------------------
 function renderAdguardCard(container, stats) {
     container.innerHTML = '';
 
@@ -1670,7 +1678,204 @@ function renderAdguardCard(container, stats) {
     }
 }
 
-// ─── SYNC ────────────────────────────────────────────────────────
+// --- RENDER SYNCTHING CARD ---------------------------------------
+function renderSyncthingCard(container, stats) {
+    container.innerHTML = '';
+
+    if (!stats || !stats.folders) {
+        container.innerHTML = '<div class="uk-loading">Sin datos de Syncthing</div>';
+        return;
+    }
+
+    const folders = stats.folders || [];
+
+    // Compute overall status
+    const reachable = folders.filter(f => f.reachable);
+    const allSynced = reachable.length > 0 && reachable.every(f => f.completion && f.completion.completion >= 100);
+    const anySyncing = reachable.some(f => f.completion && f.completion.completion < 100 && f.completion.completion > 0);
+    const anyError = folders.some(f => !f.reachable);
+
+    let overallClass = 'synced', overallLabel = 'Todo sincronizado', overallIcon = '\u2713';
+    if (anyError && reachable.length === 0) { overallClass = 'error'; overallLabel = 'Sin conexión'; overallIcon = '\u2717'; }
+    else if (anyError) { overallClass = 'syncing'; overallLabel = 'Algunos errores'; overallIcon = '\u26A0\uFE0F'; }
+    else if (anySyncing) { overallClass = 'syncing'; overallLabel = 'Sincronizando...'; overallIcon = '\u{1F504}'; }
+    else if (!allSynced && reachable.length > 0) { overallClass = 'syncing'; overallLabel = 'Pendiente'; overallIcon = '\u23F3'; }
+
+    // Header row
+    const header = document.createElement('div');
+    header.className = 'st-header';
+
+    const leftGroup = document.createElement('div');
+    leftGroup.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
+
+    if (stats.version) {
+        const verEl = document.createElement('div');
+        verEl.className = 'st-version';
+        verEl.innerHTML =
+            '<svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>' +
+            escapeHtml(stats.version);
+        leftGroup.appendChild(verEl);
+    }
+
+    if (stats.my_id) {
+        const idEl = document.createElement('div');
+        idEl.className = 'st-device-id';
+        idEl.title = stats.my_id;
+        const shortId = stats.my_id.split('-')[0] + '-\u2026';
+        idEl.textContent = shortId;
+        leftGroup.appendChild(idEl);
+    }
+
+    const badge = document.createElement('div');
+    badge.className = 'st-overall-badge ' + overallClass;
+    badge.innerHTML =
+        '<span style="font-size:0.9em;">' + overallIcon + '</span> ' +
+        escapeHtml(overallLabel) +
+        '<span style="font-weight:400;opacity:0.8;margin-left:4px;">(' + reachable.length + '/' + folders.length + ')</span>';
+
+    header.appendChild(leftGroup);
+    header.appendChild(badge);
+    container.appendChild(header);
+
+    // Folders grid
+    if (folders.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'st-no-folders';
+        empty.textContent = 'No se encontraron carpetas en Syncthing.';
+        container.appendChild(empty);
+        return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'st-folders';
+
+    folders.forEach(folder => {
+        const comp = folder.completion || {};
+        const pct = typeof comp.completion === 'number' ? comp.completion : 0;
+        const folderReachable = folder.reachable !== false;
+
+        let folderState = 'error';
+        let statusLabel = 'No alcanzable';
+        if (folderReachable) {
+            if (pct >= 100) { folderState = 'synced'; statusLabel = 'Sincronizado'; }
+            else if (pct > 0) { folderState = 'syncing'; statusLabel = 'Sincronizando'; }
+            else { folderState = 'syncing'; statusLabel = 'Pendiente'; }
+        }
+
+        let progressClass = folderState === 'synced' ? 'complete' : folderState === 'error' ? 'error' : 'warning';
+
+        const card = document.createElement('div');
+        card.className = 'st-folder st-' + folderState;
+
+        const fHeader = document.createElement('div');
+        fHeader.className = 'st-folder-header';
+
+        const icon = document.createElement('div');
+        icon.className = 'st-folder-icon';
+        icon.innerHTML = folderState === 'synced'
+            ? '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5 3l4 4-4 4-1.41-1.41L16.17 13H9v-2h7.17l-2.58-2.59L15 9z"/></svg>'
+            : folderState === 'syncing'
+            ? '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>';
+
+        const info = document.createElement('div');
+        info.className = 'st-folder-info';
+
+        const label = document.createElement('div');
+        label.className = 'st-folder-label';
+        label.textContent = folder.label || folder.folder_id;
+        label.title = folder.label || folder.folder_id;
+
+        const idEl = document.createElement('div');
+        idEl.className = 'st-folder-id';
+        idEl.textContent = folder.folder_id;
+
+        info.appendChild(label);
+        info.appendChild(idEl);
+
+        const statusEl = document.createElement('div');
+        statusEl.className = 'st-folder-status ' + folderState;
+        statusEl.textContent = statusLabel;
+
+        fHeader.appendChild(icon);
+        fHeader.appendChild(info);
+        fHeader.appendChild(statusEl);
+        card.appendChild(fHeader);
+
+        if (folderReachable) {
+            const progressWrap = document.createElement('div');
+            progressWrap.className = 'st-progress-wrap';
+
+            const track = document.createElement('div');
+            track.className = 'st-progress-track';
+
+            const fill = document.createElement('div');
+            fill.className = 'st-progress-fill ' + progressClass;
+            fill.style.width = Math.min(100, Math.max(0, pct)) + '%';
+
+            track.appendChild(fill);
+
+            const pctEl = document.createElement('div');
+            pctEl.className = 'st-progress-pct';
+            pctEl.textContent = pct.toFixed(1) + '%';
+
+            progressWrap.appendChild(track);
+            progressWrap.appendChild(pctEl);
+            card.appendChild(progressWrap);
+
+            const statsRow = document.createElement('div');
+            statsRow.className = 'st-folder-stats';
+
+            if (comp.globalBytes !== undefined) {
+                statsRow.appendChild(buildStFolderStat('Total', formatBytes(comp.globalBytes)));
+            }
+            if (comp.needBytes !== undefined && comp.needBytes > 0) {
+                statsRow.appendChild(buildStFolderStat('Pendiente', formatBytes(comp.needBytes), 'warn'));
+            }
+            if (comp.needFiles !== undefined && comp.needFiles > 0) {
+                statsRow.appendChild(buildStFolderStat('Archivos', comp.needFiles + ' archivos', 'warn'));
+            }
+            if (comp.needDeletes !== undefined && comp.needDeletes > 0) {
+                statsRow.appendChild(buildStFolderStat('Borrar', comp.needDeletes + ' archivos', 'warn'));
+            }
+            if (comp.globalBytes !== undefined && comp.needBytes === 0) {
+                statsRow.appendChild(buildStFolderStat('Almacenado', formatBytes(comp.localBytes || comp.globalBytes)));
+            }
+
+            if (statsRow.children.length > 0) {
+                card.appendChild(statsRow);
+            }
+        } else {
+            const errNote = document.createElement('div');
+            errNote.style.cssText = 'font-size:0.75rem;color:var(--danger,#e74c3c);opacity:0.8;padding:4px 0;';
+            errNote.textContent = 'No se puede conectar con esta carpeta.';
+            card.appendChild(errNote);
+        }
+
+        grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+}
+
+function buildStFolderStat(label, value, cls) {
+    const el = document.createElement('div');
+    el.className = 'st-stat-item';
+    el.innerHTML =
+        '<span class="st-stat-label">' + escapeHtml(label) + '</span>' +
+        '<span class="st-stat-value' + (cls ? ' ' + cls : '') + '">' + escapeHtml(String(value)) + '</span>';
+    return el;
+}
+
+function formatBytes(bytes) {
+    if (!bytes || bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+}
+
+// --- SYNC (Uptime Kuma + AdGuard + Syncthing) --------------------
 async function syncIntegrationData(id, silent = false) {
     const it = integrations.find(i => i.id === id);
     const refreshBtn = document.querySelector('#integration-card-' + id + ' .integration-btn.refresh');
@@ -1690,7 +1895,23 @@ async function syncIntegrationData(id, silent = false) {
             if (metaEl) metaEl.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Sincronizando cada 60 s &nbsp;•&nbsp; Última sync: ' + new Date(result.last_sync).toLocaleString('es-ES');
             const itIdx = integrations.findIndex(i => i.id === id);
             if (itIdx !== -1) { integrations[itIdx].last_sync = result.last_sync; integrations[itIdx].cached_data = JSON.stringify(result.stats); }
-            if (!silent) showToast('✓ AdGuard sincronizado');
+            if (!silent) showToast('\u2713 AdGuard sincronizado');
+
+        } else if (it && it.itype === 'syncthing') {
+            const r = await fetch('/api/syncthing/stats', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id })
+            });
+            if (!r.ok) throw new Error((await r.text()) || 'HTTP ' + r.status);
+            const result = await r.json();
+            const monitorsEl = document.getElementById('uk-monitors-' + id);
+            if (monitorsEl) renderSyncthingCard(monitorsEl, result.stats);
+            const metaEl = document.getElementById('integration-meta-' + id);
+            if (metaEl) metaEl.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Sincronizando cada 60 s &nbsp;•&nbsp; Última sync: ' + new Date(result.last_sync).toLocaleString('es-ES');
+            const itIdx = integrations.findIndex(i => i.id === id);
+            if (itIdx !== -1) { integrations[itIdx].last_sync = result.last_sync; integrations[itIdx].cached_data = JSON.stringify(result.stats); }
+            if (!silent) showToast('\u2713 Syncthing sincronizado');
+
         } else {
             const r = await fetch('/api/integrations/sync', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -1704,11 +1925,11 @@ async function syncIntegrationData(id, silent = false) {
             if (metaEl) metaEl.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Sincronizando cada 60 s &nbsp;•&nbsp; Última sync: ' + new Date(result.last_sync).toLocaleString('es-ES');
             const itIdx = integrations.findIndex(i => i.id === id);
             if (itIdx !== -1) { integrations[itIdx].last_sync = result.last_sync; integrations[itIdx].cached_data = JSON.stringify(result.data); }
-            if (!silent) showToast('✓ Integración sincronizada');
+            if (!silent) showToast('\u2713 Integración sincronizada');
         }
     } catch(e) {
         console.error('sync error:', e);
-        if (!silent) showToast('✗ Error: ' + e.message);
+        if (!silent) showToast('\u2717 Error: ' + e.message);
         const monitorsEl = document.getElementById('uk-monitors-' + id);
         if (monitorsEl && (monitorsEl.innerHTML.includes('Sincronizando') || monitorsEl.innerHTML.includes('Cargando'))) {
             monitorsEl.innerHTML = '<div class="uk-loading" style="color:var(--danger,#e74c3c);opacity:0.8;">Error al conectar. Verifica URL y credenciales.</div>';
@@ -1718,21 +1939,32 @@ async function syncIntegrationData(id, silent = false) {
     }
 }
 
-// ─── MODAL ───────────────────────────────────────────────────────
+// --- MODAL -------------------------------------------------------
 function onIntegrationTypeChange() {
     const type = document.getElementById('integration-type').value;
-    const creds = document.getElementById('adguard-credentials');
+    const adguardCreds = document.getElementById('adguard-credentials');
+    const syncthingCreds = document.getElementById('syncthing-credentials');
     const urlLabel = document.getElementById('integration-url-label');
     const urlInput = document.getElementById('integration-url');
     const urlHint = document.getElementById('integration-url-hint');
+
+    // Hide all credential blocks first
+    if (adguardCreds) adguardCreds.style.display = 'none';
+    if (syncthingCreds) syncthingCreds.style.display = 'none';
+
     if (type === 'adguard') {
-        creds.style.display = 'block';
+        if (adguardCreds) adguardCreds.style.display = 'block';
         urlLabel.textContent = 'URL de AdGuard Home';
         urlInput.placeholder = 'http://192.168.1.1:3000';
         urlHint.innerHTML = 'URL base sin slash final. Ej: <code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;">http://192.168.1.1:3000</code>';
         document.getElementById('integration-name').placeholder = 'Ej: AdGuard Home';
+    } else if (type === 'syncthing') {
+        if (syncthingCreds) syncthingCreds.style.display = 'block';
+        urlLabel.textContent = 'URL de Syncthing';
+        urlInput.placeholder = 'http://192.168.1.1:8384';
+        urlHint.innerHTML = 'URL base de la interfaz web. Ej: <code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;">http://192.168.1.1:8384</code>';
+        document.getElementById('integration-name').placeholder = 'Ej: Mi Syncthing';
     } else {
-        creds.style.display = 'none';
         urlLabel.textContent = 'URL de la API de Uptime Kuma';
         urlInput.placeholder = 'https://status.tudominio.com/api/status-page/pagina';
         urlHint.innerHTML = 'Formato: <code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;">https://&lt;URL&gt;/api/status-page/&lt;slug&gt;</code>';
@@ -1750,6 +1982,8 @@ function openIntegrationModal() {
     document.getElementById('integration-type').value = 'uptime_kuma';
     const u = document.getElementById('integration-username'); if (u) u.value = '';
     const p = document.getElementById('integration-password'); if (p) p.value = '';
+    const ak = document.getElementById('syncthing-apikey'); if (ak) ak.value = '';
+    const sf = document.getElementById('syncthing-folders'); if (sf) sf.value = '';
     document.getElementById('integrationSubmitBtn').textContent = 'Guardar Integración';
     onIntegrationTypeChange();
     document.getElementById('integrationModal').classList.add('active');
@@ -1766,7 +2000,7 @@ function openEditIntegration(it) {
     document.getElementById('integration-type').value = it.itype || 'uptime_kuma';
     document.getElementById('integrationSubmitBtn').textContent = 'Guardar Cambios';
     onIntegrationTypeChange();
-    // No pre-llenamos contraseña por seguridad
+    // No pre-llenamos contraseñas/api keys por seguridad
     document.getElementById('integrationModal').classList.add('active');
     setTimeout(() => document.getElementById('integration-name').focus(), 100);
 }
@@ -1792,36 +2026,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const editId = parseInt(document.getElementById('edit-integration-id').value) || 0;
             const username = document.getElementById('integration-username')?.value.trim() || '';
             const password = document.getElementById('integration-password')?.value || '';
+            const apikey = document.getElementById('syncthing-apikey')?.value.trim() || '';
+            const folders = document.getElementById('syncthing-folders')?.value.trim() || '';
             if (!name || !url) return;
             try {
+                let payload;
+if (itype === 'syncthing') {
+    payload = { name, url, itype, username: apikey, password: folders };
+} else {
+    payload = { name, url, itype, username, password };
+}
                 if (integrationMode === 'edit' && editId) {
                     await fetch('/api/integrations', {
                         method: 'PUT', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ id: editId, name, url, itype, username, password })
+                        body: JSON.stringify({ id: editId, ...payload })
                     });
-                    showToast('✏️ Integración actualizada');
+                    showToast('\u270F\uFE0F Integración actualizada');
                     await loadIntegrations();
                     closeIntegrationModal();
                 } else {
                     const res = await fetch('/api/integrations', {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ name, url, itype, username, password })
+                        body: JSON.stringify(payload)
                     });
                     const newIt = await res.json();
-                    showToast('✓ Integración guardada');
+                    showToast('\u2713 Integración guardada');
                     integrations.push(newIt);
                     renderIntegrations();
                     closeIntegrationModal();
                     startIntegrationSync(newIt.id);
                     await syncIntegrationData(newIt.id, false);
                 }
-            } catch { showToast('✗ Error al guardar'); }
+            } catch { showToast('\u2717 Error al guardar'); }
         });
     }
 });
 
 function deleteIntegrationConfirm(id, name) {
-    showConfirm('Eliminar integración', '¿Eliminar "' + name + '"?', '🔌', 'Eliminar', async () => {
+    showConfirm('Eliminar integración', '¿Eliminar "' + name + '"?', '\u{1F9E9}', 'Eliminar', async () => {
         try {
             await fetch('/api/integrations', {
                 method: 'DELETE', headers: {'Content-Type': 'application/json'},
@@ -1833,12 +2075,12 @@ function deleteIntegrationConfirm(id, name) {
             }
             integrations = integrations.filter(i => i.id !== id);
             renderIntegrations();
-            showToast('🗑️ Integración eliminada');
-        } catch { showToast('✗ Error'); }
+            showToast('\u{1F5D1}\uFE0F Integración eliminada');
+        } catch { showToast('\u2717 Error'); }
     });
 }
 
-// ─── THEME ICONS INTEGRACIONES ───────────────────────────────────
+// --- THEME ICONS INTEGRACIONES -----------------------------------
 function updateThemeIconsINT(t) {
     const l = document.getElementById('theme-icon-light-int');
     const d = document.getElementById('theme-icon-dark-int');
