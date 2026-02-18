@@ -10,6 +10,7 @@ import (
         "math"
         "net/http"
         "os"
+        "sort"
         "strings"
         "syscall"
         "time"
@@ -91,6 +92,40 @@ type SysInfo struct {
 type Settings struct {
         BackgroundImage   string `json:"background_image"`
         BackgroundOpacity int    `json:"background_opacity"`
+}
+
+// ─── ADGUARD TYPES ─────────────────────────────────────────────────────────
+
+type AdguardStatsResponse struct {
+        TotalQueries      int              `json:"num_dns_queries"`
+        QueriesSeries     []int            `json:"dns_queries"`
+        BlockedQueries    int              `json:"num_blocked_filtering"`
+        BlockedSeries     []int            `json:"blocked_filtering"`
+        ResponseTime      float64          `json:"avg_processing_time"`
+        TopBlockedDomains []map[string]int `json:"top_blocked_domains"`
+}
+
+type AdguardTopDomain struct {
+        Domain  string `json:"domain"`
+        Count   int    `json:"count"`
+        Percent int    `json:"percent"`
+}
+
+type AdguardSeriesBar struct {
+        Queries        int `json:"queries"`
+        Blocked        int `json:"blocked"`
+        PercentTotal   int `json:"percent_total"`
+        PercentBlocked int `json:"percent_blocked"`
+}
+
+type AdguardStats struct {
+        TotalQueries   int                `json:"total_queries"`
+        BlockedQueries int                `json:"blocked_queries"`
+        BlockedPercent int                `json:"blocked_percent"`
+        ResponseTimeMs int                `json:"response_time_ms"`
+        TopDomains     []AdguardTopDomain `json:"top_domains"`
+        Series         []AdguardSeriesBar `json:"series"`
+        TimeLabels     []string           `json:"time_labels"`
 }
 
 var db *sql.DB
@@ -190,6 +225,15 @@ func initDB() {
         err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('bookmarks') WHERE name='sort_order'").Scan(&count)
         if err == nil && count == 0 {
                 db.Exec("ALTER TABLE bookmarks ADD COLUMN sort_order INTEGER DEFAULT 0")
+        }
+        // Migración: agregar columnas de credenciales AdGuard a integrations
+        err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('integrations') WHERE name='username'").Scan(&count)
+        if err == nil && count == 0 {
+                db.Exec("ALTER TABLE integrations ADD COLUMN username TEXT DEFAULT ''")
+        }
+        err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('integrations') WHERE name='password'").Scan(&count)
+        if err == nil && count == 0 {
+                db.Exec("ALTER TABLE integrations ADD COLUMN password TEXT DEFAULT ''")
         }
 }
 
@@ -524,43 +568,58 @@ func getIntegrations(w http.ResponseWriter, r *http.Request) {
 }
 
 func addIntegration(w http.ResponseWriter, r *http.Request) {
-        var it Integration
-        if err := json.NewDecoder(r.Body).Decode(&it); err != nil {
+        var req struct {
+                Name     string `json:"name"`
+                IType    string `json:"itype"`
+                URL      string `json:"url"`
+                Username string `json:"username"`
+                Password string `json:"password"`
+        }
+        if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
                 http.Error(w, err.Error(), http.StatusBadRequest)
                 return
         }
-        if it.Name == "" || it.URL == "" {
+        if req.Name == "" || req.URL == "" {
                 http.Error(w, "name and url required", http.StatusBadRequest)
                 return
         }
-        if it.IType == "" {
-                it.IType = "uptime_kuma"
+        if req.IType == "" {
+                req.IType = "uptime_kuma"
         }
-        result, err := db.Exec("INSERT INTO integrations (name, itype, url, last_sync, cached_data) VALUES (?, ?, ?, '', '{}')",
-                it.Name, it.IType, it.URL)
+        result, err := db.Exec("INSERT INTO integrations (name, itype, url, username, password, last_sync, cached_data) VALUES (?, ?, ?, ?, ?, '', '{}')",
+                req.Name, req.IType, req.URL, req.Username, req.Password)
         if err != nil {
                 http.Error(w, err.Error(), http.StatusInternalServerError)
                 return
         }
         id, _ := result.LastInsertId()
-        it.ID = int(id)
-        it.LastSync = ""
-        it.CachedData = "{}"
+        it := Integration{
+                ID: int(id), Name: req.Name, IType: req.IType, URL: req.URL,
+                LastSync: "", CachedData: "{}",
+        }
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(it)
 }
 
 func updateIntegration(w http.ResponseWriter, r *http.Request) {
-        var it Integration
-        if err := json.NewDecoder(r.Body).Decode(&it); err != nil {
+        var req struct {
+                ID       int    `json:"id"`
+                Name     string `json:"name"`
+                IType    string `json:"itype"`
+                URL      string `json:"url"`
+                Username string `json:"username"`
+                Password string `json:"password"`
+        }
+        if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
                 http.Error(w, err.Error(), http.StatusBadRequest)
                 return
         }
-        if _, err := db.Exec("UPDATE integrations SET name=?, itype=?, url=? WHERE id=?",
-                it.Name, it.IType, it.URL, it.ID); err != nil {
+        if _, err := db.Exec("UPDATE integrations SET name=?, itype=?, url=?, username=?, password=? WHERE id=?",
+                req.Name, req.IType, req.URL, req.Username, req.Password, req.ID); err != nil {
                 http.Error(w, err.Error(), http.StatusInternalServerError)
                 return
         }
+        it := Integration{ID: req.ID, Name: req.Name, IType: req.IType, URL: req.URL}
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(it)
 }
@@ -618,6 +677,163 @@ func syncIntegration(w http.ResponseWriter, r *http.Request) {
         }
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(map[string]interface{}{"data": raw, "last_sync": now})
+}
+
+// ─── ADGUARD ENDPOINT ──────────────────────────────────────────────────────
+
+func fetchAdguardStats(w http.ResponseWriter, r *http.Request) {
+        var req struct {
+                ID int `json:"id"`
+        }
+        if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }
+
+        // Obtener credenciales de la DB
+        var instanceURL, username, password string
+        err := db.QueryRow("SELECT url, COALESCE(username,''), COALESCE(password,'') FROM integrations WHERE id=?", req.ID).
+                Scan(&instanceURL, &username, &password)
+        if err != nil {
+                http.Error(w, "integration not found", http.StatusNotFound)
+                return
+        }
+
+        statsURL := strings.TrimRight(instanceURL, "/") + "/control/stats"
+        request, err := http.NewRequest("GET", statsURL, nil)
+        if err != nil {
+                http.Error(w, "failed to build request: "+err.Error(), http.StatusInternalServerError)
+                return
+        }
+        request.SetBasicAuth(username, password)
+
+        client := &http.Client{Timeout: 15 * time.Second}
+        resp, err := client.Do(request)
+        if err != nil {
+                http.Error(w, "failed to fetch AdGuard: "+err.Error(), http.StatusBadGateway)
+                return
+        }
+        defer resp.Body.Close()
+
+        if resp.StatusCode == http.StatusUnauthorized {
+                http.Error(w, "invalid AdGuard credentials", http.StatusUnauthorized)
+                return
+        }
+
+        body, err := io.ReadAll(resp.Body)
+        if err != nil {
+                http.Error(w, "failed to read response", http.StatusInternalServerError)
+                return
+        }
+
+        var raw AdguardStatsResponse
+        if err := json.Unmarshal(body, &raw); err != nil {
+                http.Error(w, "failed to parse AdGuard response: "+err.Error(), http.StatusInternalServerError)
+                return
+        }
+
+        const hoursSpan = 24
+        const numBars = 8
+        const hoursPerBar = hoursSpan / numBars
+
+        stats := AdguardStats{
+                TotalQueries:   raw.TotalQueries,
+                BlockedQueries: raw.BlockedQueries,
+                ResponseTimeMs: int(raw.ResponseTime * 1000),
+        }
+
+        if raw.TotalQueries > 0 {
+                stats.BlockedPercent = int(float64(raw.BlockedQueries) / float64(raw.TotalQueries) * 100)
+        }
+
+        // Top 5 dominios bloqueados
+        type domainCount struct {
+                domain string
+                count  int
+        }
+        var dc []domainCount
+        for _, m := range raw.TopBlockedDomains {
+                for k, v := range m {
+                        dc = append(dc, domainCount{k, v})
+                }
+        }
+        sort.Slice(dc, func(i, j int) bool { return dc[i].count > dc[j].count })
+        limit := 5
+        if len(dc) < limit {
+                limit = len(dc)
+        }
+        for i := 0; i < limit; i++ {
+                pct := 0
+                if raw.BlockedQueries > 0 {
+                        pct = int(float64(dc[i].count) / float64(raw.BlockedQueries) * 100)
+                }
+                stats.TopDomains = append(stats.TopDomains, AdguardTopDomain{
+                        Domain:  dc[i].domain,
+                        Count:   dc[i].count,
+                        Percent: pct,
+                })
+        }
+
+        // Series para el gráfico (últimas 24h agrupadas en 8 barras)
+        queriesSeries := raw.QueriesSeries
+        blockedSeries := raw.BlockedSeries
+
+        // Normalizar a exactamente 24 puntos
+        for len(queriesSeries) < hoursSpan {
+                queriesSeries = append([]int{0}, queriesSeries...)
+        }
+        if len(queriesSeries) > hoursSpan {
+                queriesSeries = queriesSeries[len(queriesSeries)-hoursSpan:]
+        }
+        for len(blockedSeries) < hoursSpan {
+                blockedSeries = append([]int{0}, blockedSeries...)
+        }
+        if len(blockedSeries) > hoursSpan {
+                blockedSeries = blockedSeries[len(blockedSeries)-hoursSpan:]
+        }
+
+        maxQ := 0
+        bars := make([]AdguardSeriesBar, numBars)
+        for i := 0; i < numBars; i++ {
+                q, b := 0, 0
+                for j := 0; j < hoursPerBar; j++ {
+                        q += queriesSeries[i*hoursPerBar+j]
+                        b += blockedSeries[i*hoursPerBar+j]
+                }
+                bars[i] = AdguardSeriesBar{Queries: q, Blocked: b}
+                if q > 0 {
+                        bars[i].PercentBlocked = int(float64(b) / float64(q) * 100)
+                }
+                if q > maxQ {
+                        maxQ = q
+                }
+        }
+        for i := range bars {
+                if maxQ > 0 {
+                        bars[i].PercentTotal = int(float64(bars[i].Queries) / float64(maxQ) * 100)
+                }
+        }
+        stats.Series = bars
+
+        // Etiquetas de tiempo para las 8 barras
+        now := time.Now()
+        labels := make([]string, numBars)
+        for h := hoursSpan; h > 0; h -= hoursPerBar {
+                idx := numBars - (h / hoursPerBar)
+                labels[idx] = now.Add(-time.Duration(h) * time.Hour).Format("15:00")
+        }
+        stats.TimeLabels = labels
+
+        // Guardar en caché
+        cacheJSON, _ := json.Marshal(stats)
+        syncNow := time.Now().Format(time.RFC3339)
+        db.Exec("UPDATE integrations SET last_sync=?, cached_data=? WHERE id=?", syncNow, string(cacheJSON), req.ID)
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+                "stats":     stats,
+                "last_sync": syncNow,
+        })
 }
 
 // ─── SETTINGS ──────────────────────────────────────────────────────────────
@@ -780,31 +996,46 @@ func main() {
 
         http.HandleFunc("/api/services", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
-                case "GET":    getServices(w, r)
-                case "POST":   addService(w, r)
-                case "DELETE": deleteService(w, r)
-                case "PUT":    updateService(w, r)
-                default:       http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                case "GET":
+                        getServices(w, r)
+                case "POST":
+                        addService(w, r)
+                case "DELETE":
+                        deleteService(w, r)
+                case "PUT":
+                        updateService(w, r)
+                default:
+                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
                 }
         }, "GET, POST, PUT, DELETE, OPTIONS"))
 
         http.HandleFunc("/api/bookmarks", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
-                case "GET":    getBookmarks(w, r)
-                case "POST":   addBookmark(w, r)
-                case "PUT":    updateBookmark(w, r)
-                case "DELETE": deleteBookmark(w, r)
-                default:       http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                case "GET":
+                        getBookmarks(w, r)
+                case "POST":
+                        addBookmark(w, r)
+                case "PUT":
+                        updateBookmark(w, r)
+                case "DELETE":
+                        deleteBookmark(w, r)
+                default:
+                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
                 }
         }, "GET, POST, PUT, DELETE, OPTIONS"))
 
         http.HandleFunc("/api/rss", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
-                case "GET":    getRSSFeeds(w, r)
-                case "POST":   addRSSFeed(w, r)
-                case "PUT":    updateRSSFeed(w, r)
-                case "DELETE": deleteRSSFeed(w, r)
-                default:       http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                case "GET":
+                        getRSSFeeds(w, r)
+                case "POST":
+                        addRSSFeed(w, r)
+                case "PUT":
+                        updateRSSFeed(w, r)
+                case "DELETE":
+                        deleteRSSFeed(w, r)
+                default:
+                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
                 }
         }, "GET, POST, PUT, DELETE, OPTIONS"))
 
@@ -812,21 +1043,32 @@ func main() {
 
         http.HandleFunc("/api/integrations", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
-                case "GET":    getIntegrations(w, r)
-                case "POST":   addIntegration(w, r)
-                case "PUT":    updateIntegration(w, r)
-                case "DELETE": deleteIntegration(w, r)
-                default:       http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                case "GET":
+                        getIntegrations(w, r)
+                case "POST":
+                        addIntegration(w, r)
+                case "PUT":
+                        updateIntegration(w, r)
+                case "DELETE":
+                        deleteIntegration(w, r)
+                default:
+                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
                 }
         }, "GET, POST, PUT, DELETE, OPTIONS"))
 
         http.HandleFunc("/api/integrations/sync", cors(syncIntegration, "POST, OPTIONS"))
 
+        // Nuevo endpoint dedicado para AdGuard
+        http.HandleFunc("/api/adguard/stats", cors(fetchAdguardStats, "POST, OPTIONS"))
+
         http.HandleFunc("/api/settings", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
-                case "GET": getSettings(w, r)
-                case "PUT": updateSettings(w, r)
-                default:    http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                case "GET":
+                        getSettings(w, r)
+                case "PUT":
+                        updateSettings(w, r)
+                default:
+                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
                 }
         }, "GET, PUT, OPTIONS"))
 
