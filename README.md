@@ -29,7 +29,8 @@ Sin dependencias en la nube. Sin telemetría. Solo tú y tus servicios.
 - **Temas personalizados** — Adapta colores y apariencia a tu gusto
 - **Grupos de servicios** — Organiza por categorías (medios, red, almacenamiento, etc.)
 - **Pestaña de marcadores** — Tus enlaces guardados, siempre a mano.
-- **Lecotr RSS integrado** — Tu Feeds RSS personalizada.
+- **Lector RSS integrado** — Tu Feeds RSS personalizada.
+- **Integraciónes con tus aplicaciones autoalojadas** — Admite integraciones con AdGuardHome y Uptime Kuma
 - **Rápido y ligero** — Imagen Docker minimalista, arranca en segundos
 - **100% local** — Ningún dato sale de tu red
 
