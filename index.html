@@ -12,14 +12,14 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      SIDEBAR OVERLAY
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      SIDEBAR
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <aside class="sidebar" id="sidebar">
 
     <!-- RELOJ -->
@@ -163,9 +163,9 @@
     <div class="bars"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
 </button>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      NAVEGACIÓN DE PESTAÑAS
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div class="page-tabs-nav" id="pageTabsNav">
     <button class="page-tab active" id="tab-inicio" onclick="switchPageTab('inicio')">Inicio</button>
     <button class="page-tab" id="tab-marcadores" onclick="switchPageTab('marcadores')">Marcadores</button>
@@ -173,9 +173,9 @@
     <button class="page-tab" id="tab-integraciones" onclick="switchPageTab('integraciones')">Integraciones</button>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      PAGE: INICIO
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div class="page-panel active" id="page-inicio">
     <div class="container">
         <header>
@@ -223,9 +223,9 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      PAGE: MARCADORES
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div class="page-panel" id="page-marcadores">
     <div class="container">
         <header>
@@ -268,9 +268,9 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      PAGE: RSS
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div class="page-panel" id="page-rss">
     <div class="container">
         <header>
@@ -295,16 +295,16 @@
         </header>
         <div id="rssContainer"></div>
         <div id="rssEmpty" class="empty-state" style="display:none;">
-            <div class="empty-state-icon">📡</div>
+            <div class="empty-state-icon">&#128240;</div>
             <div class="empty-state-text">Sin feeds RSS aún</div>
             <p class="empty-state-description">Agrega tu primer feed con el botón de arriba</p>
         </div>
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      PAGE: INTEGRACIONES
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div class="page-panel" id="page-integraciones">
     <div class="container">
         <header>
@@ -329,16 +329,16 @@
         </header>
         <div id="integrationsContainer"></div>
         <div id="integrationsEmpty" class="empty-state" style="display:none;">
-            <div class="empty-state-icon">🔌</div>
+            <div class="empty-state-icon">&#129001;</div>
             <div class="empty-state-text">Sin integraciones aún</div>
             <p class="empty-state-description">Conecta tu Uptime Kuma u otras herramientas con el botón de arriba</p>
         </div>
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      MODAL: SERVICIOS / GRUPOS
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div id="mainModal" class="modal">
     <div class="modal-content">
         <h2 class="modal-header" id="modalTitle">Agregar</h2>
@@ -419,9 +419,9 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      MODAL: MARCADOR
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div id="bookmarkModal" class="modal">
     <div class="modal-content">
         <h2 class="modal-header" id="bookmarkModalTitle">Nuevo Marcador</h2>
@@ -476,9 +476,9 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      MODAL: GRUPO DE MARCADORES
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div id="bookmarkGroupModal" class="modal">
     <div class="modal-content" style="max-width:400px;">
         <h2 class="modal-header" id="bmGroupModalTitle">Nuevo Grupo</h2>
@@ -497,9 +497,9 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      MODAL: RSS FEED
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div id="rssModal" class="modal">
     <div class="modal-content" style="max-width:480px;">
         <h2 class="modal-header" id="rssModalTitle">Nuevo Feed RSS</h2>
@@ -533,9 +533,9 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      MODAL: INTEGRACIÓN
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div id="integrationModal" class="modal">
     <div class="modal-content" style="max-width:480px;">
         <h2 class="modal-header" id="integrationModalTitle">Nueva Integración</h2>
@@ -547,6 +547,7 @@
                 <select id="integration-type" onchange="onIntegrationTypeChange()">
                     <option value="uptime_kuma">Uptime Kuma</option>
                     <option value="adguard">AdGuard Home</option>
+                    <option value="syncthing">Syncthing</option>
                 </select>
             </div>
             <div class="form-group">
@@ -558,14 +559,40 @@
                 <input type="url" id="integration-url" placeholder="https://adguard.tudominio.com">
                 <div id="integration-url-hint" style="font-size:0.75rem;color:var(--text-secondary);margin-top:6px;line-height:1.5;"></div>
             </div>
+            <!-- AdGuard: usuario + contraseña (basic auth) -->
             <div id="adguard-credentials" style="display:none;">
                 <div class="form-group">
-                    <label for="integration-username">Usuario</label>
+                    <label for="integration-username" id="integration-username-label">Usuario</label>
                     <input type="text" id="integration-username" placeholder="admin" autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label for="integration-password">Contraseña</label>
+                    <label for="integration-password" id="integration-password-label">Contraseña</label>
                     <input type="password" id="integration-password" placeholder="••••••••" autocomplete="new-password">
+                </div>
+            </div>
+            <!-- Syncthing: API Key + carpetas opcionales -->
+            <div id="syncthing-credentials" style="display:none;">
+                <div class="form-group">
+                    <label for="syncthing-apikey">API Key</label>
+                    <input type="text" id="syncthing-apikey" placeholder="abc123xyz..."
+                           autocomplete="off"
+                           style="font-family:'Space Mono',monospace;font-size:0.85rem;">
+                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:6px;line-height:1.5;">
+                        Encuéntrala en Syncthing &rarr;
+                        <strong>Settings &rarr; General &rarr; API Key</strong>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="syncthing-folders">
+                        IDs de carpetas
+                        <span class="label-hint">(opcional — deja vacío para mostrar todas)</span>
+                    </label>
+                    <input type="text" id="syncthing-folders"
+                           placeholder="ej: abcd1234, efgh5678"
+                           autocomplete="off">
+                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:6px;line-height:1.5;">
+                        Separadas por comas. El ID de carpeta se ve en Syncthing &rarr; carpeta &rarr; Edit &rarr; Folder ID.
+                    </div>
                 </div>
             </div>
             <div class="button-group">
@@ -576,9 +603,9 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- -------------------------------------------
      CONFIRM DIALOG
-     ═══════════════════════════════════════════ -->
+     ------------------------------------------- -->
 <div id="confirmModal" class="confirm-modal">
     <div class="confirm-content">
         <div class="confirm-icon" id="confirmIcon">&#9888;&#65039;</div>
