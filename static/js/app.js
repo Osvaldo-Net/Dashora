@@ -1,3 +1,4 @@
+
 // ═══════════════════════════════════════════════
 // GLOBALS
 // ═══════════════════════════════════════════════
@@ -1162,6 +1163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadWeather();
     loadBackgroundSettings();
     loadRSSFeeds();
+    loadIntegrations();
 
     const savedTab = localStorage.getItem('activePageTab') || 'inicio';
     switchPageTab(savedTab);
