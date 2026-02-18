@@ -45,7 +45,11 @@ function initSearch() {
     const si = document.getElementById('searchInput');
     const sc = document.getElementById('searchClear');
     if (!si) return;
-    si.addEventListener('input', e => { searchQuery = e.target.value.toLowerCase().trim(); sc.style.display = searchQuery ? 'flex' : 'none'; performSearch(); });
+    si.addEventListener('input', e => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        sc.style.display = searchQuery ? 'flex' : 'none';
+        performSearch();
+    });
     document.addEventListener('keydown', e => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         if (document.getElementById('mainModal').classList.contains('active')) return;
@@ -61,7 +65,10 @@ function performSearch() {
         document.querySelectorAll('.service-card').forEach(card => {
             card.classList.remove('search-match');
             const titleEl = card.querySelector('.service-title');
-            if (titleEl && titleEl.dataset.originalText) { titleEl.textContent = titleEl.dataset.originalText; delete titleEl.dataset.originalText; }
+            if (titleEl && titleEl.dataset.originalText) {
+                titleEl.textContent = titleEl.dataset.originalText;
+                delete titleEl.dataset.originalText;
+            }
         });
         document.querySelectorAll('.group-section').forEach(s => s.classList.remove('has-matches'));
         return;
@@ -76,12 +83,19 @@ function performSearch() {
             if (!titleEl) return;
             const title = titleEl.textContent.toLowerCase();
             const desc = urlEl ? urlEl.textContent.toLowerCase() : '';
-            if (title.includes(searchQuery) || desc.includes(searchQuery)) { card.classList.add('search-match'); groupHasMatches = true; totalMatches++; highlightText(titleEl, searchQuery); }
-            else card.classList.remove('search-match');
+            if (title.includes(searchQuery) || desc.includes(searchQuery)) {
+                card.classList.add('search-match');
+                groupHasMatches = true;
+                totalMatches++;
+                highlightText(titleEl, searchQuery);
+            } else {
+                card.classList.remove('search-match');
+            }
         });
         section.classList.toggle('has-matches', groupHasMatches);
     });
-    if (totalMatches === 0) showNoResultsMessage(); else removeNoResultsMessage();
+    if (totalMatches === 0) showNoResultsMessage();
+    else removeNoResultsMessage();
 }
 
 function highlightText(element, query) {
@@ -89,30 +103,50 @@ function highlightText(element, query) {
     const text = element.dataset.originalText;
     const index = text.toLowerCase().indexOf(query.toLowerCase());
     if (index === -1) { element.textContent = text; return; }
-    element.innerHTML = escapeHtml(text.substring(0, index)) + '<span class="search-highlight">' + escapeHtml(text.substring(index, index + query.length)) + '</span>' + escapeHtml(text.substring(index + query.length));
+    element.innerHTML =
+        escapeHtml(text.substring(0, index)) +
+        '<span class="search-highlight">' + escapeHtml(text.substring(index, index + query.length)) + '</span>' +
+        escapeHtml(text.substring(index + query.length));
 }
 
 function clearSearch() {
     const si = document.getElementById('searchInput');
-    if (si) { si.value = ''; searchQuery = ''; document.getElementById('searchClear').style.display = 'none'; performSearch(); si.blur(); }
+    if (si) {
+        si.value = '';
+        searchQuery = '';
+        document.getElementById('searchClear').style.display = 'none';
+        performSearch();
+        si.blur();
+    }
 }
 
 function showNoResultsMessage() {
     removeNoResultsMessage();
     const container = document.getElementById('groupsContainer');
     const el = document.createElement('div');
-    el.id = 'noSearchResults'; el.className = 'empty-state';
-    el.innerHTML = '<div class="empty-state-icon">&#128269;</div><div class="empty-state-text">No se encontraron resultados</div><p class="empty-state-description">No hay servicios que coincidan con "' + escapeHtml(searchQuery) + '"</p><button class="btn btn-secondary" onclick="clearSearch()" style="margin-top:20px;max-width:200px;">Limpiar búsqueda</button>';
+    el.id = 'noSearchResults';
+    el.className = 'empty-state';
+    el.innerHTML =
+        '<div class="empty-state-icon">&#128269;</div>' +
+        '<div class="empty-state-text">No se encontraron resultados</div>' +
+        '<p class="empty-state-description">No hay servicios que coincidan con "' + escapeHtml(searchQuery) + '"</p>' +
+        '<button class="btn btn-secondary" onclick="clearSearch()" style="margin-top:20px;max-width:200px;">Limpiar búsqueda</button>';
     container.appendChild(el);
 }
-function removeNoResultsMessage() { const e = document.getElementById('noSearchResults'); if (e) e.remove(); }
+
+function removeNoResultsMessage() {
+    const e = document.getElementById('noSearchResults');
+    if (e) e.remove();
+}
 
 // ═══════════════════════════════════════════════
 // TOAST & CONFIRM
 // ═══════════════════════════════════════════════
 function showToast(msg, duration = 2500) {
-    const t = document.getElementById('toast'); if (!t) return;
-    t.innerHTML = msg; t.classList.add('show');
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.innerHTML = msg;
+    t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), duration);
 }
 
@@ -124,54 +158,135 @@ function showConfirm(title, msg, icon, okLabel, cb) {
     confirmCallback = cb;
     document.getElementById('confirmModal').classList.add('active');
 }
-function closeConfirm() { document.getElementById('confirmModal').classList.remove('active'); confirmCallback = null; }
-document.getElementById('confirmOkBtn').addEventListener('click', () => { if (confirmCallback) confirmCallback(); closeConfirm(); });
-document.getElementById('confirmModal').addEventListener('click', e => { if (e.target.id === 'confirmModal') closeConfirm(); });
+
+function closeConfirm() {
+    document.getElementById('confirmModal').classList.remove('active');
+    confirmCallback = null;
+}
+
+document.getElementById('confirmOkBtn').addEventListener('click', () => {
+    if (confirmCallback) confirmCallback();
+    closeConfirm();
+});
+
+document.getElementById('confirmModal').addEventListener('click', e => {
+    if (e.target.id === 'confirmModal') closeConfirm();
+});
 
 // ═══════════════════════════════════════════════
 // SIDEBAR
 // ═══════════════════════════════════════════════
-function toggleSidebar() { const s = document.getElementById('sidebar'); if (s.classList.contains('visible')) closeSidebar(); else { s.classList.add('visible'); document.getElementById('sidebarOverlay').classList.add('visible'); document.getElementById('sidebarToggle').classList.add('open'); document.body.classList.add('sidebar-open'); } }
-function closeSidebar() { document.getElementById('sidebar').classList.remove('visible'); document.getElementById('sidebarOverlay').classList.remove('visible'); document.getElementById('sidebarToggle').classList.remove('open'); document.body.classList.remove('sidebar-open'); }
+function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    if (s.classList.contains('visible')) closeSidebar();
+    else {
+        s.classList.add('visible');
+        document.getElementById('sidebarOverlay').classList.add('visible');
+        document.getElementById('sidebarToggle').classList.add('open');
+        document.body.classList.add('sidebar-open');
+    }
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('visible');
+    document.getElementById('sidebarOverlay').classList.remove('visible');
+    document.getElementById('sidebarToggle').classList.remove('open');
+    document.body.classList.remove('sidebar-open');
+}
 
 // ═══════════════════════════════════════════════
 // CLOCK
 // ═══════════════════════════════════════════════
 let selectedTimezone = localStorage.getItem('selectedTimezone') || 'auto';
 let timeFormat = localStorage.getItem('timeFormat') || '24';
-function toggleClockSettings() { const p = document.getElementById('clockSettingsPanel'); p.style.display = p.style.display === 'none' ? 'block' : 'none'; }
+
+function toggleClockSettings() {
+    const p = document.getElementById('clockSettingsPanel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
 function updateClock() {
     const now = new Date();
     const tz = selectedTimezone === 'auto' ? Intl.DateTimeFormat().resolvedOptions().timeZone : selectedTimezone;
     const use12 = timeFormat === '12';
     let timeStr = now.toLocaleTimeString('es-ES', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: use12 });
-    if (use12) { const m = timeStr.match(/(a\.\s?m\.|p\.\s?m\.|AM|PM)/i); if (m) { const ampm = m[0].toLowerCase().includes('a') ? 'AM' : 'PM'; document.getElementById('clockTime').innerHTML = timeStr.replace(m[0], '').trim() + '<span class="clock-ampm">' + ampm + '</span>'; } else { document.getElementById('clockTime').textContent = timeStr; } } else { document.getElementById('clockTime').textContent = timeStr; }
+    if (use12) {
+        const m = timeStr.match(/(a\.\s?m\.|p\.\s?m\.|AM|PM)/i);
+        if (m) {
+            const ampm = m[0].toLowerCase().includes('a') ? 'AM' : 'PM';
+            document.getElementById('clockTime').innerHTML = timeStr.replace(m[0], '').trim() + '<span class="clock-ampm">' + ampm + '</span>';
+        } else {
+            document.getElementById('clockTime').textContent = timeStr;
+        }
+    } else {
+        document.getElementById('clockTime').textContent = timeStr;
+    }
     const ds = now.toLocaleDateString('es-ES', { timeZone: tz, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     document.getElementById('clockDate').textContent = ds.charAt(0).toUpperCase() + ds.slice(1);
     document.getElementById('clockTimezone').textContent = tz === Intl.DateTimeFormat().resolvedOptions().timeZone ? tz + ' (Local)' : tz;
 }
-function changeTimezone() { selectedTimezone = document.getElementById('timezoneSelect').value; localStorage.setItem('selectedTimezone', selectedTimezone); updateClock(); }
-function changeTimeFormat() { timeFormat = document.getElementById('timeFormatSelect').value; localStorage.setItem('timeFormat', timeFormat); updateClock(); }
+
+function changeTimezone() {
+    selectedTimezone = document.getElementById('timezoneSelect').value;
+    localStorage.setItem('selectedTimezone', selectedTimezone);
+    updateClock();
+}
+
+function changeTimeFormat() {
+    timeFormat = document.getElementById('timeFormatSelect').value;
+    localStorage.setItem('timeFormat', timeFormat);
+    updateClock();
+}
 
 // ═══════════════════════════════════════════════
 // WEATHER
 // ═══════════════════════════════════════════════
 async function loadWeather() {
     const wc = document.getElementById('weatherContent');
-    if (!navigator.geolocation) { wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">Geolocalización no disponible</div>'; return; }
+    if (!navigator.geolocation) {
+        wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">Geolocalización no disponible</div>';
+        return;
+    }
     wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">Obteniendo ubicación...</div>';
     navigator.geolocation.getCurrentPosition(async pos => {
         try {
             const { latitude: lat, longitude: lon } = pos.coords;
-            const [wr, gr] = await Promise.all([fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto'), fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lon + '&format=json')]);
-            const data = await wr.json(); const geo = await gr.json();
+            const [wr, gr] = await Promise.all([
+                fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto'),
+                fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lon + '&format=json')
+            ]);
+            const data = await wr.json();
+            const geo = await gr.json();
             const city = geo.address.city || geo.address.town || geo.address.village || 'Tu ubicación';
             const country = geo.address.country || '';
-            const codes = {0:{i:'\u2600\uFE0F',d:'Despejado'},1:{i:'\u{1F324}\uFE0F',d:'Mayormente despejado'},2:{i:'\u26C5',d:'Parcialmente nublado'},3:{i:'\u2601\uFE0F',d:'Nublado'},45:{i:'\u{1F32B}\uFE0F',d:'Neblina'},48:{i:'\u{1F32B}\uFE0F',d:'Niebla'},51:{i:'\u{1F326}\uFE0F',d:'Llovizna ligera'},53:{i:'\u{1F326}\uFE0F',d:'Llovizna moderada'},55:{i:'\u{1F326}\uFE0F',d:'Llovizna densa'},61:{i:'\u{1F327}\uFE0F',d:'Lluvia ligera'},63:{i:'\u{1F327}\uFE0F',d:'Lluvia moderada'},65:{i:'\u{1F327}\uFE0F',d:'Lluvia fuerte'},71:{i:'\u{1F328}\uFE0F',d:'Nevada ligera'},73:{i:'\u{1F328}\uFE0F',d:'Nevada moderada'},75:{i:'\u2744\uFE0F',d:'Nevada fuerte'},80:{i:'\u{1F326}\uFE0F',d:'Chubascos ligeros'},81:{i:'\u{1F327}\uFE0F',d:'Chubascos moderados'},82:{i:'\u26C8\uFE0F',d:'Chubascos fuertes'},95:{i:'\u26C8\uFE0F',d:'Tormenta'},99:{i:'\u26C8\uFE0F',d:'Tormenta severa'}};
+            const codes = {
+                0:{i:'\u2600\uFE0F',d:'Despejado'}, 1:{i:'\u{1F324}\uFE0F',d:'Mayormente despejado'},
+                2:{i:'\u26C5',d:'Parcialmente nublado'}, 3:{i:'\u2601\uFE0F',d:'Nublado'},
+                45:{i:'\u{1F32B}\uFE0F',d:'Neblina'}, 48:{i:'\u{1F32B}\uFE0F',d:'Niebla'},
+                51:{i:'\u{1F326}\uFE0F',d:'Llovizna ligera'}, 53:{i:'\u{1F326}\uFE0F',d:'Llovizna moderada'},
+                55:{i:'\u{1F326}\uFE0F',d:'Llovizna densa'}, 61:{i:'\u{1F327}\uFE0F',d:'Lluvia ligera'},
+                63:{i:'\u{1F327}\uFE0F',d:'Lluvia moderada'}, 65:{i:'\u{1F327}\uFE0F',d:'Lluvia fuerte'},
+                71:{i:'\u{1F328}\uFE0F',d:'Nevada ligera'}, 73:{i:'\u{1F328}\uFE0F',d:'Nevada moderada'},
+                75:{i:'\u2744\uFE0F',d:'Nevada fuerte'}, 80:{i:'\u{1F326}\uFE0F',d:'Chubascos ligeros'},
+                81:{i:'\u{1F327}\uFE0F',d:'Chubascos moderados'}, 82:{i:'\u26C8\uFE0F',d:'Chubascos fuertes'},
+                95:{i:'\u26C8\uFE0F',d:'Tormenta'}, 99:{i:'\u26C8\uFE0F',d:'Tormenta severa'}
+            };
             const w = codes[data.current.weather_code] || {i:'\u{1F321}\uFE0F',d:'Clima desconocido'};
-            wc.innerHTML = '<div class="weather-main"><div class="weather-icon">' + w.i + '</div><div class="weather-temp"><div class="weather-temp-value">' + Math.round(data.current.temperature_2m) + '°C</div><div class="weather-temp-desc">' + w.d + '</div></div></div><div class="weather-details"><div class="weather-detail-item"><div class="weather-detail-label">Humedad</div><div class="weather-detail-value">' + data.current.relative_humidity_2m + '%</div></div><div class="weather-detail-item"><div class="weather-detail-label">Viento</div><div class="weather-detail-value">' + Math.round(data.current.wind_speed_10m) + ' km/h</div></div></div><div class="weather-location"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>' + city + (country ? ', ' + country : '') + '</div>';
-        } catch { wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">Error al cargar el clima</div>'; }
-    }, () => { wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">No se pudo obtener la ubicación<br><small style="opacity:0.7;">Permite el acceso a tu ubicación</small></div>'; });
+            wc.innerHTML =
+                '<div class="weather-main"><div class="weather-icon">' + w.i + '</div>' +
+                '<div class="weather-temp"><div class="weather-temp-value">' + Math.round(data.current.temperature_2m) + '°C</div>' +
+                '<div class="weather-temp-desc">' + w.d + '</div></div></div>' +
+                '<div class="weather-details">' +
+                '<div class="weather-detail-item"><div class="weather-detail-label">Humedad</div><div class="weather-detail-value">' + data.current.relative_humidity_2m + '%</div></div>' +
+                '<div class="weather-detail-item"><div class="weather-detail-label">Viento</div><div class="weather-detail-value">' + Math.round(data.current.wind_speed_10m) + ' km/h</div></div>' +
+                '</div><div class="weather-location"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>' +
+                city + (country ? ', ' + country : '') + '</div>';
+        } catch {
+            wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">Error al cargar el clima</div>';
+        }
+    }, () => {
+        wc.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:0.85rem;">No se pudo obtener la ubicación<br><small style="opacity:0.7;">Permite el acceso a tu ubicación</small></div>';
+    });
 }
 
 // ═══════════════════════════════════════════════
@@ -181,22 +296,43 @@ function renderCalendar() {
     const y = currentCalendarDate.getFullYear(), m = currentCalendarDate.getMonth();
     const mn = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     document.getElementById('calendarMonth').textContent = mn[m] + ' ' + y;
-    const firstDay = new Date(y, m, 1).getDay(), dim = new Date(y, m + 1, 0).getDate(), dipm = new Date(y, m, 0).getDate();
-    const cd = document.getElementById('calendarDays'); cd.innerHTML = '';
-    const today = new Date(); const isCur = today.getFullYear() === y && today.getMonth() === m;
-    for (let i = firstDay - 1; i >= 0; i--) { const d = document.createElement('div'); d.className = 'calendar-day other-month'; d.textContent = dipm - i; cd.appendChild(d); }
-    for (let day = 1; day <= dim; day++) { const d = document.createElement('div'); d.className = 'calendar-day' + (isCur && day === today.getDate() ? ' today' : ''); d.textContent = day; cd.appendChild(d); }
+    const firstDay = new Date(y, m, 1).getDay();
+    const dim = new Date(y, m + 1, 0).getDate();
+    const dipm = new Date(y, m, 0).getDate();
+    const cd = document.getElementById('calendarDays');
+    cd.innerHTML = '';
+    const today = new Date();
+    const isCur = today.getFullYear() === y && today.getMonth() === m;
+    for (let i = firstDay - 1; i >= 0; i--) {
+        const d = document.createElement('div'); d.className = 'calendar-day other-month'; d.textContent = dipm - i; cd.appendChild(d);
+    }
+    for (let day = 1; day <= dim; day++) {
+        const d = document.createElement('div');
+        d.className = 'calendar-day' + (isCur && day === today.getDate() ? ' today' : '');
+        d.textContent = day; cd.appendChild(d);
+    }
     const rem = (7 - cd.children.length % 7) % 7;
-    for (let day = 1; day <= rem; day++) { const d = document.createElement('div'); d.className = 'calendar-day other-month'; d.textContent = day; cd.appendChild(d); }
+    for (let day = 1; day <= rem; day++) {
+        const d = document.createElement('div'); d.className = 'calendar-day other-month'; d.textContent = day; cd.appendChild(d);
+    }
 }
-function changeMonth(dir) { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + dir); renderCalendar(); }
+
+function changeMonth(dir) {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + dir);
+    renderCalendar();
+}
 
 // ═══════════════════════════════════════════════
 // BACKGROUND
 // ═══════════════════════════════════════════════
-function toggleBackgroundSettings() { const p = document.getElementById('backgroundSettingsPanel'); p.style.display = p.style.display === 'none' ? 'block' : 'none'; }
+function toggleBackgroundSettings() {
+    const p = document.getElementById('backgroundSettingsPanel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
 async function handleBackgroundUpload(event) {
-    const file = event.target.files[0]; if (!file) return;
+    const file = event.target.files[0];
+    if (!file) return;
     if (!file.type.startsWith('image/')) { showToast('\u26A0\uFE0F Solo se permiten archivos de imagen'); return; }
     if (file.size > 10 * 1024 * 1024) { showToast('\u26A0\uFE0F La imagen debe ser menor a 10MB'); return; }
 
@@ -209,71 +345,167 @@ async function handleBackgroundUpload(event) {
             let w = img.width, h = img.height;
             if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
             if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
-            canvas.width = w; canvas.height = h;
+            canvas.width = w;
+            canvas.height = h;
             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
             const imageData = canvas.toDataURL('image/jpeg', 0.82);
             if (imageData.length > 2 * 1024 * 1024) {
                 const imageData2 = canvas.toDataURL('image/jpeg', 0.65);
-                try { await guardarFondo(imageData2); } catch { showToast('\u2717 Imagen demasiado grande incluso comprimida'); }
+                try { await guardarFondo(imageData2); }
+                catch { showToast('\u2717 Imagen demasiado grande incluso comprimida'); }
                 return;
             }
-            try { await guardarFondo(imageData); } catch { showToast('\u2717 Error al guardar el fondo'); }
+            try { await guardarFondo(imageData); }
+            catch { showToast('\u2717 Error al guardar el fondo'); }
         };
         img.src = e.target.result;
     };
     reader.readAsDataURL(file);
 }
+
 async function guardarFondo(imageData) {
-    await fetch('/api/settings', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ background_image: imageData, background_opacity: parseInt(document.getElementById('backgroundOpacity').value) || 50 }) });
+    await fetch('/api/settings', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ background_image: imageData, background_opacity: parseInt(document.getElementById('backgroundOpacity').value) || 50 })
+    });
     applyBackgroundImage(imageData);
     document.getElementById('backgroundUploadText').textContent = 'Imagen cargada \u2713';
     document.getElementById('removeBackgroundBtn').style.display = 'inline-flex';
     showToast('\u2713 Fondo sincronizado');
-}function applyBackgroundImage(imageData) { document.body.classList.add('has-background'); document.documentElement.style.setProperty('--background-image', 'url(' + imageData + ')'); }
+}
+
+function applyBackgroundImage(imageData) {
+    document.body.classList.add('has-background');
+    document.documentElement.style.setProperty('--background-image', 'url(' + imageData + ')');
+}
+
 async function updateBackgroundOpacity(value) {
     document.getElementById('backgroundOpacityValue').textContent = value + '%';
-    const old = document.getElementById('background-opacity-style'); if (old) old.remove();
-    const style = document.createElement('style'); style.id = 'background-opacity-style'; style.textContent = 'body::before { opacity: ' + (value / 100) + ' !important; }'; document.head.appendChild(style);
-    try { const r = await fetch('/api/settings'); const s = await r.json(); await fetch('/api/settings', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ background_image: s.background_image || '', background_opacity: parseInt(value) }) }); } catch {}
+    const old = document.getElementById('background-opacity-style');
+    if (old) old.remove();
+    const style = document.createElement('style');
+    style.id = 'background-opacity-style';
+    style.textContent = 'body::before { opacity: ' + (value / 100) + ' !important; }';
+    document.head.appendChild(style);
+    try {
+        const r = await fetch('/api/settings');
+        const s = await r.json();
+        await fetch('/api/settings', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ background_image: s.background_image || '', background_opacity: parseInt(value) }) });
+    } catch {}
 }
+
 async function removeBackground() {
-    try { await fetch('/api/settings', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ background_image: '', background_opacity: 50 }) }); document.body.classList.remove('has-background'); document.documentElement.style.removeProperty('--background-image'); const s = document.getElementById('background-opacity-style'); if (s) s.remove(); document.getElementById('backgroundUploadText').textContent = 'Subir imagen'; document.getElementById('removeBackgroundBtn').style.display = 'none'; document.getElementById('backgroundFile').value = ''; document.getElementById('backgroundOpacity').value = 50; document.getElementById('backgroundOpacityValue').textContent = '50%'; showToast('\u{1F5D1}\uFE0F Fondo eliminado'); } catch { showToast('\u2717 Error'); }
+    try {
+        await fetch('/api/settings', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ background_image: '', background_opacity: 50 }) });
+        document.body.classList.remove('has-background');
+        document.documentElement.style.removeProperty('--background-image');
+        const s = document.getElementById('background-opacity-style');
+        if (s) s.remove();
+        document.getElementById('backgroundUploadText').textContent = 'Subir imagen';
+        document.getElementById('removeBackgroundBtn').style.display = 'none';
+        document.getElementById('backgroundFile').value = '';
+        document.getElementById('backgroundOpacity').value = 50;
+        document.getElementById('backgroundOpacityValue').textContent = '50%';
+        showToast('\u{1F5D1}\uFE0F Fondo eliminado');
+    } catch { showToast('\u2717 Error'); }
 }
+
 async function loadBackgroundSettings() {
     try {
-        const r = await fetch('/api/settings'); const settings = await r.json();
-        if (settings.background_image) { applyBackgroundImage(settings.background_image); document.getElementById('backgroundUploadText').textContent = 'Imagen cargada \u2713'; document.getElementById('removeBackgroundBtn').style.display = 'inline-flex'; }
-        const opacity = settings.background_opacity || 50; document.getElementById('backgroundOpacity').value = opacity; document.getElementById('backgroundOpacityValue').textContent = opacity + '%';
-        const old = document.getElementById('background-opacity-style'); if (old) old.remove();
-        const style = document.createElement('style'); style.id = 'background-opacity-style'; style.textContent = 'body::before { opacity: ' + (opacity / 100) + ' !important; }'; document.head.appendChild(style);
+        const r = await fetch('/api/settings');
+        const settings = await r.json();
+        if (settings.background_image) {
+            applyBackgroundImage(settings.background_image);
+            document.getElementById('backgroundUploadText').textContent = 'Imagen cargada \u2713';
+            document.getElementById('removeBackgroundBtn').style.display = 'inline-flex';
+        }
+        const opacity = settings.background_opacity || 50;
+        document.getElementById('backgroundOpacity').value = opacity;
+        document.getElementById('backgroundOpacityValue').textContent = opacity + '%';
+        const old = document.getElementById('background-opacity-style');
+        if (old) old.remove();
+        const style = document.createElement('style');
+        style.id = 'background-opacity-style';
+        style.textContent = 'body::before { opacity: ' + (opacity / 100) + ' !important; }';
+        document.head.appendChild(style);
     } catch {}
 }
 
 // ═══════════════════════════════════════════════
 // THEME
 // ═══════════════════════════════════════════════
-function initTheme() { const s = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', s); updateThemeIcon(s); updateThemeIconsBM(s); }
-function toggleTheme() { const c = document.documentElement.getAttribute('data-theme'); const n = c === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', n); localStorage.setItem('theme', n); updateThemeIcon(n); updateThemeIconsBM(n); }
-function updateThemeIcon(t) { const l = document.getElementById('theme-icon-light'); const d = document.getElementById('theme-icon-dark'); if (l) l.style.display = t === 'dark' ? 'block' : 'none'; if (d) d.style.display = t === 'dark' ? 'none' : 'block'; }
-function updateThemeIconsBM(t) { const l = document.getElementById('theme-icon-light-bm'); const d = document.getElementById('theme-icon-dark-bm'); if (l) l.style.display = t === 'dark' ? 'block' : 'none'; if (d) d.style.display = t === 'dark' ? 'none' : 'block'; }
+function initTheme() {
+    const s = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', s);
+    updateThemeIcon(s);
+    updateThemeIconsBM(s);
+}
+
+function toggleTheme() {
+    const c = document.documentElement.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', n);
+    localStorage.setItem('theme', n);
+    updateThemeIcon(n);
+    updateThemeIconsBM(n);
+}
+
+function updateThemeIcon(t) {
+    const l = document.getElementById('theme-icon-light');
+    const d = document.getElementById('theme-icon-dark');
+    if (l) l.style.display = t === 'dark' ? 'block' : 'none';
+    if (d) d.style.display = t === 'dark' ? 'none' : 'block';
+}
+
+function updateThemeIconsBM(t) {
+    const l = document.getElementById('theme-icon-light-bm');
+    const d = document.getElementById('theme-icon-dark-bm');
+    if (l) l.style.display = t === 'dark' ? 'block' : 'none';
+    if (d) d.style.display = t === 'dark' ? 'none' : 'block';
+}
 
 // ═══════════════════════════════════════════════
 // ICON HELPERS (SERVICES)
 // ═══════════════════════════════════════════════
-function setFallbackIcon(wrapper) { const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('viewBox', '0 0 24 24'); svg.classList.add('icon-fallback'); const path = document.createElementNS('http://www.w3.org/2000/svg', 'path'); path.setAttribute('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z'); svg.appendChild(path); wrapper.innerHTML = ''; wrapper.appendChild(svg); }
-function escapeHtml(s) { const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
-function formatFileSize(bytes) { if (bytes < 1024) return bytes + ' B'; if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB'; return (bytes/1024/1024).toFixed(1) + ' MB'; }
+function setFallbackIcon(wrapper) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.classList.add('icon-fallback');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z');
+    svg.appendChild(path);
+    wrapper.innerHTML = '';
+    wrapper.appendChild(svg);
+}
+
+function escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = String(s);
+    return d.innerHTML;
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/1024/1024).toFixed(1) + ' MB';
+}
 
 function initIconDragDrop() {
-    const uploadArea = document.getElementById('fileUploadArea'); if (!uploadArea) return;
+    const uploadArea = document.getElementById('fileUploadArea');
+    if (!uploadArea) return;
     ['dragenter','dragover','dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
     ['dragenter','dragover'].forEach(ev => uploadArea.addEventListener(ev, () => uploadArea.classList.add('dragover')));
     ['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, () => uploadArea.classList.remove('dragover')));
-    uploadArea.addEventListener('drop', e => { const files = e.dataTransfer.files; if (files.length > 0) handleIconUpload({ target: { files: [files[0]] } }); });
+    uploadArea.addEventListener('drop', e => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) handleIconUpload({ target: { files: [files[0]] } });
+    });
 }
 
 function handleIconUpload(event) {
-    const file = event.target.files[0]; if (!file) return;
+    const file = event.target.files[0];
+    if (!file) return;
     if (!file.type.startsWith('image/')) { showToast('\u26A0\uFE0F Solo se permiten archivos de imagen'); return; }
     if (file.size > 2 * 1024 * 1024) { showToast('\u26A0\uFE0F La imagen debe ser menor a 2MB'); return; }
     const reader = new FileReader();
@@ -282,7 +514,10 @@ function handleIconUpload(event) {
         const preview = document.getElementById('iconPreview'), previewImg = document.getElementById('iconPreviewImg');
         if (previewImg && preview) { previewImg.src = uploadedIconData; preview.style.display = 'flex'; }
         const label = document.getElementById('fileUploadArea')?.querySelector('.file-upload-label');
-        if (label) label.innerHTML = '<img src="' + uploadedIconData + '" style="width:48px;height:48px;object-fit:contain;border-radius:8px;"><span style="font-weight:500;color:var(--text-primary);">' + escapeHtml(file.name) + '</span><small>' + formatFileSize(file.size) + '</small>';
+        if (label) label.innerHTML =
+            '<img src="' + uploadedIconData + '" style="width:48px;height:48px;object-fit:contain;border-radius:8px;">' +
+            '<span style="font-weight:500;color:var(--text-primary);">' + escapeHtml(file.name) + '</span>' +
+            '<small>' + formatFileSize(file.size) + '</small>';
         showToast('\u2713 Icono cargado');
     };
     reader.readAsDataURL(file);
@@ -290,33 +525,53 @@ function handleIconUpload(event) {
 
 function clearIconUpload() {
     uploadedIconData = null;
-    const fi = document.getElementById('iconFile'); if (fi) fi.value = '';
+    const fi = document.getElementById('iconFile');
+    if (fi) fi.value = '';
     const ua = document.getElementById('fileUploadArea');
-    if (ua) ua.innerHTML = '<input type="file" id="iconFile" accept="image/*" onchange="handleIconUpload(event)" style="display:none;"><label for="iconFile" class="file-upload-label"><svg viewBox="0 0 24 24" width="32" height="32"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg><span>Click para seleccionar imagen</span><small>PNG, JPG, SVG, GIF (máx. 2MB)</small></label>';
-    const p = document.getElementById('iconPreview'); if (p) p.style.display = 'none';
+    if (ua) ua.innerHTML =
+        '<input type="file" id="iconFile" accept="image/*" onchange="handleIconUpload(event)" style="display:none;">' +
+        '<label for="iconFile" class="file-upload-label">' +
+        '<svg viewBox="0 0 24 24" width="32" height="32"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>' +
+        '<span>Click para seleccionar imagen</span><small>PNG, JPG, SVG, GIF (máx. 2MB)</small></label>';
+    const p = document.getElementById('iconPreview');
+    if (p) p.style.display = 'none';
     initIconDragDrop();
 }
 
 function switchIconTab(tab) {
-    document.querySelectorAll('.icon-tab[data-tab]').forEach(t => { if (t.dataset.tab === tab || t.dataset.tab === (tab === 'url' ? 'url' : 'upload')) t.classList.toggle('active', t.dataset.tab === tab); });
+    document.querySelectorAll('.icon-tab[data-tab]').forEach(t => {
+        if (t.dataset.tab === tab || t.dataset.tab === (tab === 'url' ? 'url' : 'upload'))
+            t.classList.toggle('active', t.dataset.tab === tab);
+    });
     document.getElementById('icon-tab-url').classList.toggle('active', tab === 'url');
     document.getElementById('icon-tab-upload').classList.toggle('active', tab === 'upload');
-    if (tab === 'url') { uploadedIconData = null; const fi = document.getElementById('iconFile'); if (fi) fi.value = ''; } else { document.getElementById('icon').value = ''; }
-    if (!uploadedIconData && !document.getElementById('icon').value) { const p = document.getElementById('iconPreview'); if (p) p.style.display = 'none'; }
+    if (tab === 'url') { uploadedIconData = null; const fi = document.getElementById('iconFile'); if (fi) fi.value = ''; }
+    else { document.getElementById('icon').value = ''; }
+    if (!uploadedIconData && !document.getElementById('icon').value) {
+        const p = document.getElementById('iconPreview');
+        if (p) p.style.display = 'none';
+    }
 }
 
 function previewIconUrl() {
     const url = document.getElementById('icon').value.trim();
     const prev = document.getElementById('iconPreview'), img = document.getElementById('iconPreviewImg');
     if (!prev || !img) return;
-    if (url) { img.src = url; prev.style.display = 'flex'; uploadedIconData = null; } else { prev.style.display = 'none'; }
+    if (url) { img.src = url; prev.style.display = 'flex'; uploadedIconData = null; }
+    else { prev.style.display = 'none'; }
 }
 
 // ═══════════════════════════════════════════════
 // SERVICES RENDER
 // ═══════════════════════════════════════════════
 async function loadServices() {
-    try { const r = await fetch('/api/services'); const t = await r.text(); services = t ? JSON.parse(t) : []; if (!Array.isArray(services)) services = []; renderAll(); } catch(e) { console.error(e); }
+    try {
+        const r = await fetch('/api/services');
+        const t = await r.text();
+        services = t ? JSON.parse(t) : [];
+        if (!Array.isArray(services)) services = [];
+        renderAll();
+    } catch(e) { console.error(e); }
 }
 
 function getGroupMap() {
@@ -329,7 +584,8 @@ function getGroupMap() {
 function renderAll() {
     const gm = getGroupMap(), con = document.getElementById('groupsContainer'), es = document.getElementById('emptyState');
     if (Object.keys(gm).length === 0) { con.innerHTML = ''; es.style.display = 'block'; return; }
-    es.style.display = 'none'; con.innerHTML = '';
+    es.style.display = 'none';
+    con.innerHTML = '';
     Object.keys(gm).sort().forEach(gn => {
         const items = gm[gn];
         const sec = document.createElement('div'); sec.className = 'group-section';
@@ -339,38 +595,75 @@ function renderAll() {
         ttl.appendChild(document.createTextNode(gn));
         const cb = document.createElement('span'); cb.className = 'group-count'; cb.textContent = items.length; ttl.appendChild(cb);
         const acts = document.createElement('div'); acts.className = 'group-actions';
-        const collapseBtn = document.createElement('button'); collapseBtn.className = 'group-collapse-btn' + (collapsedGroups.includes(gn) ? ' collapsed' : '');
+        const collapseBtn = document.createElement('button');
+        collapseBtn.className = 'group-collapse-btn' + (collapsedGroups.includes(gn) ? ' collapsed' : '');
         collapseBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>';
-        collapseBtn.addEventListener('click', () => toggleGroupCollapse(gn)); acts.appendChild(collapseBtn);
-        const eb = document.createElement('button'); eb.className = 'group-action-btn'; eb.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Renombrar'; eb.addEventListener('click', () => openEditGroup(gn)); acts.appendChild(eb);
-        const db = document.createElement('button'); db.className = 'group-action-btn danger'; db.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Eliminar'; db.addEventListener('click', () => deleteGroup(gn)); acts.appendChild(db);
+        collapseBtn.addEventListener('click', () => toggleGroupCollapse(gn));
+        acts.appendChild(collapseBtn);
+        const eb = document.createElement('button'); eb.className = 'group-action-btn';
+        eb.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Renombrar';
+        eb.addEventListener('click', () => openEditGroup(gn)); acts.appendChild(eb);
+        const db = document.createElement('button'); db.className = 'group-action-btn danger';
+        db.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Eliminar';
+        db.addEventListener('click', () => deleteGroup(gn)); acts.appendChild(db);
         hdr.appendChild(ttl); hdr.appendChild(acts); sec.appendChild(hdr);
-        const grid = document.createElement('div'); grid.className = 'services-grid' + (collapsedGroups.includes(gn) ? ' collapsed' : ''); grid.dataset.group = gn;
-        grid.addEventListener('dragover', handleDragOver); grid.addEventListener('dragleave', handleDragLeave); grid.addEventListener('drop', handleDrop);
-        if (items.length === 0) { const e = document.createElement('div'); e.style.cssText = 'color:var(--text-secondary);font-size:0.85rem;padding:20px;opacity:0.6;'; e.textContent = 'Grupo vacío — agrega servicios aquí.'; grid.appendChild(e); }
-        else items.forEach(s => grid.appendChild(buildServiceCard(s)));
+        const grid = document.createElement('div');
+        grid.className = 'services-grid' + (collapsedGroups.includes(gn) ? ' collapsed' : '');
+        grid.dataset.group = gn;
+        grid.addEventListener('dragover', handleDragOver);
+        grid.addEventListener('dragleave', handleDragLeave);
+        grid.addEventListener('drop', handleDrop);
+        if (items.length === 0) {
+            const e = document.createElement('div');
+            e.style.cssText = 'color:var(--text-secondary);font-size:0.85rem;padding:20px;opacity:0.6;';
+            e.textContent = 'Grupo vacío — agrega servicios aquí.';
+            grid.appendChild(e);
+        } else {
+            items.forEach(s => grid.appendChild(buildServiceCard(s)));
+        }
         sec.appendChild(grid); con.appendChild(sec);
     });
     updateGroupSelect();
 }
 
-function toggleGroupCollapse(gn) { const i = collapsedGroups.indexOf(gn); if (i > -1) collapsedGroups.splice(i, 1); else collapsedGroups.push(gn); localStorage.setItem('collapsedGroups', JSON.stringify(collapsedGroups)); renderAll(); }
+function toggleGroupCollapse(gn) {
+    const i = collapsedGroups.indexOf(gn);
+    if (i > -1) collapsedGroups.splice(i, 1); else collapsedGroups.push(gn);
+    localStorage.setItem('collapsedGroups', JSON.stringify(collapsedGroups));
+    renderAll();
+}
 
 function handleDragStart(e, service) { draggedService = service; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
 function handleDragEnd(e) { e.target.classList.remove('dragging'); document.querySelectorAll('.services-grid').forEach(g => g.classList.remove('drag-over')); }
 function handleDragOver(e) { if (e.preventDefault) e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('drag-over'); return false; }
 function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
-async function handleDrop(e) { if (e.stopPropagation) e.stopPropagation(); e.currentTarget.classList.remove('drag-over'); const newGroup = e.currentTarget.dataset.group; if (draggedService && draggedService.group !== newGroup) { await updateServiceAPI(draggedService.id, draggedService.title, draggedService.icon, draggedService.url, draggedService.description, newGroup); showToast('\u{1F500} "' + draggedService.title + '" movido a "' + newGroup + '"'); } return false; }
+
+async function handleDrop(e) {
+    if (e.stopPropagation) e.stopPropagation();
+    e.currentTarget.classList.remove('drag-over');
+    const newGroup = e.currentTarget.dataset.group;
+    if (draggedService && draggedService.group !== newGroup) {
+        await updateServiceAPI(draggedService.id, draggedService.title, draggedService.icon, draggedService.url, draggedService.description, newGroup);
+        showToast('\u{1F500} "' + draggedService.title + '" movido a "' + newGroup + '"');
+    }
+    return false;
+}
 
 function buildServiceCard(s) {
     const card = document.createElement('div'); card.className = 'service-card'; card.draggable = true;
-    card.addEventListener('dragstart', e => handleDragStart(e, s)); card.addEventListener('dragend', handleDragEnd);
+    card.addEventListener('dragstart', e => handleDragStart(e, s));
+    card.addEventListener('dragend', handleDragEnd);
     card.addEventListener('click', e => { if (!e.target.closest('.card-actions') && !card.classList.contains('dragging')) window.open(s.url, '_blank'); });
     const acts = document.createElement('div'); acts.className = 'card-actions';
-    const eb = document.createElement('button'); eb.className = 'card-btn edit'; eb.title = 'Editar'; eb.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>'; eb.addEventListener('click', e => { e.stopPropagation(); openEditService(s); }); acts.appendChild(eb);
-    const db = document.createElement('button'); db.className = 'card-btn delete'; db.title = 'Eliminar'; db.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>'; db.addEventListener('click', e => { e.stopPropagation(); deleteServiceConfirm(s.id, s.title); }); acts.appendChild(db);
+    const eb = document.createElement('button'); eb.className = 'card-btn edit'; eb.title = 'Editar';
+    eb.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+    eb.addEventListener('click', e => { e.stopPropagation(); openEditService(s); }); acts.appendChild(eb);
+    const db = document.createElement('button'); db.className = 'card-btn delete'; db.title = 'Eliminar';
+    db.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
+    db.addEventListener('click', e => { e.stopPropagation(); deleteServiceConfirm(s.id, s.title); }); acts.appendChild(db);
     const iw = document.createElement('div'); iw.className = 'service-icon';
-    if (s.icon) { const img = document.createElement('img'); img.src = s.icon; img.alt = s.title; img.addEventListener('error', () => setFallbackIcon(iw)); iw.appendChild(img); } else setFallbackIcon(iw);
+    if (s.icon) { const img = document.createElement('img'); img.src = s.icon; img.alt = s.title; img.addEventListener('error', () => setFallbackIcon(iw)); iw.appendChild(img); }
+    else setFallbackIcon(iw);
     const te = document.createElement('div'); te.className = 'service-title'; te.textContent = s.title;
     const ue = document.createElement('div'); ue.className = 'service-url'; ue.textContent = s.description || s.url;
     card.appendChild(acts); card.appendChild(iw); card.appendChild(te); card.appendChild(ue);
@@ -379,45 +672,155 @@ function buildServiceCard(s) {
 
 function updateGroupSelect() {
     const gm = getGroupMap(), sel = document.getElementById('service-group'), cv = sel.value;
-    sel.innerHTML = '<option value="">Sin grupo</option>' + Object.keys(gm).sort().map(g => '<option value="' + escapeHtml(g) + '"' + (g === cv ? ' selected' : '') + '>' + escapeHtml(g) + '</option>').join('');
+    sel.innerHTML = '<option value="">Sin grupo</option>' +
+        Object.keys(gm).sort().map(g => '<option value="' + escapeHtml(g) + '"' + (g === cv ? ' selected' : '') + '>' + escapeHtml(g) + '</option>').join('');
 }
 
 // ═══════════════════════════════════════════════
 // SERVICES API
 // ═══════════════════════════════════════════════
-async function addServiceAPI(title, icon, url, description, group) { const r = await fetch('/api/services', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title, icon, url, description: description||'', group: group||'Sin Grupo', order:0}) }); const ns = await r.json(); services.push(ns); if (group) localGroups = localGroups.filter(g => g !== group); renderAll(); showToast('\u2713 "' + title + '" agregado'); }
-async function updateServiceAPI(id, title, icon, url, description, group) { const r = await fetch('/api/services', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id, title, icon, url, description: description||'', group: group||'Sin Grupo', order:0}) }); const up = await r.json(); services = services.map(s => s.id === id ? up : s); renderAll(); showToast('\u270F\uFE0F "' + title + '" actualizado'); }
-async function deleteServiceConfirm(id, name) { showConfirm('Eliminar servicio', '¿Eliminar "' + name + '"? Esta acción no se puede deshacer.', '\u{1F5D1}\uFE0F', 'Eliminar', async () => { await fetch('/api/services', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id}) }); services = services.filter(s => s.id !== id); renderAll(); showToast('\u{1F5D1}\uFE0F "' + name + '" eliminado'); }); }
-async function deleteGroup(gn) { const gs = services.filter(s => (s.group||'Sin Grupo') === gn); showConfirm('Eliminar grupo', '¿Eliminar "' + gn + '"?' + (gs.length > 0 ? ' Esto eliminará ' + gs.length + ' servicio(s).' : ''), '\u{1F4C1}', 'Eliminar', async () => { for (const s of gs) await fetch('/api/services', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: s.id}) }); localGroups = localGroups.filter(g => g !== gn); await loadServices(); showToast('\u{1F5D1}\uFE0F Grupo "' + gn + '" eliminado'); }); }
-async function renameGroup(oldName, newName) { const gs = services.filter(s => (s.group||'Sin Grupo') === oldName); for (const s of gs) await fetch('/api/services', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...s, group: newName}) }); localGroups = localGroups.map(g => g === oldName ? newName : g); await loadServices(); showToast('\u270F\uFE0F Grupo renombrado a "' + newName + '"'); }
+async function addServiceAPI(title, icon, url, description, group) {
+    const r = await fetch('/api/services', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title, icon, url, description: description||'', group: group||'Sin Grupo', order:0}) });
+    const ns = await r.json(); services.push(ns);
+    if (group) localGroups = localGroups.filter(g => g !== group);
+    renderAll(); showToast('\u2713 "' + title + '" agregado');
+}
+
+async function updateServiceAPI(id, title, icon, url, description, group) {
+    const r = await fetch('/api/services', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id, title, icon, url, description: description||'', group: group||'Sin Grupo', order:0}) });
+    const up = await r.json(); services = services.map(s => s.id === id ? up : s);
+    renderAll(); showToast('\u270F\uFE0F "' + title + '" actualizado');
+}
+
+async function deleteServiceConfirm(id, name) {
+    showConfirm('Eliminar servicio', '¿Eliminar "' + name + '"? Esta acción no se puede deshacer.', '\u{1F5D1}\uFE0F', 'Eliminar', async () => {
+        await fetch('/api/services', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id}) });
+        services = services.filter(s => s.id !== id); renderAll(); showToast('\u{1F5D1}\uFE0F "' + name + '" eliminado');
+    });
+}
+
+async function deleteGroup(gn) {
+    const gs = services.filter(s => (s.group||'Sin Grupo') === gn);
+    showConfirm('Eliminar grupo', '¿Eliminar "' + gn + '"?' + (gs.length > 0 ? ' Esto eliminará ' + gs.length + ' servicio(s).' : ''), '\u{1F4C1}', 'Eliminar', async () => {
+        for (const s of gs) await fetch('/api/services', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: s.id}) });
+        localGroups = localGroups.filter(g => g !== gn); await loadServices(); showToast('\u{1F5D1}\uFE0F Grupo "' + gn + '" eliminado');
+    });
+}
+
+async function renameGroup(oldName, newName) {
+    const gs = services.filter(s => (s.group||'Sin Grupo') === oldName);
+    for (const s of gs) await fetch('/api/services', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...s, group: newName}) });
+    localGroups = localGroups.map(g => g === oldName ? newName : g);
+    await loadServices(); showToast('\u270F\uFE0F Grupo renombrado a "' + newName + '"');
+}
 
 // ═══════════════════════════════════════════════
 // MODAL SERVICIOS
 // ═══════════════════════════════════════════════
 function openModal(tab) {
-    modalMode = 'add'; document.getElementById('modalTitle').textContent = 'Agregar'; document.getElementById('modalSub').textContent = 'Elige qué quieres crear'; document.getElementById('modalTabs').style.display = 'flex'; document.getElementById('edit-service-id').value = ''; document.getElementById('edit-group-old-name').value = ''; document.getElementById('serviceSubmitBtn').textContent = 'Agregar Servicio'; document.getElementById('groupSubmitBtn').textContent = 'Crear Grupo'; document.getElementById('iconPreview').style.display = 'none'; uploadedIconData = null; clearIconUpload(); switchIconTab('url'); const cc = document.getElementById('char-count'); if (cc) cc.textContent = '0'; document.getElementById('mainModal').classList.add('active'); switchTab(tab || 'service');
+    modalMode = 'add';
+    document.getElementById('modalTitle').textContent = 'Agregar';
+    document.getElementById('modalSub').textContent = 'Elige qué quieres crear';
+    document.getElementById('modalTabs').style.display = 'flex';
+    document.getElementById('edit-service-id').value = '';
+    document.getElementById('edit-group-old-name').value = '';
+    document.getElementById('serviceSubmitBtn').textContent = 'Agregar Servicio';
+    document.getElementById('groupSubmitBtn').textContent = 'Crear Grupo';
+    document.getElementById('iconPreview').style.display = 'none';
+    uploadedIconData = null;
+    clearIconUpload();
+    switchIconTab('url');
+    const cc = document.getElementById('char-count'); if (cc) cc.textContent = '0';
+    document.getElementById('mainModal').classList.add('active');
+    switchTab(tab || 'service');
 }
+
 function openEditService(s) {
-    modalMode = 'edit'; document.getElementById('modalTitle').textContent = 'Editar Servicio'; document.getElementById('modalSub').textContent = 'Modificando "' + s.title + '"'; document.getElementById('modalTabs').style.display = 'none'; document.getElementById('edit-service-id').value = s.id; document.getElementById('title').value = s.title; document.getElementById('url').value = s.url; document.getElementById('description').value = s.description || ''; document.getElementById('serviceSubmitBtn').textContent = 'Guardar Cambios'; updateGroupSelect(); document.getElementById('service-group').value = s.group || ''; const cc = document.getElementById('char-count'); if (cc) cc.textContent = (s.description||'').length; uploadedIconData = null; document.getElementById('icon').value = ''; const preview = document.getElementById('iconPreview'), previewImg = document.getElementById('iconPreviewImg'); if (preview) preview.style.display = 'none';
-    if (s.icon) { if (s.icon.startsWith('data:image')) { uploadedIconData = s.icon; switchIconTab('upload'); if (previewImg && preview) { previewImg.src = s.icon; preview.style.display = 'flex'; } const label = document.getElementById('fileUploadArea')?.querySelector('.file-upload-label'); if (label) label.innerHTML = '<img src="' + s.icon + '" style="width:48px;height:48px;object-fit:contain;border-radius:8px;"><span style="font-weight:500;color:var(--text-primary);">Imagen actual</span><small>Click para cambiar</small>'; } else { document.getElementById('icon').value = s.icon; switchIconTab('url'); previewIconUrl(); } } else { switchIconTab('url'); clearIconUpload(); }
-    document.getElementById('mainModal').classList.add('active'); switchTab('service');
+    modalMode = 'edit';
+    document.getElementById('modalTitle').textContent = 'Editar Servicio';
+    document.getElementById('modalSub').textContent = 'Modificando "' + s.title + '"';
+    document.getElementById('modalTabs').style.display = 'none';
+    document.getElementById('edit-service-id').value = s.id;
+    document.getElementById('title').value = s.title;
+    document.getElementById('url').value = s.url;
+    document.getElementById('description').value = s.description || '';
+    document.getElementById('serviceSubmitBtn').textContent = 'Guardar Cambios';
+    updateGroupSelect();
+    document.getElementById('service-group').value = s.group || '';
+    const cc = document.getElementById('char-count'); if (cc) cc.textContent = (s.description||'').length;
+    uploadedIconData = null; document.getElementById('icon').value = '';
+    const preview = document.getElementById('iconPreview'), previewImg = document.getElementById('iconPreviewImg');
+    if (preview) preview.style.display = 'none';
+    if (s.icon) {
+        if (s.icon.startsWith('data:image')) {
+            uploadedIconData = s.icon; switchIconTab('upload');
+            if (previewImg && preview) { previewImg.src = s.icon; preview.style.display = 'flex'; }
+            const label = document.getElementById('fileUploadArea')?.querySelector('.file-upload-label');
+            if (label) label.innerHTML = '<img src="' + s.icon + '" style="width:48px;height:48px;object-fit:contain;border-radius:8px;"><span style="font-weight:500;color:var(--text-primary);">Imagen actual</span><small>Click para cambiar</small>';
+        } else { document.getElementById('icon').value = s.icon; switchIconTab('url'); previewIconUrl(); }
+    } else { switchIconTab('url'); clearIconUpload(); }
+    document.getElementById('mainModal').classList.add('active');
+    switchTab('service');
 }
-function openEditGroup(gn) { modalMode = 'edit'; document.getElementById('modalTitle').textContent = 'Renombrar Grupo'; document.getElementById('modalSub').textContent = 'Modificando "' + gn + '"'; document.getElementById('modalTabs').style.display = 'none'; document.getElementById('edit-group-old-name').value = gn; document.getElementById('new-group-name').value = gn; document.getElementById('groupSubmitBtn').textContent = 'Guardar Nombre'; document.getElementById('mainModal').classList.add('active'); switchTab('group'); setTimeout(() => document.getElementById('new-group-name').select(), 100); }
-function closeModal() { const m = document.getElementById('mainModal'); if (m) m.classList.remove('active'); const sf = document.getElementById('serviceForm'); if (sf) sf.reset(); const gf = document.getElementById('groupForm'); if (gf) gf.reset(); const p = document.getElementById('iconPreview'); if (p) p.style.display = 'none'; uploadedIconData = null; clearIconUpload(); switchIconTab('url'); const cc = document.getElementById('char-count'); if (cc) cc.textContent = '0'; modalMode = 'add'; }
-function switchTab(tab) { ['service','group'].forEach(t => { document.getElementById('tab-' + t).classList.toggle('active', t === tab); document.getElementById('panel-' + t).classList.toggle('active', t === tab); }); }
+
+function openEditGroup(gn) {
+    modalMode = 'edit';
+    document.getElementById('modalTitle').textContent = 'Renombrar Grupo';
+    document.getElementById('modalSub').textContent = 'Modificando "' + gn + '"';
+    document.getElementById('modalTabs').style.display = 'none';
+    document.getElementById('edit-group-old-name').value = gn;
+    document.getElementById('new-group-name').value = gn;
+    document.getElementById('groupSubmitBtn').textContent = 'Guardar Nombre';
+    document.getElementById('mainModal').classList.add('active');
+    switchTab('group');
+    setTimeout(() => document.getElementById('new-group-name').select(), 100);
+}
+
+function closeModal() {
+    const m = document.getElementById('mainModal'); if (m) m.classList.remove('active');
+    const sf = document.getElementById('serviceForm'); if (sf) sf.reset();
+    const gf = document.getElementById('groupForm'); if (gf) gf.reset();
+    const p = document.getElementById('iconPreview'); if (p) p.style.display = 'none';
+    uploadedIconData = null; clearIconUpload(); switchIconTab('url');
+    const cc = document.getElementById('char-count'); if (cc) cc.textContent = '0';
+    modalMode = 'add';
+}
+
+function switchTab(tab) {
+    ['service','group'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+        document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+    });
+}
 
 document.getElementById('serviceForm').addEventListener('submit', async e => {
     e.preventDefault();
-    const title = document.getElementById('title').value.trim(); let icon = document.getElementById('icon').value.trim(); const url = document.getElementById('url').value.trim(); const description = document.getElementById('description').value.trim(); const group = document.getElementById('service-group').value; const editId = parseInt(document.getElementById('edit-service-id').value) || 0;
-    if (uploadedIconData) icon = uploadedIconData; if (!title || !url) return;
-    if (modalMode === 'edit' && editId) await updateServiceAPI(editId, title, icon||'', url, description, group); else await addServiceAPI(title, icon||'', url, description, group);
+    const title = document.getElementById('title').value.trim();
+    let icon = document.getElementById('icon').value.trim();
+    const url = document.getElementById('url').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const group = document.getElementById('service-group').value;
+    const editId = parseInt(document.getElementById('edit-service-id').value) || 0;
+    if (uploadedIconData) icon = uploadedIconData;
+    if (!title || !url) return;
+    if (modalMode === 'edit' && editId) await updateServiceAPI(editId, title, icon||'', url, description, group);
+    else await addServiceAPI(title, icon||'', url, description, group);
     closeModal();
 });
+
 document.getElementById('groupForm').addEventListener('submit', async e => {
-    e.preventDefault(); const name = document.getElementById('new-group-name').value.trim(); const oldName = document.getElementById('edit-group-old-name').value; if (!name) return;
-    if (modalMode === 'edit' && oldName) { if (name !== oldName) await renameGroup(oldName, name); } else { if (!localGroups.includes(name) && !services.some(s => (s.group||'Sin Grupo') === name)) localGroups.push(name); renderAll(); showToast('\u{1F4C1} Grupo "' + name + '" creado'); }
+    e.preventDefault();
+    const name = document.getElementById('new-group-name').value.trim();
+    const oldName = document.getElementById('edit-group-old-name').value;
+    if (!name) return;
+    if (modalMode === 'edit' && oldName) { if (name !== oldName) await renameGroup(oldName, name); }
+    else {
+        if (!localGroups.includes(name) && !services.some(s => (s.group||'Sin Grupo') === name)) localGroups.push(name);
+        renderAll(); showToast('\u{1F4C1} Grupo "' + name + '" creado');
+    }
     closeModal();
 });
+
 document.getElementById('mainModal').addEventListener('click', e => { if (e.target.id === 'mainModal') closeModal(); });
 
 // ═══════════════════════════════════════════════
@@ -425,9 +828,20 @@ document.getElementById('mainModal').addEventListener('click', e => { if (e.targ
 // ═══════════════════════════════════════════════
 async function loadSysInfo() {
     try {
-        const r = await fetch('/api/sysinfo'); const t = await r.text(); if (!t) return; const d = JSON.parse(t); const bar = document.getElementById('sysinfo'); if (!bar) return;
-        const cc = d.cpu_percent > 80 ? 'danger' : d.cpu_percent > 60 ? 'warn' : ''; const rc = d.ram_percent > 80 ? 'danger' : d.ram_percent > 60 ? 'warn' : ''; const dc = d.disk_percent > 80 ? 'danger' : d.disk_percent > 60 ? 'warn' : '';
-        bar.innerHTML = '<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M17 14h-1v-1h-2v1h-1v2h1v1h2v-1h1v-2zm-4-7h2V5h-2v2zm-4 7H8v-1H6v1H5v2h1v1h2v-1h1v-2zM9 7h2V5H9v2zm4 4h2V9h-2v2zm-4 0h2V9H9v2zM21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>CPU&nbsp;<span class="chip-value">' + d.cpu_percent + '%</span><div class="chip-bar"><div class="chip-bar-fill ' + cc + '" style="width:' + d.cpu_percent + '%"></div></div></div><div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7C5.9 5 5 5.9 5 7v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2zm-4 6H7V7h10v10z"/></svg>RAM&nbsp;<span class="chip-value">' + d.ram_used_gb + '/' + d.ram_total_gb + ' GB</span><div class="chip-bar"><div class="chip-bar-fill ' + rc + '" style="width:' + d.ram_percent + '%"></div></div></div><div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M6 2h12l4 4v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 0v4h12V2M4 6v14h16V6H4zm8 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>Disco&nbsp;<span class="chip-value">' + d.disk_used_gb + '/' + d.disk_total_gb + ' GB</span><div class="chip-bar"><div class="chip-bar-fill ' + dc + '" style="width:' + d.disk_percent + '%"></div></div></div><div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>Up&nbsp;<span class="chip-value">' + d.uptime + '</span></div>';
+        const r = await fetch('/api/sysinfo');
+        const t = await r.text();
+        if (!t) return;
+        const d = JSON.parse(t);
+        const bar = document.getElementById('sysinfo');
+        if (!bar) return;
+        const cc = d.cpu_percent > 80 ? 'danger' : d.cpu_percent > 60 ? 'warn' : '';
+        const rc = d.ram_percent > 80 ? 'danger' : d.ram_percent > 60 ? 'warn' : '';
+        const dc = d.disk_percent > 80 ? 'danger' : d.disk_percent > 60 ? 'warn' : '';
+        bar.innerHTML =
+            '<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M17 14h-1v-1h-2v1h-1v2h1v1h2v-1h1v-2zm-4-7h2V5h-2v2zm-4 7H8v-1H6v1H5v2h1v1h2v-1h1v-2zM9 7h2V5H9v2zm4 4h2V9h-2v2zm-4 0h2V9H9v2zM21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>CPU&nbsp;<span class="chip-value">' + d.cpu_percent + '%</span><div class="chip-bar"><div class="chip-bar-fill ' + cc + '" style="width:' + d.cpu_percent + '%"></div></div></div>' +
+            '<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7C5.9 5 5 5.9 5 7v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2zm-4 6H7V7h10v10z"/></svg>RAM&nbsp;<span class="chip-value">' + d.ram_used_gb + '/' + d.ram_total_gb + ' GB</span><div class="chip-bar"><div class="chip-bar-fill ' + rc + '" style="width:' + d.ram_percent + '%"></div></div></div>' +
+            '<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M6 2h12l4 4v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 0v4h12V2M4 6v14h16V6H4zm8 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>Disco&nbsp;<span class="chip-value">' + d.disk_used_gb + '/' + d.disk_total_gb + ' GB</span><div class="chip-bar"><div class="chip-bar-fill ' + dc + '" style="width:' + d.disk_percent + '%"></div></div></div>' +
+            '<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>Up&nbsp;<span class="chip-value">' + d.uptime + '</span></div>';
     } catch(e) { const b = document.getElementById('sysinfo'); if (b) b.style.display = 'none'; }
 }
 
@@ -452,7 +866,11 @@ function previewBmIconUrl() {
 function updateBmFaviconPreview(url) {
     const box = document.getElementById('bmFaviconBox'), hint = document.getElementById('bmFaviconHint');
     if (!box || !hint) return;
-    if (!url) { box.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" style="fill:var(--text-secondary);opacity:0.4;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>'; hint.textContent = 'Se detectará automáticamente al guardar la URL'; return; }
+    if (!url) {
+        box.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" style="fill:var(--text-secondary);opacity:0.4;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>';
+        hint.textContent = 'Se detectará automáticamente al guardar la URL';
+        return;
+    }
     try {
         const faviconUrl = 'https://www.google.com/s2/favicons?sz=32&domain=' + new URL(url).origin;
         box.innerHTML = '<img src="' + faviconUrl + '" width="20" height="20" onerror="this.parentElement.innerHTML=\'<svg viewBox=\\\'0 0 24 24\\\' width=\\\'20\\\' height=\\\'20\\\' style=\\\'fill:var(--text-secondary)\\\'><path d=\\\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z\\\'/></svg>\'">';
@@ -479,10 +897,16 @@ function updateBmGroupSelect() {
     const gm = getBmGroupMap(), sel = document.getElementById('bookmark-group-select');
     if (!sel) return;
     const cv = sel.value;
-    sel.innerHTML = '<option value="">Sin grupo</option>' + Object.keys(gm).sort().map(g => '<option value="' + escapeHtml(g) + '"' + (g === cv ? ' selected' : '') + '>' + escapeHtml(g) + '</option>').join('');
+    sel.innerHTML = '<option value="">Sin grupo</option>' +
+        Object.keys(gm).sort().map(g => '<option value="' + escapeHtml(g) + '"' + (g === cv ? ' selected' : '') + '>' + escapeHtml(g) + '</option>').join('');
 }
 
-function toggleBmGroupCollapse(gn) { const i = collapsedBmGroups.indexOf(gn); if (i > -1) collapsedBmGroups.splice(i, 1); else collapsedBmGroups.push(gn); localStorage.setItem('collapsedBmGroups', JSON.stringify(collapsedBmGroups)); renderBookmarks(bookmarks); }
+function toggleBmGroupCollapse(gn) {
+    const i = collapsedBmGroups.indexOf(gn);
+    if (i > -1) collapsedBmGroups.splice(i, 1); else collapsedBmGroups.push(gn);
+    localStorage.setItem('collapsedBmGroups', JSON.stringify(collapsedBmGroups));
+    renderBookmarks(bookmarks);
+}
 
 function renderBookmarks(list) {
     const container = document.getElementById('bookmarkGroupsContainer'), empty = document.getElementById('bookmarksEmpty');
@@ -505,13 +929,21 @@ function renderBookmarks(list) {
         ttl.appendChild(document.createTextNode(gn));
         const cb = document.createElement('span'); cb.className = 'group-count'; cb.textContent = items.length; ttl.appendChild(cb);
         const acts = document.createElement('div'); acts.className = 'group-actions';
-        const collapseBtn = document.createElement('button'); collapseBtn.className = 'group-collapse-btn' + (collapsedBmGroups.includes(gn) ? ' collapsed' : ''); collapseBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>'; collapseBtn.addEventListener('click', () => toggleBmGroupCollapse(gn)); acts.appendChild(collapseBtn);
-        const renBtn = document.createElement('button'); renBtn.className = 'group-action-btn'; renBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Renombrar'; renBtn.addEventListener('click', () => openEditBmGroup(gn)); acts.appendChild(renBtn);
-        const delBtn = document.createElement('button'); delBtn.className = 'group-action-btn danger'; delBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Eliminar'; delBtn.addEventListener('click', () => deleteBmGroup(gn)); acts.appendChild(delBtn);
+        const collapseBtn = document.createElement('button');
+        collapseBtn.className = 'group-collapse-btn' + (collapsedBmGroups.includes(gn) ? ' collapsed' : '');
+        collapseBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>';
+        collapseBtn.addEventListener('click', () => toggleBmGroupCollapse(gn)); acts.appendChild(collapseBtn);
+        const renBtn = document.createElement('button'); renBtn.className = 'group-action-btn';
+        renBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Renombrar';
+        renBtn.addEventListener('click', () => openEditBmGroup(gn)); acts.appendChild(renBtn);
+        const delBtn = document.createElement('button'); delBtn.className = 'group-action-btn danger';
+        delBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Eliminar';
+        delBtn.addEventListener('click', () => deleteBmGroup(gn)); acts.appendChild(delBtn);
         hdr.appendChild(ttl); hdr.appendChild(acts); sec.appendChild(hdr);
         const listEl = document.createElement('div'); listEl.className = 'bookmarks-list' + (collapsedBmGroups.includes(gn) ? ' collapsed' : '');
-        if (items.length === 0) { const e = document.createElement('div'); e.style.cssText = 'color:var(--text-secondary);font-size:0.85rem;padding:16px 0;opacity:0.6;'; e.textContent = 'Grupo vacío — agrega marcadores aquí.'; listEl.appendChild(e); }
-        else items.forEach(bm => listEl.appendChild(buildBookmarkItem(bm)));
+        if (items.length === 0) {
+            const e = document.createElement('div'); e.style.cssText = 'color:var(--text-secondary);font-size:0.85rem;padding:16px 0;opacity:0.6;'; e.textContent = 'Grupo vacío — agrega marcadores aquí.'; listEl.appendChild(e);
+        } else { items.forEach(bm => listEl.appendChild(buildBookmarkItem(bm))); }
         sec.appendChild(listEl); container.appendChild(sec);
     });
     updateBmGroupSelect();
@@ -529,8 +961,12 @@ function buildBookmarkItem(bm) {
     const url = document.createElement('div'); url.className = 'bookmark-url'; url.textContent = bm.url;
     info.appendChild(name); info.appendChild(url);
     const acts = document.createElement('div'); acts.className = 'bookmark-actions';
-    const eb = document.createElement('button'); eb.className = 'bookmark-btn edit'; eb.title = 'Editar'; eb.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>'; eb.addEventListener('click', e => { e.stopPropagation(); openEditBookmark(bm.id); }); acts.appendChild(eb);
-    const db = document.createElement('button'); db.className = 'bookmark-btn delete'; db.title = 'Eliminar'; db.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>'; db.addEventListener('click', e => { e.stopPropagation(); deleteBookmarkConfirm(bm.id, bm.name); }); acts.appendChild(db);
+    const eb = document.createElement('button'); eb.className = 'bookmark-btn edit'; eb.title = 'Editar';
+    eb.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+    eb.addEventListener('click', e => { e.stopPropagation(); openEditBookmark(bm.id); }); acts.appendChild(eb);
+    const db = document.createElement('button'); db.className = 'bookmark-btn delete'; db.title = 'Eliminar';
+    db.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
+    db.addEventListener('click', e => { e.stopPropagation(); deleteBookmarkConfirm(bm.id, bm.name); }); acts.appendChild(db);
     item.appendChild(favicon); item.appendChild(info); item.appendChild(acts);
     item.addEventListener('click', () => window.open(bm.url, '_blank'));
     return item;
@@ -542,7 +978,12 @@ function filterBookmarks(query) {
     const filtered = q ? bookmarks.filter(bm => bm.name.toLowerCase().includes(q) || bm.url.toLowerCase().includes(q)) : bookmarks;
     renderBookmarks(filtered);
 }
-function clearBookmarkSearch() { const i = document.getElementById('bookmarkSearchInput'); if (i) i.value = ''; const c = document.getElementById('bookmarkSearchClear'); if (c) c.style.display = 'none'; renderBookmarks(bookmarks); }
+
+function clearBookmarkSearch() {
+    const i = document.getElementById('bookmarkSearchInput'); if (i) i.value = '';
+    const c = document.getElementById('bookmarkSearchClear'); if (c) c.style.display = 'none';
+    renderBookmarks(bookmarks);
+}
 
 // ═══════════════════════════════════════════════
 // BOOKMARKS - MODAL
@@ -589,7 +1030,12 @@ function openEditBookmark(id) {
     setTimeout(() => document.getElementById('bookmark-name').focus(), 100);
 }
 
-function closeBookmarkModal() { document.getElementById('bookmarkModal').classList.remove('active'); document.getElementById('bookmarkForm').reset(); bmIconMode = 'favicon'; switchBmIconTab('bm-favicon'); updateBmFaviconPreview(''); }
+function closeBookmarkModal() {
+    document.getElementById('bookmarkModal').classList.remove('active');
+    document.getElementById('bookmarkForm').reset();
+    bmIconMode = 'favicon'; switchBmIconTab('bm-favicon'); updateBmFaviconPreview('');
+}
+
 document.getElementById('bookmarkModal').addEventListener('click', e => { if (e.target.id === 'bookmarkModal') closeBookmarkModal(); });
 
 document.getElementById('bookmarkForm').addEventListener('submit', async e => {
@@ -605,10 +1051,12 @@ document.getElementById('bookmarkForm').addEventListener('submit', async e => {
     try {
         if (bookmarkMode === 'edit' && editId) {
             const r = await fetch('/api/bookmarks', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: editId, name, url, icon, group: group||'Sin Grupo'}) });
-            const updated = await r.json(); bookmarks = bookmarks.map(b => b.id === editId ? updated : b); showToast('\u270F\uFE0F "' + name + '" actualizado');
+            const updated = await r.json(); bookmarks = bookmarks.map(b => b.id === editId ? updated : b);
+            showToast('\u270F\uFE0F "' + name + '" actualizado');
         } else {
             const r = await fetch('/api/bookmarks', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, url, icon, group: group||'Sin Grupo'}) });
-            const newBm = await r.json(); bookmarks.push(newBm); showToast('\u2713 "' + name + '" guardado');
+            const newBm = await r.json(); bookmarks.push(newBm);
+            showToast('\u2713 "' + name + '" guardado');
             if (group && group !== 'Sin Grupo') localBmGroups = localBmGroups.filter(g => g !== group);
         }
         renderBookmarks(bookmarks); closeBookmarkModal();
@@ -617,7 +1065,11 @@ document.getElementById('bookmarkForm').addEventListener('submit', async e => {
 
 function deleteBookmarkConfirm(id, name) {
     showConfirm('Eliminar marcador', '¿Eliminar "' + name + '"?', '\u{1F516}', 'Eliminar', async () => {
-        try { await fetch('/api/bookmarks', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id}) }); bookmarks = bookmarks.filter(b => b.id !== id); renderBookmarks(bookmarks); showToast('\u{1F5D1}\uFE0F "' + name + '" eliminado'); } catch { showToast('\u2717 Error'); }
+        try {
+            await fetch('/api/bookmarks', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id}) });
+            bookmarks = bookmarks.filter(b => b.id !== id); renderBookmarks(bookmarks);
+            showToast('\u{1F5D1}\uFE0F "' + name + '" eliminado');
+        } catch { showToast('\u2717 Error'); }
     });
 }
 
@@ -633,6 +1085,7 @@ function openBookmarkGroupModal() {
     document.getElementById('bookmarkGroupModal').classList.add('active');
     setTimeout(() => document.getElementById('bm-group-name').focus(), 100);
 }
+
 function openEditBmGroup(gn) {
     document.getElementById('bmGroupModalTitle').textContent = 'Renombrar Grupo';
     document.getElementById('bmGroupModalSub').textContent = 'Modificando "' + gn + '"';
@@ -642,7 +1095,12 @@ function openEditBmGroup(gn) {
     document.getElementById('bookmarkGroupModal').classList.add('active');
     setTimeout(() => { const i = document.getElementById('bm-group-name'); i.focus(); i.select(); }, 100);
 }
-function closeBookmarkGroupModal() { document.getElementById('bookmarkGroupModal').classList.remove('active'); document.getElementById('bookmarkGroupForm').reset(); }
+
+function closeBookmarkGroupModal() {
+    document.getElementById('bookmarkGroupModal').classList.remove('active');
+    document.getElementById('bookmarkGroupForm').reset();
+}
+
 document.getElementById('bookmarkGroupModal').addEventListener('click', e => { if (e.target.id === 'bookmarkGroupModal') closeBookmarkGroupModal(); });
 
 document.getElementById('bookmarkGroupForm').addEventListener('submit', async e => {
@@ -652,7 +1110,10 @@ document.getElementById('bookmarkGroupForm').addEventListener('submit', async e 
     if (oldName) {
         if (name !== oldName) {
             const gs = bookmarks.filter(b => (b.group||'Sin Grupo') === oldName);
-            for (const b of gs) { const r = await fetch('/api/bookmarks', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...b, group: name}) }); const up = await r.json(); bookmarks = bookmarks.map(x => x.id === b.id ? up : x); }
+            for (const b of gs) {
+                const r = await fetch('/api/bookmarks', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...b, group: name}) });
+                const up = await r.json(); bookmarks = bookmarks.map(x => x.id === b.id ? up : x);
+            }
             localBmGroups = localBmGroups.map(g => g === oldName ? name : g);
             renderBookmarks(bookmarks); showToast('\u270F\uFE0F Grupo renombrado a "' + name + '"');
         }
@@ -677,8 +1138,13 @@ async function deleteBmGroup(gn) {
 // LOAD BOOKMARKS
 // ═══════════════════════════════════════════════
 async function loadBookmarks() {
-    try { const r = await fetch('/api/bookmarks'); const t = await r.text(); bookmarks = t ? JSON.parse(t) : []; if (!Array.isArray(bookmarks)) bookmarks = []; renderBookmarks(bookmarks); }
-    catch(e) { console.error(e); renderBookmarks([]); }
+    try {
+        const r = await fetch('/api/bookmarks');
+        const t = await r.text();
+        bookmarks = t ? JSON.parse(t) : [];
+        if (!Array.isArray(bookmarks)) bookmarks = [];
+        renderBookmarks(bookmarks);
+    } catch(e) { console.error(e); renderBookmarks([]); }
 }
 
 // ═══════════════════════════════════════════════
@@ -722,11 +1188,20 @@ let rssFeeds = [];
 let rssMode = 'add';
 let rssRefreshIntervals = new Map();
 
+// ─── FIX 1: auto-fetch feeds sin caché al cargar ───────────────────────────
 async function loadRSSFeeds() {
     try {
         const r = await fetch('/api/rss');
         rssFeeds = await r.json() || [];
         renderRSSFeeds();
+        // Fetch automático para feeds sin caché o con caché vacío
+        for (const feed of rssFeeds) {
+            let items = [];
+            try { items = JSON.parse(feed.cached_items || '[]'); } catch {}
+            if (items.length === 0) {
+                await fetchRSSContent(feed.id, true);
+            }
+        }
         rssFeeds.forEach(feed => startRSSRefresh(feed.id));
     } catch(e) { console.error(e); renderRSSFeeds(); }
 }
@@ -752,119 +1227,80 @@ function buildRSSCard(feed) {
     card.className = 'rss-feed-card';
     card.id = 'rss-feed-' + feed.id;
 
-    const header = document.createElement('div');
-    header.className = 'rss-feed-header';
+    const header = document.createElement('div'); header.className = 'rss-feed-header';
+    const titleArea = document.createElement('div'); titleArea.className = 'rss-feed-title-area';
 
-    const titleArea = document.createElement('div');
-    titleArea.className = 'rss-feed-title-area';
-
-    const title = document.createElement('div');
-    title.className = 'rss-feed-title';
+    const title = document.createElement('div'); title.className = 'rss-feed-title';
     title.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M6.18 15.64c-1.12 0-2.03.91-2.03 2.03s.91 2.03 2.03 2.03 2.03-.91 2.03-2.03-.91-2.03-2.03-2.03zM4 8.5C7.04 8.5 10.04 9.65 12.35 11.96 14.66 14.27 15.81 17.27 15.81 20.31h2.52c0-7.91-6.45-14.36-14.36-14.36V8.5zm0-3.75C10.66 4.75 16.31 7.14 20.18 11 24.05 14.86 26.44 20.51 26.44 27.17h2.52C28.96 12.48 15.49-.99.01-.99v2.76z"/></svg>' + escapeHtml(feed.title);
 
-    const urlEl = document.createElement('div');
-    urlEl.className = 'rss-feed-url';
-    urlEl.textContent = feed.url;
+    const urlEl = document.createElement('div'); urlEl.className = 'rss-feed-url'; urlEl.textContent = feed.url;
+    titleArea.appendChild(title); titleArea.appendChild(urlEl);
 
-    titleArea.appendChild(title);
-    titleArea.appendChild(urlEl);
-
-    const actions = document.createElement('div');
-    actions.className = 'rss-feed-actions';
+    const actions = document.createElement('div'); actions.className = 'rss-feed-actions';
 
     const refreshBtn = document.createElement('button');
-    refreshBtn.className = 'rss-feed-btn refresh';
-    refreshBtn.title = 'Actualizar';
+    refreshBtn.className = 'rss-feed-btn refresh'; refreshBtn.title = 'Actualizar';
     refreshBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>';
-    refreshBtn.addEventListener('click', () => fetchRSSContent(feed.id));
-    actions.appendChild(refreshBtn);
+    refreshBtn.addEventListener('click', () => fetchRSSContent(feed.id)); actions.appendChild(refreshBtn);
 
     const editBtn = document.createElement('button');
-    editBtn.className = 'rss-feed-btn edit';
-    editBtn.title = 'Editar';
+    editBtn.className = 'rss-feed-btn edit'; editBtn.title = 'Editar';
     editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
-    editBtn.addEventListener('click', () => openEditRSS(feed));
-    actions.appendChild(editBtn);
+    editBtn.addEventListener('click', () => openEditRSS(feed)); actions.appendChild(editBtn);
 
     const delBtn = document.createElement('button');
-    delBtn.className = 'rss-feed-btn delete';
-    delBtn.title = 'Eliminar';
+    delBtn.className = 'rss-feed-btn delete'; delBtn.title = 'Eliminar';
     delBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
-    delBtn.addEventListener('click', () => deleteRSSConfirm(feed.id, feed.title));
-    actions.appendChild(delBtn);
+    delBtn.addEventListener('click', () => deleteRSSConfirm(feed.id, feed.title)); actions.appendChild(delBtn);
 
-    header.appendChild(titleArea);
-    header.appendChild(actions);
+    header.appendChild(titleArea); header.appendChild(actions);
 
-    const meta = document.createElement('div');
-    meta.className = 'rss-feed-meta';
+    const meta = document.createElement('div'); meta.className = 'rss-feed-meta';
     meta.innerHTML = '<svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Mostrando últimas ' + feed.max_entries + ' entradas';
     if (feed.last_fetch_at) {
-        const lastFetch = new Date(feed.last_fetch_at).toLocaleString('es-ES');
-        meta.innerHTML += ' &nbsp;•&nbsp; Última actualización: ' + lastFetch;
+        meta.innerHTML += ' &nbsp;•&nbsp; Última actualización: ' + new Date(feed.last_fetch_at).toLocaleString('es-ES');
     }
 
     const itemsContainer = document.createElement('div');
     itemsContainer.className = 'rss-items';
     itemsContainer.id = 'rss-items-' + feed.id;
 
-    // Parsear items cacheados — ahora son RSSItemJSON con {title, link, pubDate}
     let items = [];
     try { items = JSON.parse(feed.cached_items || '[]'); } catch {}
 
     if (items.length === 0) {
         itemsContainer.innerHTML = '<div class="rss-loading">Cargando entradas...</div>';
-        setTimeout(() => fetchRSSContent(feed.id, true), 100);
     } else {
         items.forEach(item => itemsContainer.appendChild(buildRSSItem(item)));
     }
 
-    card.appendChild(header);
-    card.appendChild(meta);
-    card.appendChild(itemsContainer);
+    card.appendChild(header); card.appendChild(meta); card.appendChild(itemsContainer);
     return card;
 }
 
 function buildRSSItem(item) {
-    const el = document.createElement('div');
-    el.className = 'rss-item';
-
-    // El backend ahora envía { title, link, pubDate }
+    const el = document.createElement('div'); el.className = 'rss-item';
     const itemLink = item.link || '';
     const itemTitle = (item.title || '').trim() || 'Sin título';
+    if (itemLink) { el.style.cursor = 'pointer'; el.addEventListener('click', () => window.open(itemLink, '_blank')); }
 
-    if (itemLink) {
-        el.style.cursor = 'pointer';
-        el.addEventListener('click', () => window.open(itemLink, '_blank'));
-    }
+    const bullet = document.createElement('div'); bullet.className = 'rss-item-bullet';
+    const content = document.createElement('div'); content.className = 'rss-item-content';
+    const titleEl = document.createElement('div'); titleEl.className = 'rss-item-title'; titleEl.textContent = itemTitle;
+    const dateEl = document.createElement('div'); dateEl.className = 'rss-item-date';
 
-    const bullet = document.createElement('div');
-    bullet.className = 'rss-item-bullet';
-
-    const content = document.createElement('div');
-    content.className = 'rss-item-content';
-
-    const titleEl = document.createElement('div');
-    titleEl.className = 'rss-item-title';
-    titleEl.textContent = itemTitle;
-
-    const dateEl = document.createElement('div');
-    dateEl.className = 'rss-item-date';
     if (item.pubDate) {
         try {
             const d = new Date(item.pubDate);
-            if (!isNaN(d.getTime())) {
-                dateEl.textContent = d.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
-            } else {
-                dateEl.textContent = item.pubDate;
-            }
+            dateEl.textContent = !isNaN(d.getTime())
+                ? d.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })
+                : item.pubDate;
         } catch { dateEl.textContent = item.pubDate; }
     }
 
     content.appendChild(titleEl);
     if (dateEl.textContent) content.appendChild(dateEl);
-    el.appendChild(bullet);
-    el.appendChild(content);
+    el.appendChild(bullet); el.appendChild(content);
     return el;
 }
 
@@ -884,15 +1320,20 @@ async function fetchRSSContent(feedId, silent = false) {
                 itemsContainer.innerHTML = '<div class="rss-loading" style="opacity:0.6;">No hay entradas disponibles</div>';
             }
         }
+        // Actualizar meta con nueva fecha
+        const metaEl = document.querySelector('#rss-feed-' + feedId + ' .rss-feed-meta');
         const feed = rssFeeds.find(f => f.id === feedId);
         if (feed) {
             feed.last_fetch_at = data.last_fetch;
             feed.cached_items = JSON.stringify(data.items || []);
+            if (metaEl) {
+                metaEl.innerHTML = '<svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Mostrando últimas ' + feed.max_entries + ' entradas &nbsp;•&nbsp; Última actualización: ' + new Date(data.last_fetch).toLocaleString('es-ES');
+            }
         }
-        if (!silent) showToast('✓ Feed actualizado');
+        if (!silent) showToast('\u2713 Feed actualizado');
     } catch(e) {
         console.error('RSS fetch error:', e);
-        if (!silent) showToast('✗ Error al actualizar feed');
+        if (!silent) showToast('\u2717 Error al actualizar feed');
         const itemsContainer = document.getElementById('rss-items-' + feedId);
         if (itemsContainer && itemsContainer.innerHTML.includes('Cargando')) {
             itemsContainer.innerHTML = '<div class="rss-loading" style="color:var(--danger,#e74c3c);opacity:0.8;">Error al cargar el feed</div>';
@@ -944,30 +1385,33 @@ if (rssForm) {
         if (!title || !url) return;
         try {
             if (rssMode === 'edit' && editId) {
-                await fetch('/api/rss', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: editId, title, url, max_entries: maxEntries})});
-                showToast('✏️ Feed actualizado');
+                // ─── Editar feed existente ──────────────────────────────────
+                await fetch('/api/rss', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: editId, title, url, max_entries: maxEntries}) });
+                showToast('\u270F\uFE0F Feed actualizado');
+                await loadRSSFeeds();
+                closeRSSModal();
             } else {
-                await fetch('/api/rss', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title, url, max_entries: maxEntries})});
-                showToast('✓ Feed guardado');
+                // ─── FIX 2: fetch inmediato tras crear feed nuevo ───────────
+                const res = await fetch('/api/rss', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title, url, max_entries: maxEntries}) });
+                const newFeed = await res.json();
+                showToast('\u2713 Feed guardado');
+                await loadRSSFeeds();
+                closeRSSModal();
+                // Fetch inmediato sin esperar el intervalo de 5 minutos
+                await fetchRSSContent(newFeed.id, false);
             }
-            await loadRSSFeeds();
-            closeRSSModal();
-        } catch { showToast('✗ Error al guardar'); }
+        } catch { showToast('\u2717 Error al guardar'); }
     });
 }
 
 function deleteRSSConfirm(id, title) {
-    showConfirm('Eliminar feed', '¿Eliminar "' + title + '"?', '📰', 'Eliminar', async () => {
+    showConfirm('Eliminar feed', '¿Eliminar "' + title + '"?', '\u{1F4F0}', 'Eliminar', async () => {
         try {
-            await fetch('/api/rss', {method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})});
-            if (rssRefreshIntervals.has(id)) {
-                clearInterval(rssRefreshIntervals.get(id));
-                rssRefreshIntervals.delete(id);
-            }
+            await fetch('/api/rss', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id}) });
+            if (rssRefreshIntervals.has(id)) { clearInterval(rssRefreshIntervals.get(id)); rssRefreshIntervals.delete(id); }
             rssFeeds = rssFeeds.filter(f => f.id !== id);
-            renderRSSFeeds();
-            showToast('🗑️ Feed eliminado');
-        } catch { showToast('✗ Error'); }
+            renderRSSFeeds(); showToast('\u{1F5D1}\uFE0F Feed eliminado');
+        } catch { showToast('\u2717 Error'); }
     });
 }
 
