@@ -128,6 +128,46 @@ type AdguardStats struct {
         TimeLabels     []string           `json:"time_labels"`
 }
 
+// ─── SYNCTHING TYPES ───────────────────────────────────────────────────────
+
+type SyncthingFolder struct {
+        ID    string `json:"id"`
+        Label string `json:"label"`
+        Path  string `json:"path"`
+}
+
+type SyncthingDevice struct {
+        DeviceID string `json:"deviceID"`
+        Name     string `json:"name"`
+}
+
+type SyncthingConfig struct {
+        Folders []SyncthingFolder `json:"folders"`
+        Devices []SyncthingDevice `json:"devices"`
+}
+
+type SyncthingCompletion struct {
+        Completion  float64 `json:"completion"`
+        GlobalBytes int64   `json:"globalBytes"`
+        LocalBytes  int64   `json:"localBytes"`
+        NeedBytes   int64   `json:"needBytes"`
+        NeedDeletes int     `json:"needDeletes"`
+        NeedFiles   int     `json:"needFiles"`
+}
+
+type SyncthingFolderStatus struct {
+        FolderID   string              `json:"folder_id"`
+        Label      string              `json:"label"`
+        Completion SyncthingCompletion `json:"completion"`
+        Reachable  bool                `json:"reachable"`
+}
+
+type SyncthingStats struct {
+        Version string                  `json:"version"`
+        Folders []SyncthingFolderStatus `json:"folders"`
+        MyID    string                  `json:"my_id"`
+}
+
 var db *sql.DB
 
 func initDB() {
@@ -226,7 +266,7 @@ func initDB() {
         if err == nil && count == 0 {
                 db.Exec("ALTER TABLE bookmarks ADD COLUMN sort_order INTEGER DEFAULT 0")
         }
-        // Migración: agregar columnas de credenciales AdGuard a integrations
+        // Migración: agregar columnas de credenciales AdGuard/Syncthing a integrations
         err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('integrations') WHERE name='username'").Scan(&count)
         if err == nil && count == 0 {
                 db.Exec("ALTER TABLE integrations ADD COLUMN username TEXT DEFAULT ''")
@@ -690,7 +730,6 @@ func fetchAdguardStats(w http.ResponseWriter, r *http.Request) {
                 return
         }
 
-        // Obtener credenciales de la DB
         var instanceURL, username, password string
         err := db.QueryRow("SELECT url, COALESCE(username,''), COALESCE(password,'') FROM integrations WHERE id=?", req.ID).
                 Scan(&instanceURL, &username, &password)
@@ -746,7 +785,6 @@ func fetchAdguardStats(w http.ResponseWriter, r *http.Request) {
                 stats.BlockedPercent = int(float64(raw.BlockedQueries) / float64(raw.TotalQueries) * 100)
         }
 
-        // Top 5 dominios bloqueados
         type domainCount struct {
                 domain string
                 count  int
@@ -774,11 +812,9 @@ func fetchAdguardStats(w http.ResponseWriter, r *http.Request) {
                 })
         }
 
-        // Series para el gráfico (últimas 24h agrupadas en 8 barras)
         queriesSeries := raw.QueriesSeries
         blockedSeries := raw.BlockedSeries
 
-        // Normalizar a exactamente 24 puntos
         for len(queriesSeries) < hoursSpan {
                 queriesSeries = append([]int{0}, queriesSeries...)
         }
@@ -815,7 +851,6 @@ func fetchAdguardStats(w http.ResponseWriter, r *http.Request) {
         }
         stats.Series = bars
 
-        // Etiquetas de tiempo para las 8 barras
         now := time.Now()
         labels := make([]string, numBars)
         for h := hoursSpan; h > 0; h -= hoursPerBar {
@@ -824,7 +859,159 @@ func fetchAdguardStats(w http.ResponseWriter, r *http.Request) {
         }
         stats.TimeLabels = labels
 
-        // Guardar en caché
+        cacheJSON, _ := json.Marshal(stats)
+        syncNow := time.Now().Format(time.RFC3339)
+        db.Exec("UPDATE integrations SET last_sync=?, cached_data=? WHERE id=?", syncNow, string(cacheJSON), req.ID)
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+                "stats":     stats,
+                "last_sync": syncNow,
+        })
+}
+
+// ─── SYNCTHING ENDPOINT ────────────────────────────────────────────────────
+
+func fetchSyncthingStats(w http.ResponseWriter, r *http.Request) {
+        var req struct {
+                ID int `json:"id"`
+        }
+        if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }
+
+        // username = API Key, password = folder IDs (comma-separated, optional)
+        var instanceURL, apiKey, folderIDs string
+        err := db.QueryRow("SELECT url, COALESCE(username,''), COALESCE(password,'') FROM integrations WHERE id=?", req.ID).
+                Scan(&instanceURL, &apiKey, &folderIDs)
+        if err != nil {
+                http.Error(w, "integration not found", http.StatusNotFound)
+                return
+        }
+
+        baseURL := strings.TrimRight(instanceURL, "/")
+        client := &http.Client{Timeout: 15 * time.Second}
+
+        makeReq := func(path string) (*http.Response, error) {
+                hreq, err := http.NewRequest("GET", baseURL+path, nil)
+                if err != nil {
+                        return nil, err
+                }
+                hreq.Header.Set("X-API-Key", apiKey)
+                return client.Do(hreq)
+        }
+
+        // 1. Version
+        var version string
+        if resp, err := makeReq("/rest/system/version"); err == nil {
+                defer resp.Body.Close()
+                var ver struct {
+                        Version string `json:"version"`
+                }
+                if body, err := io.ReadAll(resp.Body); err == nil {
+                        json.Unmarshal(body, &ver)
+                        version = ver.Version
+                }
+        }
+
+        // 2. My device ID
+        var myID string
+        if resp, err := makeReq("/rest/system/status"); err == nil {
+                defer resp.Body.Close()
+                var sysStatus struct {
+                        MyID string `json:"myID"`
+                }
+                if body, err := io.ReadAll(resp.Body); err == nil {
+                        json.Unmarshal(body, &sysStatus)
+                        myID = sysStatus.MyID
+                }
+        }
+
+        // 3. Config (to get folder list)
+        var config SyncthingConfig
+        configResp, err := makeReq("/rest/system/config")
+        if err != nil {
+                http.Error(w, "failed to connect to Syncthing: "+err.Error(), http.StatusBadGateway)
+                return
+        }
+        defer configResp.Body.Close()
+
+        if configResp.StatusCode == http.StatusUnauthorized {
+                http.Error(w, "invalid Syncthing API key", http.StatusUnauthorized)
+                return
+        }
+        if configResp.StatusCode == http.StatusForbidden {
+                http.Error(w, "Syncthing API key forbidden", http.StatusForbidden)
+                return
+        }
+
+        configBody, err := io.ReadAll(configResp.Body)
+        if err != nil {
+                http.Error(w, "failed to read config", http.StatusInternalServerError)
+                return
+        }
+        if err := json.Unmarshal(configBody, &config); err != nil {
+                http.Error(w, "failed to parse config: "+err.Error(), http.StatusInternalServerError)
+                return
+        }
+
+        // 4. Filter to requested folder IDs (if any)
+        targetFolders := config.Folders
+        if folderIDs != "" {
+                ids := strings.Split(folderIDs, ",")
+                idMap := map[string]bool{}
+                for _, id := range ids {
+                        trimmed := strings.TrimSpace(id)
+                        if trimmed != "" {
+                                idMap[trimmed] = true
+                        }
+                }
+                if len(idMap) > 0 {
+                        var filtered []SyncthingFolder
+                        for _, f := range config.Folders {
+                                if idMap[f.ID] {
+                                        filtered = append(filtered, f)
+                                }
+                        }
+                        if len(filtered) > 0 {
+                                targetFolders = filtered
+                        }
+                }
+        }
+
+        // 5. Completion per folder
+        var folderStatuses []SyncthingFolderStatus
+        for _, folder := range targetFolders {
+                status := SyncthingFolderStatus{
+                        FolderID: folder.ID,
+                        Label:    folder.Label,
+                }
+                if status.Label == "" {
+                        status.Label = folder.ID
+                }
+
+                compResp, err := makeReq("/rest/db/completion?folder=" + folder.ID)
+                if err == nil && compResp.StatusCode == 200 {
+                        defer compResp.Body.Close()
+                        compBody, _ := io.ReadAll(compResp.Body)
+                        var comp SyncthingCompletion
+                        if json.Unmarshal(compBody, &comp) == nil {
+                                status.Completion = comp
+                                status.Reachable = true
+                        }
+                } else {
+                        status.Reachable = false
+                }
+                folderStatuses = append(folderStatuses, status)
+        }
+
+        stats := SyncthingStats{
+                Version: version,
+                Folders: folderStatuses,
+                MyID:    myID,
+        }
+
         cacheJSON, _ := json.Marshal(stats)
         syncNow := time.Now().Format(time.RFC3339)
         db.Exec("UPDATE integrations SET last_sync=?, cached_data=? WHERE id=?", syncNow, string(cacheJSON), req.ID)
@@ -1058,8 +1245,11 @@ func main() {
 
         http.HandleFunc("/api/integrations/sync", cors(syncIntegration, "POST, OPTIONS"))
 
-        // Nuevo endpoint dedicado para AdGuard
+        // AdGuard endpoint
         http.HandleFunc("/api/adguard/stats", cors(fetchAdguardStats, "POST, OPTIONS"))
+
+        // Syncthing endpoint
+        http.HandleFunc("/api/syncthing/stats", cors(fetchSyncthingStats, "POST, OPTIONS"))
 
         http.HandleFunc("/api/settings", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
