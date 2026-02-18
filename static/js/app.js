@@ -1190,13 +1190,11 @@ let rssFeeds = [];
 let rssMode = 'add';
 let rssRefreshIntervals = new Map();
 
-// ─── FIX 1: auto-fetch feeds sin caché al cargar ───────────────────────────
 async function loadRSSFeeds() {
     try {
         const r = await fetch('/api/rss');
         rssFeeds = await r.json() || [];
         renderRSSFeeds();
-        // Fetch automático para feeds sin caché o con caché vacío
         for (const feed of rssFeeds) {
             let items = [];
             try { items = JSON.parse(feed.cached_items || '[]'); } catch {}
@@ -1322,7 +1320,6 @@ async function fetchRSSContent(feedId, silent = false) {
                 itemsContainer.innerHTML = '<div class="rss-loading" style="opacity:0.6;">No hay entradas disponibles</div>';
             }
         }
-        // Actualizar meta con nueva fecha
         const metaEl = document.querySelector('#rss-feed-' + feedId + ' .rss-feed-meta');
         const feed = rssFeeds.find(f => f.id === feedId);
         if (feed) {
@@ -1387,19 +1384,16 @@ if (rssForm) {
         if (!title || !url) return;
         try {
             if (rssMode === 'edit' && editId) {
-                // ─── Editar feed existente ──────────────────────────────────
                 await fetch('/api/rss', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id: editId, title, url, max_entries: maxEntries}) });
                 showToast('\u270F\uFE0F Feed actualizado');
                 await loadRSSFeeds();
                 closeRSSModal();
             } else {
-                // ─── FIX 2: fetch inmediato tras crear feed nuevo ───────────
                 const res = await fetch('/api/rss', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title, url, max_entries: maxEntries}) });
                 const newFeed = await res.json();
                 showToast('\u2713 Feed guardado');
                 await loadRSSFeeds();
                 closeRSSModal();
-                // Fetch inmediato sin esperar el intervalo de 5 minutos
                 await fetchRSSContent(newFeed.id, false);
             }
         } catch { showToast('\u2717 Error al guardar'); }
@@ -1422,9 +1416,8 @@ if (rssModal) {
     rssModal.addEventListener('click', e => { if (e.target.id === 'rssModal') closeRSSModal(); });
 }
 
-
 // ═══════════════════════════════════════════════════════════════
-// INTEGRATIONS — append this entire block to the END of app.js
+// INTEGRATIONS (Uptime Kuma + AdGuard Home)
 // ═══════════════════════════════════════════════════════════════
 
 let integrations = [];
@@ -1437,7 +1430,6 @@ async function loadIntegrations() {
         const r = await fetch('/api/integrations');
         integrations = await r.json() || [];
         renderIntegrations();
-        // Auto-sync on load and start intervals
         for (const it of integrations) {
             await syncIntegrationData(it.id, true);
         }
@@ -1465,39 +1457,38 @@ function renderIntegrations() {
     integrations.forEach(it => container.appendChild(buildIntegrationCard(it)));
 }
 
-// ─── BUILD UPTIME KUMA CARD ──────────────────────────────────────
+// ─── BUILD CARD (Uptime Kuma + AdGuard) ──────────────────────────
 function buildIntegrationCard(it) {
     const card = document.createElement('div');
     card.className = 'integration-card';
     card.id = 'integration-card-' + it.id;
+    const isAdguard = it.itype === 'adguard';
 
-    // ── HEADER ──
     const header = document.createElement('div'); header.className = 'integration-card-header';
     const titleArea = document.createElement('div'); titleArea.className = 'integration-card-title-area';
 
-    const badge = document.createElement('div'); badge.className = 'integration-type-badge integration-type-uptime_kuma';
-    badge.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/></svg> Uptime Kuma';
+    const badge = document.createElement('div');
+    badge.className = 'integration-type-badge integration-type-' + (it.itype || 'uptime_kuma');
+    badge.innerHTML = isAdguard
+        ? '<svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> AdGuard Home'
+        : '<svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10"/></svg> Uptime Kuma';
 
     const nameEl = document.createElement('div'); nameEl.className = 'integration-card-name'; nameEl.textContent = it.name;
     const urlEl = document.createElement('div'); urlEl.className = 'integration-card-url'; urlEl.textContent = it.url;
-
     titleArea.appendChild(badge); titleArea.appendChild(nameEl); titleArea.appendChild(urlEl);
 
     const actions = document.createElement('div'); actions.className = 'integration-card-actions';
 
-    // Refresh btn
     const refreshBtn = document.createElement('button');
     refreshBtn.className = 'integration-btn refresh'; refreshBtn.title = 'Sincronizar ahora';
     refreshBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>';
     refreshBtn.addEventListener('click', () => syncIntegrationData(it.id, false)); actions.appendChild(refreshBtn);
 
-    // Edit btn
     const editBtn = document.createElement('button');
     editBtn.className = 'integration-btn edit'; editBtn.title = 'Editar';
     editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
     editBtn.addEventListener('click', () => openEditIntegration(it)); actions.appendChild(editBtn);
 
-    // Delete btn
     const delBtn = document.createElement('button');
     delBtn.className = 'integration-btn delete'; delBtn.title = 'Eliminar';
     delBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
@@ -1506,29 +1497,24 @@ function buildIntegrationCard(it) {
     header.appendChild(titleArea); header.appendChild(actions);
     card.appendChild(header);
 
-    // ── META BAR ──
-    const meta = document.createElement('div'); meta.className = 'integration-meta';
-    meta.id = 'integration-meta-' + it.id;
+    const meta = document.createElement('div'); meta.className = 'integration-meta'; meta.id = 'integration-meta-' + it.id;
     meta.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Sincronizando cada 60 s';
     if (it.last_sync) {
         meta.innerHTML += ' &nbsp;•&nbsp; Última sync: ' + new Date(it.last_sync).toLocaleString('es-ES');
     }
     card.appendChild(meta);
 
-    // ── MONITORS GRID ──
-    const monitorsGrid = document.createElement('div');
-    monitorsGrid.className = 'uk-monitors-grid';
-    monitorsGrid.id = 'uk-monitors-' + it.id;
+    const contentEl = document.createElement('div'); contentEl.className = 'uk-monitors-grid'; contentEl.id = 'uk-monitors-' + it.id;
+    let cached = {}; try { cached = JSON.parse(it.cached_data || '{}'); } catch {}
 
-    // Try to render from cached_data
-    let cached = {};
-    try { cached = JSON.parse(it.cached_data || '{}'); } catch {}
-    if (cached && cached.publicGroupList && cached.publicGroupList.length > 0) {
-        renderUptimeKumaMonitors(monitorsGrid, cached);
+    if (isAdguard) {
+        if (cached && cached.total_queries !== undefined) renderAdguardCard(contentEl, cached);
+        else contentEl.innerHTML = '<div class="uk-loading">Sincronizando con AdGuard Home...</div>';
     } else {
-        monitorsGrid.innerHTML = '<div class="uk-loading">Sincronizando con Uptime Kuma...</div>';
+        if (cached && cached.publicGroupList && cached.publicGroupList.length > 0) renderUptimeKumaMonitors(contentEl, cached);
+        else contentEl.innerHTML = '<div class="uk-loading">Sincronizando con Uptime Kuma...</div>';
     }
-    card.appendChild(monitorsGrid);
+    card.appendChild(contentEl);
     return card;
 }
 
@@ -1536,7 +1522,6 @@ function buildIntegrationCard(it) {
 function renderUptimeKumaMonitors(container, data) {
     container.innerHTML = '';
 
-    // Summary pill counts
     let totalMonitors = 0, upCount = 0, downCount = 0, pendingCount = 0;
     const allMonitors = [];
     (data.publicGroupList || []).forEach(grp => {
@@ -1546,9 +1531,6 @@ function renderUptimeKumaMonitors(container, data) {
         });
     });
 
-    // Calculate per-monitor status from heartbeat data (if available)
-    // Uptime Kuma status-page API stores heartbeat status in monitorList items
-    // status: 0=down, 1=up, 2=pending, 3=maintenance
     allMonitors.forEach(m => {
         const st = m.status !== undefined ? m.status : 1;
         if (st === 1) upCount++;
@@ -1556,7 +1538,6 @@ function renderUptimeKumaMonitors(container, data) {
         else pendingCount++;
     });
 
-    // ── SUMMARY ROW ──
     const summary = document.createElement('div'); summary.className = 'uk-summary';
     const statusClass = downCount > 0 ? 'down' : 'up';
     const statusLabel = downCount > 0 ? `${downCount} caído${downCount > 1 ? 's' : ''}` : 'Todo operativo';
@@ -1569,14 +1550,12 @@ function renderUptimeKumaMonitors(container, data) {
         '</div>';
     container.appendChild(summary);
 
-    // ── PAGE TITLE ──
     if (data.config && data.config.title) {
         const title = document.createElement('div'); title.className = 'uk-page-title';
         title.textContent = data.config.title;
         container.appendChild(title);
     }
 
-    // ── GROUPS + MONITORS ──
     (data.publicGroupList || []).forEach(grp => {
         const groupEl = document.createElement('div'); groupEl.className = 'uk-group';
 
@@ -1595,12 +1574,10 @@ function renderUptimeKumaMonitors(container, data) {
 
             const monEl = document.createElement('div'); monEl.className = 'uk-monitor';
 
-            // Tags
             const tags = (m.tags || []).map(t =>
                 '<span class="uk-tag" style="background:' + (t.color || '#6b7280') + '22;color:' + (t.color || '#6b7280') + ';border-color:' + (t.color || '#6b7280') + '44;">' + escapeHtml(t.name) + '</span>'
             ).join('');
 
-            // Cert badge
             let certBadge = '';
             if (m.certExpiryDaysRemaining !== undefined) {
                 const days = m.certExpiryDaysRemaining;
@@ -1623,7 +1600,6 @@ function renderUptimeKumaMonitors(container, data) {
         container.appendChild(groupEl);
     });
 
-    // ── INCIDENTS ──
     if (data.incidents && data.incidents.length > 0) {
         const incSection = document.createElement('div'); incSection.className = 'uk-incidents';
         const incTitle = document.createElement('div'); incTitle.className = 'uk-incidents-title';
@@ -1640,42 +1616,102 @@ function renderUptimeKumaMonitors(container, data) {
     }
 }
 
+// ─── RENDER ADGUARD CARD ─────────────────────────────────────────
+function renderAdguardCard(container, stats) {
+    container.innerHTML = '';
+
+    const statsRow = document.createElement('div'); statsRow.className = 'ag-stats-row';
+    statsRow.innerHTML =
+        '<div class="ag-stat"><div class="ag-stat-value">' + (stats.total_queries||0).toLocaleString() + '</div><div class="ag-stat-label">Consultas totales</div></div>' +
+        '<div class="ag-stat"><div class="ag-stat-value ag-blocked">' + (stats.blocked_queries||0).toLocaleString() + '</div><div class="ag-stat-label">Bloqueadas</div></div>' +
+        '<div class="ag-stat"><div class="ag-stat-value">' + (stats.blocked_percent||0) + '%</div><div class="ag-stat-label">% Bloqueado</div></div>' +
+        '<div class="ag-stat"><div class="ag-stat-value">' + (stats.response_time_ms||0) + ' ms</div><div class="ag-stat-label">Latencia avg</div></div>';
+    container.appendChild(statsRow);
+
+    if (stats.series && stats.series.length > 0) {
+        const chartSection = document.createElement('div'); chartSection.className = 'ag-chart-section';
+        const chartTitle = document.createElement('div'); chartTitle.className = 'ag-chart-title'; chartTitle.textContent = 'Últimas 24 horas';
+        chartSection.appendChild(chartTitle);
+        const chart = document.createElement('div'); chart.className = 'ag-chart';
+        stats.series.forEach((bar, i) => {
+            const wrap = document.createElement('div'); wrap.className = 'ag-bar-wrap';
+            const stack = document.createElement('div'); stack.className = 'ag-bar-stack';
+            const total = document.createElement('div'); total.className = 'ag-bar-total';
+            total.style.height = (bar.percent_total||0) + '%'; total.title = 'Total: ' + (bar.queries||0);
+            const blocked = document.createElement('div'); blocked.className = 'ag-bar-blocked';
+            blocked.style.height = (bar.percent_blocked||0) + '%'; blocked.title = 'Bloqueadas: ' + (bar.blocked||0);
+            stack.appendChild(total); stack.appendChild(blocked); wrap.appendChild(stack);
+            if (stats.time_labels && stats.time_labels[i]) {
+                const lbl = document.createElement('div'); lbl.className = 'ag-bar-label'; lbl.textContent = stats.time_labels[i];
+                wrap.appendChild(lbl);
+            }
+            chart.appendChild(wrap);
+        });
+        chartSection.appendChild(chart);
+        const legend = document.createElement('div'); legend.className = 'ag-legend';
+        legend.innerHTML = '<span class="ag-legend-item"><span class="ag-legend-dot total"></span>Consultas</span><span class="ag-legend-item"><span class="ag-legend-dot blocked"></span>Bloqueadas</span>';
+        chartSection.appendChild(legend);
+        container.appendChild(chartSection);
+    }
+
+    if (stats.top_domains && stats.top_domains.length > 0) {
+        const topSection = document.createElement('div'); topSection.className = 'ag-top-section';
+        const topTitle = document.createElement('div'); topTitle.className = 'ag-top-title';
+        topTitle.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Top dominios bloqueados';
+        topSection.appendChild(topTitle);
+        stats.top_domains.forEach(d => {
+            const row = document.createElement('div'); row.className = 'ag-domain-row';
+            row.innerHTML =
+                '<div class="ag-domain-info"><span class="ag-domain-name">' + escapeHtml(d.domain) + '</span><span class="ag-domain-count">' + (d.count||0).toLocaleString() + ' bloqueos</span></div>' +
+                '<div class="ag-domain-bar-wrap"><div class="ag-domain-bar" style="width:' + (d.percent||0) + '%"></div><span class="ag-domain-pct">' + (d.percent||0) + '%</span></div>';
+            topSection.appendChild(row);
+        });
+        container.appendChild(topSection);
+    }
+}
+
 // ─── SYNC ────────────────────────────────────────────────────────
 async function syncIntegrationData(id, silent = false) {
+    const it = integrations.find(i => i.id === id);
     const refreshBtn = document.querySelector('#integration-card-' + id + ' .integration-btn.refresh');
     if (refreshBtn && !silent) refreshBtn.classList.add('spinning');
 
     try {
-        const r = await fetch('/api/integrations/sync', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ id })
-        });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const result = await r.json();
-
-        const monitorsEl = document.getElementById('uk-monitors-' + id);
-        if (monitorsEl) renderUptimeKumaMonitors(monitorsEl, result.data);
-
-        // Update meta timestamp
-        const metaEl = document.getElementById('integration-meta-' + id);
-        if (metaEl) {
-            metaEl.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Sincronizando cada 60 s &nbsp;•&nbsp; Última sync: ' + new Date(result.last_sync).toLocaleString('es-ES');
+        if (it && it.itype === 'adguard') {
+            const r = await fetch('/api/adguard/stats', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id })
+            });
+            if (!r.ok) throw new Error((await r.text()) || 'HTTP ' + r.status);
+            const result = await r.json();
+            const monitorsEl = document.getElementById('uk-monitors-' + id);
+            if (monitorsEl) renderAdguardCard(monitorsEl, result.stats);
+            const metaEl = document.getElementById('integration-meta-' + id);
+            if (metaEl) metaEl.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Sincronizando cada 60 s &nbsp;•&nbsp; Última sync: ' + new Date(result.last_sync).toLocaleString('es-ES');
+            const itIdx = integrations.findIndex(i => i.id === id);
+            if (itIdx !== -1) { integrations[itIdx].last_sync = result.last_sync; integrations[itIdx].cached_data = JSON.stringify(result.stats); }
+            if (!silent) showToast('✓ AdGuard sincronizado');
+        } else {
+            const r = await fetch('/api/integrations/sync', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id })
+            });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const result = await r.json();
+            const monitorsEl = document.getElementById('uk-monitors-' + id);
+            if (monitorsEl) renderUptimeKumaMonitors(monitorsEl, result.data);
+            const metaEl = document.getElementById('integration-meta-' + id);
+            if (metaEl) metaEl.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> Sincronizando cada 60 s &nbsp;•&nbsp; Última sync: ' + new Date(result.last_sync).toLocaleString('es-ES');
+            const itIdx = integrations.findIndex(i => i.id === id);
+            if (itIdx !== -1) { integrations[itIdx].last_sync = result.last_sync; integrations[itIdx].cached_data = JSON.stringify(result.data); }
+            if (!silent) showToast('✓ Integración sincronizada');
         }
-
-        // Update in-memory cache
-        const itIdx = integrations.findIndex(i => i.id === id);
-        if (itIdx !== -1) {
-            integrations[itIdx].last_sync = result.last_sync;
-            integrations[itIdx].cached_data = JSON.stringify(result.data);
-        }
-
-        if (!silent) showToast('✓ Integración sincronizada');
     } catch(e) {
         console.error('sync error:', e);
-        if (!silent) showToast('✗ Error al sincronizar');
+        if (!silent) showToast('✗ Error: ' + e.message);
         const monitorsEl = document.getElementById('uk-monitors-' + id);
-        if (monitorsEl && monitorsEl.innerHTML.includes('Sincronizando')) {
-            monitorsEl.innerHTML = '<div class="uk-loading" style="color:var(--danger);opacity:0.8;">Error al conectar con Uptime Kuma. Verifica la URL.</div>';
+        if (monitorsEl && (monitorsEl.innerHTML.includes('Sincronizando') || monitorsEl.innerHTML.includes('Cargando'))) {
+            monitorsEl.innerHTML = '<div class="uk-loading" style="color:var(--danger,#e74c3c);opacity:0.8;">Error al conectar. Verifica URL y credenciales.</div>';
         }
     } finally {
         if (refreshBtn) refreshBtn.classList.remove('spinning');
@@ -1683,6 +1719,27 @@ async function syncIntegrationData(id, silent = false) {
 }
 
 // ─── MODAL ───────────────────────────────────────────────────────
+function onIntegrationTypeChange() {
+    const type = document.getElementById('integration-type').value;
+    const creds = document.getElementById('adguard-credentials');
+    const urlLabel = document.getElementById('integration-url-label');
+    const urlInput = document.getElementById('integration-url');
+    const urlHint = document.getElementById('integration-url-hint');
+    if (type === 'adguard') {
+        creds.style.display = 'block';
+        urlLabel.textContent = 'URL de AdGuard Home';
+        urlInput.placeholder = 'http://192.168.1.1:3000';
+        urlHint.innerHTML = 'URL base sin slash final. Ej: <code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;">http://192.168.1.1:3000</code>';
+        document.getElementById('integration-name').placeholder = 'Ej: AdGuard Home';
+    } else {
+        creds.style.display = 'none';
+        urlLabel.textContent = 'URL de la API de Uptime Kuma';
+        urlInput.placeholder = 'https://status.tudominio.com/api/status-page/pagina';
+        urlHint.innerHTML = 'Formato: <code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;">https://&lt;URL&gt;/api/status-page/&lt;slug&gt;</code>';
+        document.getElementById('integration-name').placeholder = 'Ej: Mi Uptime Kuma';
+    }
+}
+
 function openIntegrationModal() {
     integrationMode = 'add';
     document.getElementById('integrationModalTitle').textContent = 'Nueva Integración';
@@ -1691,7 +1748,10 @@ function openIntegrationModal() {
     document.getElementById('integration-name').value = '';
     document.getElementById('integration-url').value = '';
     document.getElementById('integration-type').value = 'uptime_kuma';
+    const u = document.getElementById('integration-username'); if (u) u.value = '';
+    const p = document.getElementById('integration-password'); if (p) p.value = '';
     document.getElementById('integrationSubmitBtn').textContent = 'Guardar Integración';
+    onIntegrationTypeChange();
     document.getElementById('integrationModal').classList.add('active');
     setTimeout(() => document.getElementById('integration-name').focus(), 100);
 }
@@ -1705,6 +1765,8 @@ function openEditIntegration(it) {
     document.getElementById('integration-url').value = it.url;
     document.getElementById('integration-type').value = it.itype || 'uptime_kuma';
     document.getElementById('integrationSubmitBtn').textContent = 'Guardar Cambios';
+    onIntegrationTypeChange();
+    // No pre-llenamos contraseña por seguridad
     document.getElementById('integrationModal').classList.add('active');
     setTimeout(() => document.getElementById('integration-name').focus(), 100);
 }
@@ -1712,10 +1774,6 @@ function openEditIntegration(it) {
 function closeIntegrationModal() {
     document.getElementById('integrationModal').classList.remove('active');
     document.getElementById('integrationForm').reset();
-}
-
-function onIntegrationTypeChange() {
-    // Only uptime_kuma for now — placeholder for future types
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1732,12 +1790,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = document.getElementById('integration-url').value.trim();
             const itype = document.getElementById('integration-type').value;
             const editId = parseInt(document.getElementById('edit-integration-id').value) || 0;
+            const username = document.getElementById('integration-username')?.value.trim() || '';
+            const password = document.getElementById('integration-password')?.value || '';
             if (!name || !url) return;
             try {
                 if (integrationMode === 'edit' && editId) {
                     await fetch('/api/integrations', {
                         method: 'PUT', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ id: editId, name, url, itype })
+                        body: JSON.stringify({ id: editId, name, url, itype, username, password })
                     });
                     showToast('✏️ Integración actualizada');
                     await loadIntegrations();
@@ -1745,7 +1805,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     const res = await fetch('/api/integrations', {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ name, url, itype })
+                        body: JSON.stringify({ name, url, itype, username, password })
                     });
                     const newIt = await res.json();
                     showToast('✓ Integración guardada');
