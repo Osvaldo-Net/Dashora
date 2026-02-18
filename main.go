@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -46,14 +45,12 @@ type RSSFeed struct {
         CachedItems string `json:"cached_items"`
 }
 
-// RSSItemJSON es lo que se guarda en caché y se envía al frontend
 type RSSItemJSON struct {
         Title   string `json:"title"`
         Link    string `json:"link"`
         PubDate string `json:"pubDate"`
 }
 
-// Structs internos para parsear el XML del feed
 type rssXMLItem struct {
         Title       string `xml:"title"`
         Link        string `xml:"link"`
@@ -69,6 +66,15 @@ type rssXMLChannel struct {
 
 type rssXML struct {
         Channel rssXMLChannel `xml:"channel"`
+}
+
+type Integration struct {
+        ID         int    `json:"id"`
+        Name       string `json:"name"`
+        IType      string `json:"itype"`
+        URL        string `json:"url"`
+        LastSync   string `json:"last_sync"`
+        CachedData string `json:"cached_data"`
 }
 
 type SysInfo struct {
@@ -151,6 +157,19 @@ func initDB() {
                 cached_items TEXT DEFAULT '[]'
         );`
         if _, err = db.Exec(createRSSFeeds); err != nil {
+                log.Fatal(err)
+        }
+
+        createIntegrations := `
+        CREATE TABLE IF NOT EXISTS integrations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                itype TEXT NOT NULL DEFAULT 'uptime_kuma',
+                url TEXT NOT NULL,
+                last_sync TEXT DEFAULT '',
+                cached_data TEXT DEFAULT '{}'
+        );`
+        if _, err = db.Exec(createIntegrations); err != nil {
                 log.Fatal(err)
         }
 
@@ -409,34 +428,25 @@ func deleteRSSFeed(w http.ResponseWriter, r *http.Request) {
         json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 }
 
-// parseRSSFeed intenta parsear un feed RSS con múltiples estrategias
-// para manejar variaciones en el formato XML (link como texto, CDATA, etc.)
 func parseRSSFeed(body []byte, maxEntries int) ([]RSSItemJSON, error) {
-        // Estrategia 1: parseo estándar con xml:"link"
         var feed rssXML
         if err := xml.Unmarshal(body, &feed); err != nil {
                 return nil, err
         }
-
         items := feed.Channel.Items
         if len(items) > maxEntries {
                 items = items[:maxEntries]
         }
-
         result := make([]RSSItemJSON, 0, len(items))
         for _, item := range items {
                 link := strings.TrimSpace(item.Link)
-
-                // Si link está vacío, intentar usar GUID como fallback
                 if link == "" {
                         link = strings.TrimSpace(item.GUID)
                 }
-
                 title := strings.TrimSpace(item.Title)
                 if title == "" {
                         title = "Sin título"
                 }
-
                 result = append(result, RSSItemJSON{
                         Title:   title,
                         Link:    link,
@@ -454,7 +464,6 @@ func fetchRSSFeed(w http.ResponseWriter, r *http.Request) {
                 http.Error(w, err.Error(), http.StatusBadRequest)
                 return
         }
-
         var feedURL string
         var maxEntries int
         err := db.QueryRow("SELECT url, max_entries FROM rss_feeds WHERE id = ?", req.ID).Scan(&feedURL, &maxEntries)
@@ -462,7 +471,6 @@ func fetchRSSFeed(w http.ResponseWriter, r *http.Request) {
                 http.Error(w, "feed not found", http.StatusNotFound)
                 return
         }
-
         client := &http.Client{Timeout: 15 * time.Second}
         resp, err := client.Get(feedURL)
         if err != nil {
@@ -470,19 +478,16 @@ func fetchRSSFeed(w http.ResponseWriter, r *http.Request) {
                 return
         }
         defer resp.Body.Close()
-
         body, err := io.ReadAll(resp.Body)
         if err != nil {
                 http.Error(w, "failed to read feed", http.StatusInternalServerError)
                 return
         }
-
         jsonItems, err := parseRSSFeed(body, maxEntries)
         if err != nil {
                 http.Error(w, "failed to parse feed: "+err.Error(), http.StatusInternalServerError)
                 return
         }
-
         cachedItemsJSON, _ := json.Marshal(jsonItems)
         now := time.Now().Format(time.RFC3339)
         _, err = db.Exec("UPDATE rss_feeds SET last_fetch_at=?, cached_items=? WHERE id=?", now, string(cachedItemsJSON), req.ID)
@@ -490,12 +495,129 @@ func fetchRSSFeed(w http.ResponseWriter, r *http.Request) {
                 http.Error(w, "failed to update cache", http.StatusInternalServerError)
                 return
         }
-
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(map[string]interface{}{
                 "items":      jsonItems,
                 "last_fetch": now,
         })
+}
+
+// ─── INTEGRATIONS ──────────────────────────────────────────────────────────
+func getIntegrations(w http.ResponseWriter, r *http.Request) {
+        rows, err := db.Query("SELECT id, name, itype, url, COALESCE(last_sync,''), COALESCE(cached_data,'{}') FROM integrations ORDER BY id ASC")
+        if err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+        defer rows.Close()
+        items := make([]Integration, 0)
+        for rows.Next() {
+                var it Integration
+                if err := rows.Scan(&it.ID, &it.Name, &it.IType, &it.URL, &it.LastSync, &it.CachedData); err != nil {
+                        http.Error(w, err.Error(), http.StatusInternalServerError)
+                        return
+                }
+                items = append(items, it)
+        }
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(items)
+}
+
+func addIntegration(w http.ResponseWriter, r *http.Request) {
+        var it Integration
+        if err := json.NewDecoder(r.Body).Decode(&it); err != nil {
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }
+        if it.Name == "" || it.URL == "" {
+                http.Error(w, "name and url required", http.StatusBadRequest)
+                return
+        }
+        if it.IType == "" {
+                it.IType = "uptime_kuma"
+        }
+        result, err := db.Exec("INSERT INTO integrations (name, itype, url, last_sync, cached_data) VALUES (?, ?, ?, '', '{}')",
+                it.Name, it.IType, it.URL)
+        if err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+        id, _ := result.LastInsertId()
+        it.ID = int(id)
+        it.LastSync = ""
+        it.CachedData = "{}"
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(it)
+}
+
+func updateIntegration(w http.ResponseWriter, r *http.Request) {
+        var it Integration
+        if err := json.NewDecoder(r.Body).Decode(&it); err != nil {
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }
+        if _, err := db.Exec("UPDATE integrations SET name=?, itype=?, url=? WHERE id=?",
+                it.Name, it.IType, it.URL, it.ID); err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(it)
+}
+
+func deleteIntegration(w http.ResponseWriter, r *http.Request) {
+        var it Integration
+        if err := json.NewDecoder(r.Body).Decode(&it); err != nil {
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }
+        if _, err := db.Exec("DELETE FROM integrations WHERE id=?", it.ID); err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+}
+
+func syncIntegration(w http.ResponseWriter, r *http.Request) {
+        var req struct {
+                ID int `json:"id"`
+        }
+        if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+        }
+        var itURL, itType string
+        err := db.QueryRow("SELECT url, itype FROM integrations WHERE id=?", req.ID).Scan(&itURL, &itType)
+        if err != nil {
+                http.Error(w, "integration not found", http.StatusNotFound)
+                return
+        }
+        client := &http.Client{Timeout: 15 * time.Second}
+        resp, err := client.Get(itURL)
+        if err != nil {
+                http.Error(w, "failed to fetch: "+err.Error(), http.StatusInternalServerError)
+                return
+        }
+        defer resp.Body.Close()
+        body, err := io.ReadAll(resp.Body)
+        if err != nil {
+                http.Error(w, "failed to read body", http.StatusInternalServerError)
+                return
+        }
+        var raw json.RawMessage
+        if err := json.Unmarshal(body, &raw); err != nil {
+                http.Error(w, "invalid JSON from remote", http.StatusInternalServerError)
+                return
+        }
+        now := time.Now().Format(time.RFC3339)
+        _, err = db.Exec("UPDATE integrations SET last_sync=?, cached_data=? WHERE id=?", now, string(body), req.ID)
+        if err != nil {
+                http.Error(w, "failed to cache", http.StatusInternalServerError)
+                return
+        }
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{"data": raw, "last_sync": now})
 }
 
 // ─── SETTINGS ──────────────────────────────────────────────────────────────
@@ -658,59 +780,53 @@ func main() {
 
         http.HandleFunc("/api/services", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
-                case "GET":
-                        getServices(w, r)
-                case "POST":
-                        addService(w, r)
-                case "DELETE":
-                        deleteService(w, r)
-                case "PUT":
-                        updateService(w, r)
-                default:
-                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                case "GET":    getServices(w, r)
+                case "POST":   addService(w, r)
+                case "DELETE": deleteService(w, r)
+                case "PUT":    updateService(w, r)
+                default:       http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
                 }
         }, "GET, POST, PUT, DELETE, OPTIONS"))
 
         http.HandleFunc("/api/bookmarks", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
-                case "GET":
-                        getBookmarks(w, r)
-                case "POST":
-                        addBookmark(w, r)
-                case "PUT":
-                        updateBookmark(w, r)
-                case "DELETE":
-                        deleteBookmark(w, r)
-                default:
-                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                case "GET":    getBookmarks(w, r)
+                case "POST":   addBookmark(w, r)
+                case "PUT":    updateBookmark(w, r)
+                case "DELETE": deleteBookmark(w, r)
+                default:       http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
                 }
         }, "GET, POST, PUT, DELETE, OPTIONS"))
 
         http.HandleFunc("/api/rss", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
-                case "GET":
-                        getRSSFeeds(w, r)
-                case "POST":
-                        addRSSFeed(w, r)
-                case "PUT":
-                        updateRSSFeed(w, r)
-                case "DELETE":
-                        deleteRSSFeed(w, r)
-                default:
-                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                case "GET":    getRSSFeeds(w, r)
+                case "POST":   addRSSFeed(w, r)
+                case "PUT":    updateRSSFeed(w, r)
+                case "DELETE": deleteRSSFeed(w, r)
+                default:       http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
                 }
         }, "GET, POST, PUT, DELETE, OPTIONS"))
 
         http.HandleFunc("/api/rss/fetch", cors(fetchRSSFeed, "POST, OPTIONS"))
 
+        http.HandleFunc("/api/integrations", cors(func(w http.ResponseWriter, r *http.Request) {
+                switch r.Method {
+                case "GET":    getIntegrations(w, r)
+                case "POST":   addIntegration(w, r)
+                case "PUT":    updateIntegration(w, r)
+                case "DELETE": deleteIntegration(w, r)
+                default:       http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                }
+        }, "GET, POST, PUT, DELETE, OPTIONS"))
+
+        http.HandleFunc("/api/integrations/sync", cors(syncIntegration, "POST, OPTIONS"))
+
         http.HandleFunc("/api/settings", cors(func(w http.ResponseWriter, r *http.Request) {
                 switch r.Method {
-                case "GET":
-                        getSettings(w, r)
-                case "PUT":
-                        updateSettings(w, r)
-                default:
-                        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+                case "GET": getSettings(w, r)
+                case "PUT": updateSettings(w, r)
+                default:    http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
                 }
         }, "GET, PUT, OPTIONS"))
 
