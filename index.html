@@ -546,17 +546,26 @@
                 <label for="integration-type">Tipo de integración</label>
                 <select id="integration-type" onchange="onIntegrationTypeChange()">
                     <option value="uptime_kuma">Uptime Kuma</option>
+                    <option value="adguard">AdGuard Home</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="integration-name">Nombre</label>
-                <input type="text" id="integration-name" placeholder="Ej: Mi Uptime Kuma" autocomplete="off">
+                <input type="text" id="integration-name" placeholder="Ej: Mi AdGuard" autocomplete="off">
             </div>
             <div class="form-group" id="integration-url-group">
-                <label for="integration-url">URL de la API de Uptime Kuma</label>
-                <input type="url" id="integration-url" placeholder="https://status.tudominio.com/api/status-page/pagina">
-                <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:6px;line-height:1.5;">
-                    Formato: <code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px;">https://&lt;URL&gt;/api/status-page/&lt;slug&gt;</code>
+                <label for="integration-url" id="integration-url-label">URL</label>
+                <input type="url" id="integration-url" placeholder="https://adguard.tudominio.com">
+                <div id="integration-url-hint" style="font-size:0.75rem;color:var(--text-secondary);margin-top:6px;line-height:1.5;"></div>
+            </div>
+            <div id="adguard-credentials" style="display:none;">
+                <div class="form-group">
+                    <label for="integration-username">Usuario</label>
+                    <input type="text" id="integration-username" placeholder="admin" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="integration-password">Contraseña</label>
+                    <input type="password" id="integration-password" placeholder="••••••••" autocomplete="new-password">
                 </div>
             </div>
             <div class="button-group">
