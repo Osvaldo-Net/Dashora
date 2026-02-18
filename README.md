@@ -30,7 +30,7 @@ Sin dependencias en la nube. Sin telemetría. Solo tú y tus servicios.
 - **Grupos de servicios** — Organiza por categorías (medios, red, almacenamiento, etc.)
 - **Pestaña de marcadores** — Tus enlaces guardados, siempre a mano.
 - **Lector RSS integrado** — Tu Feeds RSS personalizada.
-- **Integraciónes con tus aplicaciones autoalojadas** — Admite integraciones con AdGuardHome y Uptime Kuma
+- **Integraciónes con tus aplicaciones autoalojadas** — Admite integraciones con AdGuardHome, Syncthing y Uptime Kuma
 - **Rápido y ligero** — Imagen Docker minimalista, arranca en segundos
 - **100% local** — Ningún dato sale de tu red
 
