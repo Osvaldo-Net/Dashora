@@ -1,4 +1,3 @@
-
 // -----------------------------------------------
 // GLOBALS
 // -----------------------------------------------
@@ -104,21 +103,39 @@ function closeSidebar() {
 // PAGE TAB SWITCHING
 // -----------------------------------------------
 function switchPageTab(tab) {
-    document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.id === 'tab-' + tab));
-    document.querySelectorAll('.page-panel').forEach(p => p.classList.toggle('active', p.id === 'page-' + tab));
+    // Tabs superiores (desktop)
+    document.querySelectorAll('.page-tab').forEach(t =>
+        t.classList.toggle('active', t.id === 'tab-' + tab)
+    );
+
+    // Bottom nav (móvil)
+    document.querySelectorAll('.bottom-nav-item').forEach(t =>
+        t.classList.toggle('active', t.dataset.tab === tab)
+    );
+
+    // Paneles de contenido
+    document.querySelectorAll('.page-panel').forEach(p =>
+        p.classList.toggle('active', p.id === 'page-' + tab)
+    );
+
     localStorage.setItem('activePageTab', tab);
 
+    // Sincronizar iconos de tema según tab
+    const theme = document.documentElement.getAttribute('data-theme');
+
     if (tab === 'rss') {
-        const t = document.documentElement.getAttribute('data-theme');
         const l = document.getElementById('theme-icon-light-rss');
         const d = document.getElementById('theme-icon-dark-rss');
-        if (l) l.style.display = t === 'dark' ? 'block' : 'none';
-        if (d) d.style.display = t === 'dark' ? 'none' : 'block';
+        if (l) l.style.display = theme === 'dark' ? 'block' : 'none';
+        if (d) d.style.display = theme === 'dark' ? 'none' : 'block';
     }
 
     if (tab === 'marcadores') {
-        const t = document.documentElement.getAttribute('data-theme');
-        updateThemeIconsBM(t);
+        updateThemeIconsBM(theme);
+    }
+
+    if (tab === 'integraciones') {
+        updateThemeIconsINT(theme);
     }
 }
 
@@ -130,6 +147,7 @@ function initTheme() {
     document.documentElement.setAttribute('data-theme', s);
     updateThemeIcon(s);
     updateThemeIconsBM(s);
+    updateThemeIconsINT(s);
 }
 
 function toggleTheme() {
@@ -139,6 +157,7 @@ function toggleTheme() {
     localStorage.setItem('theme', n);
     updateThemeIcon(n);
     updateThemeIconsBM(n);
+    updateThemeIconsINT(n);
 }
 
 function updateThemeIcon(t) {
