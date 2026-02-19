@@ -1,3 +1,4 @@
+
 // -----------------------------------------------
 // BACKGROUND
 // -----------------------------------------------
@@ -57,7 +58,22 @@ async function guardarFondo(imageData) {
 
 function applyBackgroundImage(imageData) {
     document.body.classList.add('has-background');
-    document.documentElement.style.setProperty('--background-image', 'url(' + imageData + ')');
+
+    const img = new Image();
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        // Reducir resolución al 75% — suficiente para fondo, más liviano
+        canvas.width = Math.min(img.width, 1440);
+        canvas.height = Math.round(img.height * (canvas.width / img.width));
+
+        const ctx = canvas.getContext('2d');
+        // Sin blur — imagen nítida
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const optimized = canvas.toDataURL('image/jpeg', 0.70);
+        document.documentElement.style.setProperty('--background-image', 'url(' + optimized + ')');
+    };
+    img.src = imageData;
 }
 
 async function updateBackgroundOpacity(value) {
