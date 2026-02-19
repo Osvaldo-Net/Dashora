@@ -107,17 +107,14 @@ docker run -d \
 
 <img src="https://github.com/user-attachments/assets/331aa432-6b73-4a51-8ef4-ca37934bc5fc" alt="Modo noche" />
 
+
+
 ### Tema personalizado
 
-<img src="https://github.com/user-attachments/assets/6b693461-ba8e-4c7f-a9ff-2fb81da13873" alt="Tema personalizado" />
 
-### Agregar servicios
+<img src="https://github.com/user-attachments/assets/9abeaa29-7ff2-4020-96b6-e780edaf55e0" alt="Tema personalizado" />
 
-<img src="https://github.com/user-attachments/assets/e9309cec-ed25-44e5-accd-d24c8ad58941" alt="Agregar servicios" />
 
-### Agregar grupos
-
-<img src="https://github.com/user-attachments/assets/f614a35b-33fb-4fec-b934-e3fde2d54839" alt="Agregar grupos" />
 
 ---
 
