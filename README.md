@@ -89,7 +89,10 @@ docker run -d \
 
 <img src="https://github.com/user-attachments/assets/66747056-ecc2-4d21-a93f-ed52d0eac724" alt="Modo día - vista principal" />
 
-<img src="https://github.com/user-attachments/assets/b176d51c-958a-4804-8de9-563ae757b152" alt="Modo día - servicios" />
+<img src="https://github.com/user-attachments/assets/b176d51c-958a-4804-8de9-563ae757b152" alt="Modo día - Marcadores" />
+
+<img src="https://github.com/user-attachments/assets/a314cebf-c9ce-4620-b5e7-920918f1df64" alt="Modo día - Lector RSS" />
+
 
 
 
