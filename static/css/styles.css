@@ -339,11 +339,7 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:700;color
     flex-shrink: 0;
     transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
-
-/* Wrapper */
 .int-collapsible { border-radius: 0; }
-
-/* Detail panel — collapsed */
 .int-collapsible .int-collapsible-detail {
     max-height: 0;
     overflow: hidden;
@@ -353,16 +349,12 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:700;color
                 margin-top 0.3s ease;
     margin-top: 0;
 }
-
-/* Expanded */
 .int-collapsible:not(.collapsed) .int-collapsible-detail {
     max-height: 5000px;
     opacity: 1;
     margin-top: 16px;
     overflow: visible;
 }
-
-/* Arrow */
 .int-collapsible:not(.collapsed) .int-collapse-trigger svg {
     transform: rotate(180deg);
 }
@@ -564,28 +556,33 @@ input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 
 .sysinfo-chip .chip-bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .6s ease;}
 .chip-bar-fill.warn{background:#d97706;}
 .chip-bar-fill.danger{background:#dc2626;}
-.toast {
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    opacity: 0;                            
-    pointer-events: none;            
-    background: var(--text-primary);
-    color: var(--bg-primary);
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: .875rem;
-    font-weight: 500;
-    z-index: 10000;
-    transition: transform .3s cubic-bezier(.34,1.36,.64,1), opacity .3s ease;  /* ← añadir opacity */
-    white-space: nowrap;
-    box-shadow: var(--shadow-lg);
+
+/* TOAST — con opacity para fix móvil */
+.toast{
+    position:fixed;
+    bottom:28px;
+    left:50%;
+    transform:translateX(-50%) translateY(100px);
+    opacity:0;
+    pointer-events:none;
+    background:var(--text-primary);
+    color:var(--bg-primary);
+    padding:12px 20px;
+    border-radius:10px;
+    font-size:.875rem;
+    font-weight:500;
+    z-index:10000;
+    transition:transform .3s cubic-bezier(.34,1.36,.64,1), opacity .3s ease;
+    white-space:nowrap;
+    box-shadow:var(--shadow-lg);
 }
-.toast.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;                             pointer-events: auto;              
-}.confirm-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);z-index:3000;align-items:center;justify-content:center;padding:16px;}
+.toast.show{
+    transform:translateX(-50%) translateY(0);
+    opacity:1;
+    pointer-events:auto;
+}
+
+.confirm-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);z-index:3000;align-items:center;justify-content:center;padding:16px;}
 .confirm-modal.active{display:flex;}
 .confirm-content{background:var(--bg-card);padding:28px;border-radius:16px;max-width:360px;width:100%;box-shadow:var(--shadow-lg);border:1px solid var(--border-color);animation:modalIn .2s cubic-bezier(.34,1.36,.64,1);text-align:center;}
 .confirm-icon{font-size:2.5rem;margin-bottom:12px;}
@@ -612,28 +609,17 @@ body.has-background .card-btn{background:rgba(255,255,255,.90)!important;}
 
 /* 16. BOTTOM NAV */
 .bottom-nav{display:none;}
-@media (max-width:768px) {
-    .bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-height);background:var(--bg-card);border-top:1px solid var(--border-color);z-index:500;box-shadow:0 -4px 20px rgba(0,0,0,.08);padding-bottom:env(safe-area-inset-bottom);}
-    body.has-background .bottom-nav{background:rgba(240,242,240,.80);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.2);}
-    [data-theme="dark"] body.has-background .bottom-nav{background:rgba(10,10,10,.80);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.08);}
-    .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:transparent;border:none;cursor:pointer;color:var(--text-secondary);transition:color var(--transition);padding:8px 0;font-family:'Space Grotesk',sans-serif;position:relative;-webkit-tap-highlight-color:transparent;outline:none;}
-    .bottom-nav-item svg{width:22px;height:22px;fill:currentColor;transition:transform var(--transition),fill var(--transition);}
-    .bottom-nav-item span{font-size:.68rem;font-weight:500;letter-spacing:.01em;transition:color var(--transition);}
-    .bottom-nav-item.active{color:var(--accent);}
-    .bottom-nav-item.active svg{transform:translateY(-2px);}
-    .bottom-nav-item::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%) scaleX(0);width:32px;height:3px;background:var(--accent);border-radius:0 0 4px 4px;transition:transform var(--transition);}
-    .bottom-nav-item.active::before{transform:translateX(-50%) scaleX(1);}
-    .page-tabs-nav{display:none;}
-    body{padding-bottom:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom))!important;}
-    .toast{bottom:calc(var(--bottom-nav-height) + 12px);}
-}
 
-/* 17. RESPONSIVE */
+/* ===============================================
+   17. RESPONSIVE — MOBILE FIXES
+   =============================================== */
+
 @media (min-width:1201px) {
     .sidebar{transform:none!important;}
     .sidebar-toggle{display:none!important;}
     .sidebar-overlay{display:none!important;}
 }
+
 @media (max-width:1200px) {
     body.sidebar-open{padding-right:24px;}
     .sidebar{transform:translateX(110%);background:var(--bg-primary);box-shadow:var(--shadow-lg);border-left:1px solid var(--border-color);top:0;height:100vh;padding:76px 24px 28px 24px;}
@@ -642,42 +628,213 @@ body.has-background .card-btn{background:rgba(255,255,255,.90)!important;}
     .sidebar-overlay.visible{pointer-events:auto;}
     .sidebar-toggle{display:flex;}
 }
+
 @media (max-width:768px) {
-    body{padding:12px;}
+
+    /* ── Layout base ── */
+    body{
+        padding:12px;
+        /* Eliminar cualquier overflow-x que cause scroll lateral */
+        overflow-x:hidden;
+    }
     body.sidebar-open{padding:12px;}
+
+    /* ── El container no debe tener overflow que cree scroll interno ── */
+    .container{
+        width:100%;
+        overflow-x:hidden;
+    }
+
+    /* ── Header: NO sticky en móvil, scrollea con el contenido ── */
+    header{
+        position:static !important;
+        top:auto !important;
+        z-index:auto !important;
+        padding:16px;
+        margin-bottom:16px;
+        /* Asegura que no haya transform/translate que lo "fije" visualmente */
+        transform:none !important;
+        will-change:auto !important;
+    }
+
     h1{font-size:1.6rem;}
-    header{padding:16px;}
     .header-top{flex-direction:column;align-items:flex-start;gap:12px;}
     .header-actions{width:100%;justify-content:flex-start;}
     .search-input{font-size:.85rem;padding:10px 40px 10px 40px;}
     .btn-text{display:none;}
     .header-btn{padding:9px 12px;}
+
+    /* ── Sysinfo ── */
     .sysinfo-section{padding:14px 16px;margin-bottom:20px;}
     .sysinfo-chip{font-size:.75rem;padding:8px 12px;}
+
+    /* ── Service cards ── */
     .services-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
     .service-card{padding:14px 12px 12px;cursor:pointer;}
     .service-icon{width:44px;height:44px;margin-bottom:10px;}
     .group-header{padding:10px 14px;}
+
+    /* ── Modal ── */
     .modal-content{padding:24px 20px;}
+
+    /* ── Sidebar width en móvil ── */
     .sidebar{width:100%;max-width:320px;}
     .clock-time{font-size:2.5rem;}
+
+    /* ── Ocultar card actions / group actions en touch ── */
     .card-actions,.card-menu-btn,.card-context-menu{display:none!important;}
     .group-action-btn{display:none!important;}
+
+    /* ── Bookmarks ── */
     .bookmark-actions{opacity:1;}
-    .bookmark-item{padding:12px 14px;}
+    .bookmark-item{
+        padding:12px 14px;
+        /* Deshabilitar transform en móvil para evitar scroll lateral */
+        transform:none !important;
+        transition:background var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+    .bookmark-item:hover{
+        transform:none !important;
+        background:var(--accent-dim);
+        border-color:var(--accent);
+    }
+    .bookmark-item::before{display:none;}
     .bookmarks-list{grid-template-columns:1fr;}
+
+    /* ── RSS: correcciones scroll móvil ── */
+    .rss-feed-card{
+        /* overflow visible para que el contenido expanda el card normalmente */
+        overflow:visible;
+    }
     .rss-feed-header{flex-direction:column;gap:12px;}
     .rss-feed-actions{width:100%;justify-content:flex-end;}
-    .uk-monitors{grid-template-columns:1fr;}
-    .integration-card{padding:16px;}
+
+    /* Deshabilitar translateX en rss-item para evitar scroll horizontal */
+    .rss-item{
+        transform:none !important;
+        transition:background var(--transition), border-color var(--transition);
+        /* Evitar que el contenido de título desborde */
+        overflow:hidden;
+    }
+    .rss-item:hover{
+        transform:none !important;
+        background:var(--accent-dim);
+        border-color:var(--accent);
+    }
+    .rss-item-title{
+        /* Permitir wrap del título en móvil */
+        white-space:normal;
+        word-break:break-word;
+        overflow:visible;
+    }
+    .rss-items{
+        /* Evitar overflow horizontal en el contenedor de items */
+        overflow:hidden;
+    }
+
+    /* ── Integraciones: scroll libre ── */
+    .integration-card{
+        padding:16px;
+        /* No fixed height que bloquee scroll */
+        overflow:visible;
+    }
     .integration-card-header{flex-direction:column;gap:10px;}
     .integration-card-actions{width:100%;justify-content:flex-end;}
     .uk-summary{flex-direction:column;align-items:flex-start;}
+    .uk-monitors{grid-template-columns:1fr;}
+
+    /* ── AdGuard stats ── */
     .ag-stats-row{grid-template-columns:repeat(2,1fr);}
+
+    /* ── Syncthing ── */
     .st-folders{grid-template-columns:1fr;}
     .st-header{flex-direction:column;align-items:flex-start;}
     .int-collapse-trigger{font-size:.75rem;padding:8px 12px;}
+
+    /* ── Toast en móvil: subir sobre bottom nav ── */
+    .toast{bottom:calc(var(--bottom-nav-height) + 12px);}
+
+    /* ── Bottom Nav visible en móvil ── */
+    .bottom-nav{
+        display:flex;
+        position:fixed;
+        bottom:0;
+        left:0;
+        right:0;
+        height:var(--bottom-nav-height);
+        background:var(--bg-card);
+        border-top:1px solid var(--border-color);
+        z-index:500;
+        box-shadow:0 -4px 20px rgba(0,0,0,.08);
+        padding-bottom:env(safe-area-inset-bottom);
+    }
+
+    body.has-background .bottom-nav{
+        background:rgba(240,242,240,.80);
+        backdrop-filter:blur(16px);
+        -webkit-backdrop-filter:blur(16px);
+        border-top:1px solid rgba(255,255,255,.2);
+    }
+    [data-theme="dark"] body.has-background .bottom-nav{
+        background:rgba(10,10,10,.80);
+        backdrop-filter:blur(16px);
+        -webkit-backdrop-filter:blur(16px);
+        border-top:1px solid rgba(255,255,255,.08);
+    }
+
+    .bottom-nav-item{
+        flex:1;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:4px;
+        background:transparent;
+        border:none;
+        cursor:pointer;
+        color:var(--text-secondary);
+        transition:color var(--transition);
+        padding:8px 0;
+        font-family:'Space Grotesk',sans-serif;
+        position:relative;
+        -webkit-tap-highlight-color:transparent;
+        outline:none;
+    }
+    .bottom-nav-item svg{
+        width:22px;
+        height:22px;
+        fill:currentColor;
+        transition:transform var(--transition),fill var(--transition);
+    }
+    .bottom-nav-item span{
+        font-size:.68rem;
+        font-weight:500;
+        letter-spacing:.01em;
+        transition:color var(--transition);
+    }
+    .bottom-nav-item.active{color:var(--accent);}
+    .bottom-nav-item.active svg{transform:translateY(-2px);}
+    .bottom-nav-item::before{
+        content:'';
+        position:absolute;
+        top:0;
+        left:50%;
+        transform:translateX(-50%) scaleX(0);
+        width:32px;
+        height:3px;
+        background:var(--accent);
+        border-radius:0 0 4px 4px;
+        transition:transform var(--transition);
+    }
+    .bottom-nav-item.active::before{transform:translateX(-50%) scaleX(1);}
+
+    /* Espacio inferior para que el contenido no quede bajo la bottom nav */
+    body{padding-bottom:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom))!important;}
+
+    /* Ocultar tabs desktop en móvil */
+    .page-tabs-nav{display:none;}
 }
+
 @media (max-width:400px) {
     .services-grid{grid-template-columns:repeat(3,1fr);gap:8px;}
     .service-card{padding:12px 8px 10px;}
