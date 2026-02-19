@@ -89,7 +89,9 @@ docker run -d \
 
 <img src="https://github.com/user-attachments/assets/66747056-ecc2-4d21-a93f-ed52d0eac724" alt="Modo día - vista principal" />
 
-<img src="https://github.com/user-attachments/assets/86f552d0-736b-40f3-aec7-20e17610f307" alt="Modo día - servicios" />
+<img src="https://github.com/user-attachments/assets/b176d51c-958a-4804-8de9-563ae757b152" alt="Modo día - servicios" />
+
+
 
 ### Modo noche
 
