@@ -93,6 +93,13 @@ docker run -d \
 
 <img src="https://github.com/user-attachments/assets/a314cebf-c9ce-4620-b5e7-920918f1df64" alt="Modo día - Lector RSS" />
 
+<img src="https://github.com/user-attachments/assets/c30ceb79-f8dd-4db0-8148-b96fb634e4a3" alt="Modo día - Integraciones 1" />
+
+<img src="https://github.com/user-attachments/assets/18a33194-2c18-4c52-91fa-869d467153af" alt="Modo día - Integraciones 2" />
+
+<img src="https://github.com/user-attachments/assets/30b932b4-b41a-47fc-a930-5d11578a990a" alt="Modo día - Integraciones 3" />
+
+
 
 
 
