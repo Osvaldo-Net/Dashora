@@ -42,12 +42,27 @@ function formatBytes(bytes) {
 // -----------------------------------------------
 // TOAST
 // -----------------------------------------------
+let _toastTimeout = null;
+
 function showToast(msg, duration = 2500) {
     const t = document.getElementById('toast');
     if (!t) return;
+
+    if (_toastTimeout) {
+        clearTimeout(_toastTimeout);
+        _toastTimeout = null;
+    }
+
     t.innerHTML = msg;
+    // Forzar reflow para reiniciar la animación si ya estaba visible
+    t.classList.remove('show');
+    void t.offsetHeight;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), duration);
+
+    _toastTimeout = setTimeout(() => {
+        t.classList.remove('show');
+        _toastTimeout = null;
+    }, duration);
 }
 
 // -----------------------------------------------
