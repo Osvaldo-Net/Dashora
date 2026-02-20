@@ -1,4 +1,4 @@
-FROM golang:1.21-bullseye AS builder
+FROM golang:1.26-bookworm AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY . .
 RUN CGO_ENABLED=1 go build -ldflags="-s -w" -o dashboard .
 
 # Imagen final ligera
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
