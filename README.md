@@ -19,7 +19,6 @@ Organiza, accede y controla todos tus servicios desde un solo lugar — bonito, 
 
 Dashora es un dashboard personal para **homelabs y laboratorios domésticos**. Agrega todos tus servicios autoalojados en una interfaz limpia, personalizable y accesible desde cualquier dispositivo.
 
-Sin dependencias en la nube. Sin telemetría. Solo tú y tus servicios.
 
 ---
 
