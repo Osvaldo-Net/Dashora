@@ -1,4 +1,3 @@
-
 // -----------------------------------------------
 // ICON HELPERS (SERVICES)
 // -----------------------------------------------
@@ -245,9 +244,6 @@ function renderAll() {
         const grid = document.createElement('div');
         grid.className = 'services-grid' + (collapsedGroups.includes(gn) ? ' collapsed' : '');
         grid.dataset.group = gn;
-        grid.addEventListener('dragover', handleDragOver);
-        grid.addEventListener('dragleave', handleDragLeave);
-        grid.addEventListener('drop', handleDrop);
 
         if (items.length === 0) {
             const e = document.createElement('div');
@@ -270,32 +266,153 @@ function toggleGroupCollapse(gn) {
 }
 
 // -----------------------------------------------
-// DRAG & DROP
+// DRAG MANUAL CON MOUSEMOVE (sin HTML5 drag API)
+// Funciona así:
+//  1. mousedown → iniciar timer de 300ms
+//  2. Si pasan 300ms sin soltar → activar modo drag
+//  3. mousemove → mover clon flotante
+//  4. mouseup   → detectar el grid destino y hacer drop
+//  5. Si soltó antes de 300ms → es un click normal
 // -----------------------------------------------
-function handleDragStart(e, service) { draggedService = service; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
-function handleDragEnd(e)            { e.target.classList.remove('dragging'); document.querySelectorAll('.services-grid').forEach(g => g.classList.remove('drag-over')); }
-function handleDragOver(e)           { if (e.preventDefault) e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('drag-over'); return false; }
-function handleDragLeave(e)          { e.currentTarget.classList.remove('drag-over'); }
 
-async function handleDrop(e) {
-    if (e.stopPropagation) e.stopPropagation();
-    e.currentTarget.classList.remove('drag-over');
-    const newGroup = e.currentTarget.dataset.group;
-    if (draggedService && draggedService.group !== newGroup) {
-        await updateServiceAPI(draggedService.id, draggedService.title, draggedService.icon, draggedService.url, draggedService.description, newGroup);
-        showToast('\u{1F500} "' + draggedService.title + '" movido a "' + newGroup + '"');
-    }
-    return false;
+let _drag = null; // estado global del drag activo
+
+function initManualDrag(card, service) {
+    const DELAY = 300;
+
+    card.addEventListener('mousedown', e => {
+        if (e.button !== 0 || e.target.closest('.card-actions')) return;
+        e.preventDefault(); // evitar selección de texto
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+        let   active = false;
+        let   clone  = null;
+        let   timer  = null;
+
+        // Rect original para posicionar el clon
+        const rect = card.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
+
+        function startDrag() {
+            active = true;
+            card.classList.add('dragging');
+            document.body.style.cursor = 'grabbing';
+            document.body.style.userSelect = 'none';
+
+            // Crear clon visual flotante
+            clone = card.cloneNode(true);
+            clone.style.cssText = [
+                'position:fixed',
+                'pointer-events:none',
+                'z-index:9999',
+                'width:' + rect.width + 'px',
+                'opacity:0.85',
+                'transform:rotate(3deg) scale(1.05)',
+                'box-shadow:0 20px 40px rgba(0,0,0,0.25)',
+                'transition:none',
+                'left:' + (e.clientX - offsetX) + 'px',
+                'top:'  + (e.clientY - offsetY) + 'px',
+            ].join(';');
+            document.body.appendChild(clone);
+
+            // Highlight de todos los grids como drop targets
+            document.querySelectorAll('.services-grid').forEach(g => {
+                g.classList.add('drag-target');
+            });
+
+            _drag = { service, card };
+        }
+
+        function onMove(e) {
+            if (!active) return;
+            clone.style.left = (e.clientX - offsetX) + 'px';
+            clone.style.top  = (e.clientY - offsetY) + 'px';
+
+            // Highlight del grid bajo el cursor
+            document.querySelectorAll('.services-grid').forEach(g => g.classList.remove('drag-over'));
+            const el = document.elementFromPoint(e.clientX, e.clientY);
+            if (el) {
+                const grid = el.closest('.services-grid');
+                if (grid) grid.classList.add('drag-over');
+            }
+        }
+
+        function onUp(e) {
+            clearTimeout(timer);
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+
+            if (!active) {
+                // No hubo drag → es click normal
+                window.open(service.url, '_blank');
+                return;
+            }
+
+            // Limpiar visual
+            card.classList.remove('dragging');
+            if (clone) clone.remove();
+            document.querySelectorAll('.services-grid').forEach(g => {
+                g.classList.remove('drag-over');
+                g.classList.remove('drag-target');
+            });
+
+            // Detectar grid destino
+            const el = document.elementFromPoint(e.clientX, e.clientY);
+            if (el) {
+                const grid = el.closest('.services-grid');
+                if (grid && grid.dataset.group && grid.dataset.group !== (service.group || 'Sin Grupo')) {
+                    const newGroup = grid.dataset.group;
+                    updateServiceAPI(service.id, service.title, service.icon, service.url, service.description, newGroup)
+                        .then(() => showToast('\u{1F500} "' + service.title + '" movido a "' + newGroup + '"'));
+                }
+            }
+
+            _drag = null;
+        }
+
+        // Iniciar timer — si pasan 300ms sin soltar, activar drag
+        timer = setTimeout(() => {
+            startDrag();
+        }, DELAY);
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+    });
 }
+
+// Drop zones: necesitamos resaltar grids durante el drag
+// Añadir estilos dinámicos una sola vez
+(function injectDragStyles() {
+    if (document.getElementById('_dragStyles')) return;
+    const st = document.createElement('style');
+    st.id = '_dragStyles';
+    st.textContent = `
+        .services-grid.drag-target {
+            outline: 2px dashed var(--accent);
+            outline-offset: 4px;
+            border-radius: 12px;
+        }
+        .services-grid.drag-over {
+            background: var(--accent-dim) !important;
+            outline-color: var(--accent);
+        }
+    `;
+    document.head.appendChild(st);
+})();
 
 // -----------------------------------------------
 // BUILD SERVICE CARD
 // -----------------------------------------------
 function buildServiceCard(s) {
-    const card = document.createElement('div'); card.className = 'service-card'; card.draggable = true;
-    card.addEventListener('dragstart', e => handleDragStart(e, s));
-    card.addEventListener('dragend', handleDragEnd);
-    card.addEventListener('click', e => { if (!e.target.closest('.card-actions') && !card.classList.contains('dragging')) window.open(s.url, '_blank'); });
+    const card = document.createElement('div');
+    card.className = 'service-card';
+    // Sin draggable nativo
+    card.draggable = false;
 
     const acts = document.createElement('div'); acts.className = 'card-actions';
     const eb = document.createElement('button'); eb.className = 'card-btn edit'; eb.title = 'Editar';
@@ -307,13 +424,20 @@ function buildServiceCard(s) {
     db.addEventListener('click', e => { e.stopPropagation(); deleteServiceConfirm(s.id, s.title); }); acts.appendChild(db);
 
     const iw = document.createElement('div'); iw.className = 'service-icon';
-    if (s.icon) { const img = document.createElement('img'); img.src = s.icon; img.alt = s.title; img.addEventListener('error', () => setFallbackIcon(iw)); iw.appendChild(img); }
-    else setFallbackIcon(iw);
+    if (s.icon) {
+        const img = document.createElement('img');
+        img.src = s.icon; img.alt = s.title;
+        img.addEventListener('error', () => setFallbackIcon(iw));
+        iw.appendChild(img);
+    } else { setFallbackIcon(iw); }
 
     const te = document.createElement('div'); te.className = 'service-title'; te.textContent = s.title;
-    const ue = document.createElement('div'); ue.className = 'service-url'; ue.textContent = s.description || s.url;
+    const ue = document.createElement('div'); ue.className = 'service-url';   ue.textContent = s.description || s.url;
 
     card.appendChild(acts); card.appendChild(iw); card.appendChild(te); card.appendChild(ue);
+
+    initManualDrag(card, s);
+
     return card;
 }
 
