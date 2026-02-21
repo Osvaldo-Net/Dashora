@@ -148,7 +148,3 @@ docker compose pull && docker compose up -d
 ```
 
 ---
-
-## Licencia
-
-MIT — úsalo, modifícalo y compártelo libremente.
