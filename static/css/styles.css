@@ -117,6 +117,7 @@ body.sidebar-open{padding-right:calc(var(--sidebar-width) + 48px);}
 .weather-detail-label{font-size:.72rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.03em;}
 .weather-detail-value{font-size:.95rem;font-weight:600;color:var(--text-primary);}
 .weather-location{font-size:.8rem;color:var(--text-secondary);text-align:center;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:4px;}
+.cw-weather-meta-item svg {display: inline-block;vertical-align: middle;margin-right: 2px;opacity: 0.75;}
 .weather-location svg{width:12px;height:12px;fill:var(--text-secondary);}
 .background-settings-container{background:var(--bg-card);border-radius:14px;padding:20px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm);}
 .background-settings-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0;}
