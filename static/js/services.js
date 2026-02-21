@@ -501,20 +501,61 @@ async function loadSysInfo() {
         const r = await fetch('/api/sysinfo');
         const t = await r.text();
         if (!t) return;
-        const d   = JSON.parse(t);
-        const bar = document.getElementById('sysinfo');
-        if (!bar) return;
-        const cc = d.cpu_percent  > 80 ? 'danger' : d.cpu_percent  > 60 ? 'warn' : '';
-        const rc = d.ram_percent  > 80 ? 'danger' : d.ram_percent  > 60 ? 'warn' : '';
-        const dc = d.disk_percent > 80 ? 'danger' : d.disk_percent > 60 ? 'warn' : '';
-        bar.innerHTML =
-            '<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M17 14h-1v-1h-2v1h-1v2h1v1h2v-1h1v-2zm-4-7h2V5h-2v2zm-4 7H8v-1H6v1H5v2h1v1h2v-1h1v-2zM9 7h2V5H9v2zm4 4h2V9h-2v2zm-4 0h2V9H9v2zM21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>CPU&nbsp;<span class="chip-value">' + d.cpu_percent + '%</span><div class="chip-bar"><div class="chip-bar-fill ' + cc + '" style="width:' + d.cpu_percent + '%"></div></div></div>' +
-            '<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7C5.9 5 5 5.9 5 7v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2zm-4 6H7V7h10v10z"/></svg>RAM&nbsp;<span class="chip-value">' + d.ram_used_gb + '/' + d.ram_total_gb + ' GB</span><div class="chip-bar"><div class="chip-bar-fill ' + rc + '" style="width:' + d.ram_percent + '%"></div></div></div>' +
-            '<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M6 2h12l4 4v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 0v4h12V2M4 6v14h16V6H4zm8 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>Disco&nbsp;<span class="chip-value">' + d.disk_used_gb + '/' + d.disk_total_gb + ' GB</span><div class="chip-bar"><div class="chip-bar-fill ' + dc + '" style="width:' + d.disk_percent + '%"></div></div></div>' +
-            '<div class="sysinfo-chip"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>Up&nbsp;<span class="chip-value">' + d.uptime + '</span></div>';
-    } catch(e) { const b = document.getElementById('sysinfo'); if (b) b.style.display = 'none'; }
-}
+        const d = JSON.parse(t);
 
+        const rows = document.getElementById('sysinfoRows');
+        if (!rows) return;
+
+        const cls = pct => pct > 80 ? 'danger' : pct > 60 ? 'warn' : 'ok';
+
+        const svgCpu  = `<svg viewBox="0 0 24 24" width="13" height="13"><path d="M17 14h-1v-1h-2v1h-1v2h1v1h2v-1h1v-2zm-4-7h2V5h-2v2zm-4 7H8v-1H6v1H5v2h1v1h2v-1h1v-2zM9 7h2V5H9v2zm4 4h2V9h-2v2zm-4 0h2V9H9v2zM21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>`;
+        const svgRam  = `<svg viewBox="0 0 24 24" width="13" height="13"><path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7C5.9 5 5 5.9 5 7v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2zm-4 6H7V7h10v10z"/></svg>`;
+        const svgDisk = `<svg viewBox="0 0 24 24" width="13" height="13"><path d="M6 2h12l4 4v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 0v4h12V2M4 6v14h16V6H4zm8 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>`;
+        const svgUp   = `<svg viewBox="0 0 24 24" width="13" height="13"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>`;
+
+        function metricRow(icon, label, value, pct) {
+            const c = cls(pct);
+            return `
+            <div class="sysinfo-widget-row">
+                <div class="sysinfo-widget-row-top">
+                    <span class="sysinfo-widget-row-label">${icon}${escapeHtml(label)}</span>
+                    <div class="sysinfo-widget-row-right">
+                        <span class="sysinfo-widget-row-value">${escapeHtml(String(value))}</span>
+                        <span class="sysinfo-pct-badge ${c}">${pct}%</span>
+                    </div>
+                </div>
+                <div class="sysinfo-widget-track">
+                    <div class="sysinfo-widget-fill ${c}" style="width:${Math.min(pct, 100)}%"></div>
+                </div>
+            </div>`;
+        }
+
+        let html = '';
+        html += metricRow(svgCpu, 'CPU', `${d.cpu_percent}%`, d.cpu_percent);
+        html += metricRow(svgRam, 'RAM', `${d.ram_used_gb} / ${d.ram_total_gb} GB`, d.ram_percent);
+
+        if (Array.isArray(d.disks) && d.disks.length > 0) {
+            d.disks.forEach(disk => {
+                html += metricRow(svgDisk, disk.name, `${disk.used_gb} / ${disk.total_gb} GB`, disk.percent);
+            });
+        } else {
+            html += metricRow(svgDisk, 'Disco', `${d.disk_used_gb} / ${d.disk_total_gb} GB`, d.disk_percent);
+        }
+
+        html += `
+        <div class="sysinfo-widget-divider"></div>
+        <div class="sysinfo-widget-uptime-row">
+            <span class="sysinfo-widget-uptime-label">${svgUp}Uptime</span>
+            <span class="sysinfo-widget-uptime-value">${escapeHtml(d.uptime)}</span>
+        </div>`;
+
+        rows.innerHTML = html;
+
+    } catch(e) {
+        const rows = document.getElementById('sysinfoRows');
+        if (rows) rows.style.display = 'none';
+    }
+}
 // -----------------------------------------------
 // MODAL SERVICIOS / GRUPOS
 // -----------------------------------------------
