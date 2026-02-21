@@ -1,13 +1,14 @@
-
 // -----------------------------------------------
-// CLOCK
+// CLOCK — compatible con tarjeta unificada reloj+clima
 // -----------------------------------------------
 let selectedTimezone = localStorage.getItem('selectedTimezone') || 'auto';
 let timeFormat = localStorage.getItem('timeFormat') || '24';
 
 function toggleClockSettings() {
     const p = document.getElementById('clockSettingsPanel');
-    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+    if (!p) return;
+    const open = p.style.display === 'none' || p.style.display === '';
+    p.style.display = open ? 'block' : 'none';
 }
 
 function updateClock() {
@@ -24,18 +25,21 @@ function updateClock() {
         hour12: use12
     });
 
+    const el = document.getElementById('clockTime');
+    if (!el) return;
+
     if (use12) {
         const m = timeStr.match(/(a\.\s?m\.|p\.\s?m\.|AM|PM)/i);
         if (m) {
             const ampm = m[0].toLowerCase().includes('a') ? 'AM' : 'PM';
-            document.getElementById('clockTime').innerHTML =
+            el.innerHTML =
                 timeStr.replace(m[0], '').trim() +
                 '<span class="clock-ampm">' + ampm + '</span>';
         } else {
-            document.getElementById('clockTime').textContent = timeStr;
+            el.textContent = timeStr;
         }
     } else {
-        document.getElementById('clockTime').textContent = timeStr;
+        el.textContent = timeStr;
     }
 
     const ds = now.toLocaleDateString('es-ES', {
@@ -45,8 +49,11 @@ function updateClock() {
         month: 'long',
         day: 'numeric'
     });
-    document.getElementById('clockDate').textContent = ds.charAt(0).toUpperCase() + ds.slice(1);
-    document.getElementById('clockTimezone').textContent =
+    const dateEl = document.getElementById('clockDate');
+    if (dateEl) dateEl.textContent = ds.charAt(0).toUpperCase() + ds.slice(1);
+
+    const tzEl = document.getElementById('clockTimezone');
+    if (tzEl) tzEl.textContent =
         tz === Intl.DateTimeFormat().resolvedOptions().timeZone
             ? tz + ' (Local)'
             : tz;
@@ -63,3 +70,21 @@ function changeTimeFormat() {
     localStorage.setItem('timeFormat', timeFormat);
     updateClock();
 }
+
+// Sincronizar selects con valores guardados al cargar
+document.addEventListener('DOMContentLoaded', () => {
+    const tzSel = document.getElementById('timezoneSelect');
+    const fmtSel = document.getElementById('timeFormatSelect');
+
+    if (tzSel) {
+        tzSel.value = selectedTimezone;
+        tzSel.addEventListener('change', changeTimezone);
+    }
+    if (fmtSel) {
+        fmtSel.value = timeFormat;
+        fmtSel.addEventListener('change', changeTimeFormat);
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+});
