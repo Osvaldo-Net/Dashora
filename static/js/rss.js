@@ -1,4 +1,3 @@
-
 // -----------------------------------------------
 // RSS FEEDS
 // -----------------------------------------------
@@ -11,18 +10,26 @@ async function loadRSSFeeds() {
         const r = await fetch('/api/rss');
         rssFeeds = await r.json() || [];
         renderRSSFeeds();
-        for (const feed of rssFeeds) {
-            let items = [];
-            try { items = JSON.parse(feed.cached_items || '[]'); } catch {}
-            if (items.length === 0) await fetchRSSContent(feed.id, true);
-        }
+
+        // Cargar feeds sin caché en paralelo (antes: en serie con await)
+        const feedsWithoutCache = rssFeeds.filter(feed => {
+            try { return JSON.parse(feed.cached_items || '[]').length === 0; } catch { return true; }
+        });
+        await Promise.all(feedsWithoutCache.map(feed => fetchRSSContent(feed.id, true)));
+
         rssFeeds.forEach(feed => startRSSRefresh(feed.id));
     } catch(e) { console.error(e); renderRSSFeeds(); }
 }
 
 function startRSSRefresh(feedId) {
     if (rssRefreshIntervals.has(feedId)) clearInterval(rssRefreshIntervals.get(feedId));
-    const interval = setInterval(() => fetchRSSContent(feedId, true), 5 * 60 * 1000);
+    // 15 minutos en vez de 5 — los feeds RSS no cambian tan rápido
+    const interval = setInterval(() => {
+        // Solo refrescar si la pestaña RSS está activa y la página es visible
+        if (document.visibilityState === 'visible' && document.getElementById('page-rss')?.classList.contains('active')) {
+            fetchRSSContent(feedId, true);
+        }
+    }, 15 * 60 * 1000);
     rssRefreshIntervals.set(feedId, interval);
 }
 
