@@ -13,14 +13,21 @@ async function loadIntegrations() {
         const r = await fetch('/api/integrations');
         integrations = await r.json() || [];
         renderIntegrations();
-        for (const it of integrations) await syncIntegrationData(it.id, true);
+        // Sync inicial en paralelo (antes: en serie con for...of await)
+        await Promise.all(integrations.map(it => syncIntegrationData(it.id, true)));
         integrations.forEach(it => startIntegrationSync(it.id));
     } catch(e) { console.error('loadIntegrations error:', e); renderIntegrations(); }
 }
 
 function startIntegrationSync(id) {
     if (integrationSyncIntervals.has(id)) clearInterval(integrationSyncIntervals.get(id));
-    const interval = setInterval(() => syncIntegrationData(id, true), 60 * 1000);
+    const interval = setInterval(() => {
+        // Solo sincronizar si la página es visible y la pestaña de integraciones está activa
+        if (document.visibilityState === 'visible' &&
+            document.getElementById('page-integraciones')?.classList.contains('active')) {
+            syncIntegrationData(id, true);
+        }
+    }, 60 * 1000);
     integrationSyncIntervals.set(id, interval);
 }
 
@@ -42,7 +49,6 @@ function buildCollapsibleSection(id, summaryHTML, detailHTML, startCollapsed = t
     wrapper.className = 'int-collapsible' + (startCollapsed ? ' collapsed' : '');
     wrapper.id = 'collapsible-' + id;
 
-    // Summary (siempre visible)
     const summary = document.createElement('div');
     summary.className = 'int-collapsible-summary';
     summary.innerHTML = summaryHTML +
@@ -52,7 +58,6 @@ function buildCollapsibleSection(id, summaryHTML, detailHTML, startCollapsed = t
         </button>`;
     wrapper.appendChild(summary);
 
-    // Detail (colapsable)
     const detail = document.createElement('div');
     detail.className = 'int-collapsible-detail';
     detail.innerHTML = detailHTML;
@@ -159,7 +164,6 @@ function renderUptimeKumaMonitors(container, data, integrationId) {
     const statusClass = downCount > 0 ? 'down' : 'up';
     const statusLabel = downCount > 0 ? downCount + ' caído' + (downCount > 1 ? 's' : '') : 'Todo operativo';
 
-    // --- Resumen (siempre visible) ---
     const summaryDiv = document.createElement('div');
     summaryDiv.className = 'uk-summary';
     summaryDiv.innerHTML =
@@ -170,7 +174,6 @@ function renderUptimeKumaMonitors(container, data, integrationId) {
         '</div>';
     container.appendChild(summaryDiv);
 
-    // --- Detalle colapsable ---
     const detailId = 'uk-detail-' + (integrationId || Date.now());
     const detailWrapper = document.createElement('div');
     detailWrapper.className = 'int-collapsible collapsed';
@@ -250,7 +253,6 @@ function renderUptimeKumaMonitors(container, data, integrationId) {
 function renderAdguardCard(container, stats, integrationId) {
     container.innerHTML = '';
 
-    // --- Resumen siempre visible ---
     const statsRow = document.createElement('div'); statsRow.className = 'ag-stats-row';
     statsRow.innerHTML =
         '<div class="ag-stat"><div class="ag-stat-value">' + (stats.total_queries||0).toLocaleString() + '</div><div class="ag-stat-label">Consultas totales</div></div>' +
@@ -259,7 +261,6 @@ function renderAdguardCard(container, stats, integrationId) {
         '<div class="ag-stat"><div class="ag-stat-value">' + (stats.response_time_ms||0) + ' ms</div><div class="ag-stat-label">Latencia avg</div></div>';
     container.appendChild(statsRow);
 
-    // --- Detalle colapsable (gráfico + top dominios) ---
     const detailId = 'ag-detail-' + (integrationId || Date.now());
     const detailWrapper = document.createElement('div');
     detailWrapper.className = 'int-collapsible collapsed';
@@ -342,7 +343,6 @@ function renderSyncthingCard(container, stats, integrationId) {
     else if (anySyncing)                     { overallClass = 'syncing'; overallLabel = 'Sincronizando...'; overallIcon = '🔄'; }
     else if (!allSynced && reachable.length > 0) { overallClass = 'syncing'; overallLabel = 'Pendiente'; overallIcon = '⏳'; }
 
-    // --- Resumen siempre visible ---
     const header    = document.createElement('div'); header.className = 'st-header';
     const leftGroup = document.createElement('div'); leftGroup.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
 
@@ -367,7 +367,6 @@ function renderSyncthingCard(container, stats, integrationId) {
         container.appendChild(empty); return;
     }
 
-    // --- Detalle colapsable (carpetas) ---
     const detailId = 'st-detail-' + (integrationId || Date.now());
     const detailWrapper = document.createElement('div');
     detailWrapper.className = 'int-collapsible collapsed';
