@@ -1,0 +1,27 @@
+/* -----------------------------------------------
+   2. LAYOUT BASE & SCROLLBAR
+   ----------------------------------------------- */
+body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-primary);min-height:100vh;padding:28px 24px;transition:background var(--transition),color var(--transition);color:var(--text-primary);-webkit-font-smoothing:antialiased;letter-spacing:-.01em;}
+body.sidebar-open{padding-right:calc(var(--sidebar-width) + 48px);}
+.container{max-width:1320px;margin:0 auto;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--bg-secondary);border-radius:10px;}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:10px;border:2px solid var(--bg-secondary);}
+::-webkit-scrollbar-thumb:hover{background:var(--accent-light);}
+*{scrollbar-width:thin;scrollbar-color:var(--accent) var(--bg-secondary);}
+
+/* -----------------------------------------------
+   5. HAMBURGER TOGGLE
+   ----------------------------------------------- */
+.sidebar-toggle{position:fixed;top:28px;right:28px;width:44px;height:44px;border-radius:12px;background:var(--bg-card);border:1.5px solid var(--border-color);cursor:pointer;display:none;align-items:center;justify-content:center;transition:all var(--transition);z-index:200;box-shadow:var(--shadow-md);}
+.sidebar-toggle:hover{border-color:var(--accent);background:var(--accent-dim);}
+.bars{display:flex;flex-direction:column;gap:4px;}
+.bar{display:block;width:20px;height:2px;background:var(--text-secondary);border-radius:2px;transition:all .25s ease;transform-origin:center;}
+.sidebar-toggle.open .bar:nth-child(1){transform:translateY(6px) rotate(45deg);background:var(--accent);}
+.sidebar-toggle.open .bar:nth-child(2){opacity:0;transform:scaleX(0);}
+.sidebar-toggle.open .bar:nth-child(3){transform:translateY(-6px) rotate(-45deg);background:var(--accent);}
+
+/* -----------------------------------------------
+   16. BOTTOM NAV (base — se activa en responsive.css)
+   ----------------------------------------------- */
+.bottom-nav{display:none;}

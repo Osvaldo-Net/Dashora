@@ -1,0 +1,49 @@
+/* -----------------------------------------------
+   19. CLOCK + WEATHER UNIFIED CARD
+   ----------------------------------------------- */
+.clock-weather-card{background:var(--bg-card);border-radius:16px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm);padding:18px 20px 16px;overflow:hidden;}
+
+.cw-top-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;}
+.cw-time-block{flex:1;min-width:0;}
+
+.clock-weather-card .clock-time{font-family:'Space Mono',monospace;font-size:2.8rem;font-weight:700;color:var(--text-primary);line-height:1;margin-bottom:5px;letter-spacing:-.02em;}
+.clock-weather-card .clock-date{font-size:.82rem;color:var(--text-secondary);font-weight:500;margin-bottom:2px;}
+.clock-weather-card .clock-timezone{font-size:.72rem;color:var(--text-secondary);opacity:.6;}
+
+.cw-top-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;padding-top:2px;}
+
+.cw-icon-btn{background:var(--bg-secondary);border:1px solid var(--border-color);width:30px;height:30px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition);padding:0;color:var(--text-secondary);}
+.cw-icon-btn svg{fill:currentColor;}
+.cw-icon-btn:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.cw-icon-btn.refresh-btn:hover{transform:rotate(90deg);}
+.cw-icon-btn.settings-btn:hover{transform:rotate(45deg);}
+
+.cw-divider{height:1px;background:var(--border-color);margin:0 0 14px;opacity:.5;}
+
+.cw-weather-row{display:flex;align-items:center;gap:10px;min-height:40px;}
+
+.cw-weather-compact{display:flex;align-items:flex-start;gap:12px;width:100%;min-width:0;}
+.cw-weather-icon{font-size:2.2rem;line-height:1;flex-shrink:0;padding-top:2px;}
+.cw-weather-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}
+.cw-weather-temp{font-size:1.4rem;font-weight:700;color:var(--text-primary);line-height:1;}
+.cw-weather-desc{font-size:.78rem;color:var(--text-secondary);text-transform:capitalize;line-height:1.2;}
+
+.cw-weather-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:1px;}
+.cw-weather-meta-item{font-size:.68rem;color:var(--text-secondary);opacity:.7;white-space:nowrap;display:flex;align-items:center;gap:2px;}
+.cw-weather-meta-sep{font-size:.6rem;color:var(--text-secondary);opacity:.3;}
+
+/* legacy — unused but keep for safety */
+.cw-weather-loc{display:none;}
+.cw-weather-extra{display:none;}
+.cw-weather-extra-item{display:none;}
+
+/* Settings panel overrides inside unified card */
+.clock-weather-card .clock-settings-panel{margin-top:0;padding-top:0;border-top:none;animation:slideDown .3s ease;}
+.clock-weather-card .clock-setting-item{margin-bottom:10px;}
+.clock-weather-card .clock-setting-item:last-child{margin-bottom:0;}
+.clock-weather-card .clock-setting-item label{font-size:.72rem;color:var(--text-secondary);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.clock-weather-card .clock-setting-item select{font-size:.82rem;padding:7px 10px;}
+
+/* Background image variant */
+body.has-background .clock-weather-card{background:rgba(255,255,255,.22)!important;border:1px solid rgba(255,255,255,.30);box-shadow:0 4px 16px rgba(0,0,0,.12);}
+[data-theme="dark"] body.has-background .clock-weather-card{background:rgba(0,0,0,.35)!important;border:1px solid rgba(255,255,255,.08);}

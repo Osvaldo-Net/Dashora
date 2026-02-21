@@ -1,0 +1,71 @@
+/* -----------------------------------------------
+   15. BACKGROUND IMAGE OVERLAY
+   ----------------------------------------------- */
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;background-repeat:no-repeat;opacity:.5;z-index:-1;pointer-events:none;transition:opacity .3s ease;}
+body.has-background::before{background-image:var(--background-image);}
+
+body.has-background .service-card,
+body.has-background header,
+body.has-background .group-header,
+body.has-background .clock-display,
+body.has-background .calendar-container,
+body.has-background .weather-container,
+body.has-background .background-settings-container,
+body.has-background .rss-feed-card,
+body.has-background .integration-card{background:rgba(255,255,255,.22)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:1px solid rgba(255,255,255,.30);box-shadow:0 4px 16px rgba(0,0,0,.12);}
+
+[data-theme="dark"] body.has-background .service-card,
+[data-theme="dark"] body.has-background header,
+[data-theme="dark"] body.has-background .group-header,
+[data-theme="dark"] body.has-background .clock-display,
+[data-theme="dark"] body.has-background .calendar-container,
+[data-theme="dark"] body.has-background .weather-container,
+[data-theme="dark"] body.has-background .background-settings-container,
+[data-theme="dark"] body.has-background .rss-feed-card,
+[data-theme="dark"] body.has-background .integration-card{background:rgba(0,0,0,.35)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 16px rgba(0,0,0,.35);}
+
+body.has-background .service-icon,
+body.has-background .weather-main,
+body.has-background .weather-detail-item,
+body.has-background .search-input,
+body.has-background .rss-item,
+body.has-background .uk-summary,
+body.has-background .uk-monitor,
+body.has-background .ag-stat,
+body.has-background .ag-chart,
+body.has-background .st-header,
+body.has-background .st-folder{background:rgba(255,255,255,.15)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+
+[data-theme="dark"] body.has-background .service-icon,
+[data-theme="dark"] body.has-background .weather-main,
+[data-theme="dark"] body.has-background .weather-detail-item,
+[data-theme="dark"] body.has-background .search-input,
+[data-theme="dark"] body.has-background .rss-item,
+[data-theme="dark"] body.has-background .uk-summary,
+[data-theme="dark"] body.has-background .uk-monitor,
+[data-theme="dark"] body.has-background .ag-stat,
+[data-theme="dark"] body.has-background .ag-chart,
+[data-theme="dark"] body.has-background .st-header,
+[data-theme="dark"] body.has-background .st-folder{background:rgba(0,0,0,.25)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+
+body.has-background .bookmark-item{background:rgba(255,255,255,.22)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:1px solid rgba(255,255,255,.30);}
+[data-theme="dark"] body.has-background .bookmark-item{background:rgba(0,0,0,.30)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:1px solid rgba(255,255,255,.08);}
+
+body.has-background .service-title,
+body.has-background .service-url,
+body.has-background h1,
+body.has-background .subtitle,
+body.has-background .group-title,
+body.has-background .clock-time,
+body.has-background .clock-date{text-shadow:0 1px 4px rgba(0,0,0,.25);}
+
+body.has-background .service-card:hover{background:rgba(255,255,255,.32)!important;transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,.18);}
+[data-theme="dark"] body.has-background .service-card:hover{background:rgba(0,0,0,.45)!important;}
+
+body.has-background .header-btn,
+body.has-background .theme-toggle{background:rgba(255,255,255,.18)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+[data-theme="dark"] body.has-background .header-btn,
+[data-theme="dark"] body.has-background .theme-toggle{background:rgba(0,0,0,.30)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+
+body.has-background .card-btn{background:rgba(255,255,255,.90)!important;}
+[data-theme="dark"] body.has-background .card-btn{background:rgba(0,0,0,.75)!important;}

@@ -1,0 +1,41 @@
+/* ===============================================
+   DASHORA — main.css
+   Punto de entrada — importa todos los módulos
+   =============================================== */
+
+/* Fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+/* ── Core ── */
+@import './variables.css';
+@import './layout.css';
+
+/* ── Sidebar ── */
+@import './sidebar.css';
+
+/* ── Navegación ── */
+@import './navigation.css';
+
+/* ── Header & búsqueda ── */
+@import './header.css';
+
+/* ── Contenido principal ── */
+@import './cards.css';
+@import './bookmarks.css';
+@import './rss.css';
+@import './integrations.css';
+
+/* ── UI general ── */
+@import './modals.css';
+@import './misc.css';
+
+/* ── Fondo personalizado ── */
+@import './background.css';
+
+/* ── Widgets sidebar ── */
+@import './clock-weather.css';
+@import './sysinfo.css';
+
+/* ── Utilidades ── */
+@import './animations.css';
+@import './responsive.css';   /* siempre al final */

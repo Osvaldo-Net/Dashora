@@ -1,0 +1,38 @@
+/* -----------------------------------------------
+   9. GROUPS & SERVICE CARDS
+   ----------------------------------------------- */
+.group-section{margin-bottom:48px;}
+.group-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding:14px 20px;background:var(--group-header-bg);border-radius:12px;border:1px solid var(--border-color);gap:8px;flex-wrap:wrap;}
+.group-title{font-size:.8rem;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:9px;letter-spacing:.02em;text-transform:uppercase;}
+.group-title svg{fill:var(--accent);opacity:.8;}
+.group-count{background:var(--accent-dim);color:var(--accent);font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:20px;}
+.group-actions{display:flex;gap:8px;align-items:center;}
+.group-action-btn{background:transparent;border:1.5px solid var(--border-color);padding:6px 13px;border-radius:8px;cursor:pointer;transition:all var(--transition);font-size:.78rem;color:var(--text-secondary);font-weight:500;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;gap:5px;}
+.group-action-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+.group-action-btn.danger:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-dim);}
+.group-action-btn svg{width:14px;height:14px;fill:currentColor;}
+.group-collapse-btn{background:transparent;border:1.5px solid var(--border-color);width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition);}
+.group-collapse-btn:hover{background:var(--accent-dim);border-color:var(--accent);}
+.group-collapse-btn svg{width:16px;height:16px;fill:var(--text-secondary);transition:all var(--transition);}
+.group-collapse-btn:hover svg{fill:var(--accent);}
+.group-collapse-btn.collapsed svg{transform:rotate(-90deg);}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;min-height:60px;transition:all var(--transition);}
+.services-grid.collapsed{display:none;}
+.services-grid.drag-over{background:var(--accent-dim);border:2px dashed var(--accent);border-radius:12px;padding:8px;}
+.service-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:18px 16px 16px;text-align:center;cursor:pointer;position:relative;box-shadow:var(--shadow-sm);overflow:hidden;will-change:transform;transition:transform var(--transition),box-shadow var(--transition),border-color var(--transition);}
+.service-card.dragging{opacity:.5;transform:rotate(2deg);cursor:grabbing;}
+.service-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);transform:scaleX(0);transition:transform var(--transition);border-radius:16px 16px 0 0;}
+.service-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:transparent;}
+.service-card:hover::before{transform:scaleX(1);}
+.service-card[draggable="true"]{cursor:grabbing;}
+.service-icon{width:52px;height:52px;border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary);padding:8px;border:1px solid var(--border-color);overflow:hidden;pointer-events:none;}
+.service-icon img{width:100%;height:100%;object-fit:contain;display:block;}
+.icon-fallback{width:36px;height:36px;fill:var(--text-secondary);}
+.service-title{font-size:.875rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;letter-spacing:-.01em;pointer-events:none;}
+.service-url{font-size:.72rem;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;}
+.card-actions{position:absolute;top:10px;right:10px;display:flex;gap:4px;opacity:0;transition:opacity var(--transition);z-index:10;}
+.service-card:hover .card-actions{opacity:1;}
+.card-btn{background:var(--bg-card);border:1.5px solid var(--border-color);color:var(--text-secondary);width:32px;height:32px;border-radius:8px;cursor:pointer;transition:all var(--transition);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);}
+.card-btn svg{width:16px;height:16px;fill:currentColor;}
+.card-btn.edit:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.card-btn.delete:hover{background:var(--danger-dim);border-color:var(--danger);color:var(--danger);}

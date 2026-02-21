@@ -1,0 +1,39 @@
+/* -----------------------------------------------
+   20. SYSINFO WIDGET (sidebar, sin tarjeta)
+   ----------------------------------------------- */
+.sysinfo-widget-section{padding:0 4px 0;margin-bottom:28px;}
+
+.sysinfo-widget-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 2px;}
+
+.sysinfo-widget-label{display:flex;align-items:center;gap:6px;font-size:.67rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--text-secondary);opacity:.65;}
+.sysinfo-widget-label svg{fill:var(--accent);opacity:.9;flex-shrink:0;}
+
+.sysinfo-live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:sysLivePulse 2.4s ease-in-out infinite;}
+
+.sysinfo-widget-rows{display:flex;flex-direction:column;gap:11px;}
+
+.sysinfo-widget-row{display:flex;flex-direction:column;gap:5px;}
+.sysinfo-widget-row-top{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.sysinfo-widget-row-label{display:flex;align-items:center;gap:5px;font-size:.775rem;font-weight:500;color:var(--text-secondary);white-space:nowrap;}
+.sysinfo-widget-row-label svg{fill:var(--text-secondary);opacity:.55;flex-shrink:0;}
+.sysinfo-widget-row-right{display:flex;align-items:center;gap:6px;}
+.sysinfo-widget-row-value{font-size:.72rem;color:var(--text-secondary);font-family:'Space Mono',monospace;opacity:.75;white-space:nowrap;}
+
+.sysinfo-pct-badge{font-size:.67rem;font-weight:700;font-family:'Space Mono',monospace;padding:1px 6px;border-radius:5px;white-space:nowrap;flex-shrink:0;}
+.sysinfo-pct-badge.ok{color:var(--accent);background:var(--accent-dim);}
+.sysinfo-pct-badge.warn{color:#d97706;background:rgba(245,158,11,.11);}
+.sysinfo-pct-badge.danger{color:#dc2626;background:rgba(220,38,38,.10);}
+[data-theme="dark"] .sysinfo-pct-badge.warn{color:#fbbf24;}
+[data-theme="dark"] .sysinfo-pct-badge.danger{color:#f87171;}
+
+.sysinfo-widget-track{height:3px;background:var(--border-color);border-radius:99px;overflow:hidden;}
+.sysinfo-widget-fill{height:100%;border-radius:99px;background:var(--accent);transition:width .65s cubic-bezier(.4,0,.2,1);}
+.sysinfo-widget-fill.warn{background:#d97706;}
+.sysinfo-widget-fill.danger{background:#dc2626;}
+
+.sysinfo-widget-divider{height:1px;background:var(--border-color);margin:4px 0 2px;opacity:.4;}
+
+.sysinfo-widget-uptime-row{display:flex;align-items:center;justify-content:space-between;padding-top:2px;}
+.sysinfo-widget-uptime-label{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--text-secondary);opacity:.6;}
+.sysinfo-widget-uptime-label svg{fill:var(--text-secondary);opacity:.5;}
+.sysinfo-widget-uptime-value{font-size:.75rem;font-weight:700;font-family:'Space Mono',monospace;color:var(--text-primary);opacity:.8;}

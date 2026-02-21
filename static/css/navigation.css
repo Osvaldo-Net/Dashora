@@ -1,0 +1,15 @@
+/* -----------------------------------------------
+   6. PAGE TABS NAV
+   ----------------------------------------------- */
+.page-tabs-nav{display:flex;align-items:flex-end;gap:0;padding:0 0 0 4px;margin-bottom:20px;border-bottom:2px solid var(--border-color);}
+.page-tab{position:relative;padding:10px 22px;background:transparent;border:none;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:color var(--transition);white-space:nowrap;outline:none;bottom:-2px;letter-spacing:-.01em;}
+.page-tab::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent);border-radius:2px 2px 0 0;transform:scaleX(0);transition:transform var(--transition);}
+.page-tab:hover{color:var(--text-primary);}
+.page-tab.active{color:var(--text-primary);font-weight:600;}
+.page-tab.active::after{transform:scaleX(1);}
+
+/* -----------------------------------------------
+   7. PAGE PANELS
+   ----------------------------------------------- */
+.page-panel{display:none;animation:fadeInPage .22s ease;}
+.page-panel.active{display:block;}

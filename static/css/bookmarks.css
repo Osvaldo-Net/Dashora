@@ -1,0 +1,25 @@
+/* -----------------------------------------------
+   10. BOOKMARKS
+   ----------------------------------------------- */
+.bm-group-section{margin-bottom:32px;}
+.bookmarks-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px;transition:all var(--transition);}
+.bookmarks-list.collapsed{display:none;}
+.bookmark-item{display:flex;align-items:center;gap:14px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all var(--transition);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;will-change:transform;}
+.bookmark-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);border-radius:14px 0 0 14px;transform:scaleY(0);transition:transform var(--transition);}
+.bookmark-item:hover{transform:translateX(4px);box-shadow:var(--shadow-md);border-color:var(--accent);}
+.bookmark-item:hover::before{transform:scaleY(1);}
+.bookmark-favicon{width:36px;height:36px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border-color);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.bookmark-favicon img{width:20px;height:20px;object-fit:contain;}
+.bookmark-favicon svg{width:18px;height:18px;fill:var(--text-secondary);}
+.bookmark-info{flex:1;min-width:0;}
+.bookmark-name{font-size:.92rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bookmark-url{font-size:.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.bookmark-actions{display:flex;gap:6px;opacity:0;transition:opacity var(--transition);flex-shrink:0;}
+.bookmark-item:hover .bookmark-actions{opacity:1;}
+.bookmark-btn{background:var(--bg-secondary);border:1.5px solid var(--border-color);width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition);color:var(--text-secondary);}
+.bookmark-btn svg{width:15px;height:15px;fill:currentColor;}
+.bookmark-btn.edit:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.bookmark-btn.delete:hover{background:var(--danger-dim);border-color:var(--danger);color:var(--danger);}
+.bm-favicon-preview{display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border-color);}
+.bm-favicon-preview-box{width:36px;height:36px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-color);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.bm-favicon-preview-box img{width:20px;height:20px;object-fit:contain;}
